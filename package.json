@@ -1,0 +1,15 @@
+{
+  "name": "accounting-daily-journal",
+  "version": "1.0.0",
+  "description": "برنامج نديم للحسابات - دفتر اليومية وإدارة الحسابات",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "keywords": ["accounting", "journal", "daily-sheet"],
+  "author": "Nadeem",
+  "license": "MIT"
+}
