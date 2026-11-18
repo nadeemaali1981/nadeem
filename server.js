@@ -299,22 +299,44 @@ const server = http.createServer(async (req, res) => {
     // Static File Serving
     let safePath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
     if (safePath === '/' || safePath === '\\') safePath = '/index.html';
-    const filePath = path.join(PUBLIC_DIR, safePath);
 
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-      const ext = path.extname(filePath).toLowerCase();
+    const baseName = path.basename(safePath);
+    const candidatePaths = [
+      path.join(PUBLIC_DIR, safePath),
+      path.join(__dirname, safePath),
+      path.join(PUBLIC_DIR, baseName),
+      path.join(__dirname, baseName),
+      path.join(__dirname, 'css', baseName),
+      path.join(__dirname, 'js', baseName)
+    ];
+
+    let foundFile = null;
+    for (const p of candidatePaths) {
+      if (fs.existsSync(p) && fs.statSync(p).isFile()) {
+        foundFile = p;
+        break;
+      }
+    }
+
+    if (foundFile) {
+      const ext = path.extname(foundFile).toLowerCase();
       const contentType = MIME_TYPES[ext] || 'application/octet-stream';
       res.writeHead(200, { 'Content-Type': contentType });
-      fs.createReadStream(filePath).pipe(res);
+      fs.createReadStream(foundFile).pipe(res);
       return;
     }
 
     // Fallback to index.html for SPA
-    const indexPath = path.join(PUBLIC_DIR, 'index.html');
-    if (fs.existsSync(indexPath)) {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      fs.createReadStream(indexPath).pipe(res);
-      return;
+    const fallbackPaths = [
+      path.join(PUBLIC_DIR, 'index.html'),
+      path.join(__dirname, 'index.html')
+    ];
+    for (const p of fallbackPaths) {
+      if (fs.existsSync(p)) {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        fs.createReadStream(p).pipe(res);
+        return;
+      }
     }
 
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
