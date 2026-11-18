@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
@@ -291,37 +291,31 @@
             </div>
             <div class="sales-box">
               <div class="sales-row-item">
-                <label>💵 نقدي</label>
                 <label id="label_sales_cash">💵 صندوق</label>
                 <input type="text" inputmode="decimal" id="input_sales_cash" data-field="cash"
                   class="sales-input sales-binding" placeholder="0:00">
               </div>
               <div class="sales-row-item">
-                <label>🛵 توصيل</label>
                 <label id="label_sales_delivery">🛵 توصيل</label>
                 <input type="text" inputmode="decimal" id="input_sales_delivery" data-field="delivery"
                   class="sales-input sales-binding" placeholder="0:00">
               </div>
               <div class="sales-row-item">
-                <label>💳 فيزا</label>
                 <label id="label_sales_visa">💳 فيزا / NETWORK</label>
                 <input type="text" inputmode="decimal" id="input_sales_visa" data-field="visa"
                   class="sales-input sales-binding" placeholder="0:00">
               </div>
               <div class="sales-row-item">
-                <label>🏦 الاتحاد</label>
                 <label id="label_sales_ittihad">🏦 فيزا / الاتحاد</label>
                 <input type="text" inputmode="decimal" id="input_sales_ittihad" data-field="ittihad"
                   class="sales-input sales-binding" placeholder="0:00">
               </div>
               <div class="sales-row-item">
-                <label>📱 الاتحاد QR</label>
                 <label id="label_sales_ittihad_qr">📱 الاتحاد / QR</label>
                 <input type="text" inputmode="decimal" id="input_sales_ittihad_qr" data-field="ittihad_qr"
                   class="sales-input sales-binding" placeholder="0:00">
               </div>
               <div class="sales-row-item">
-                <label>⚡ كليك (CliQ)</label>
                 <label id="label_sales_cliq">⚡ كليك</label>
                 <input type="text" inputmode="decimal" id="input_sales_cliq" data-field="cliq"
                   class="sales-input sales-binding" placeholder="0:00">
@@ -335,8 +329,6 @@
 
               <!-- Items Count -->
               <div class="sales-row-item" style="background: #fdf2f8; border: 1px solid #fbcfe8;">
-                <label style="font-weight: 700; color: #be185d;">📦 عدد القطع المباعة <span
-                    style="color: #dc2626; font-size: 0.85rem;">* (إجباري)</span></label>
                 <label id="label_sales_items_count" style="font-weight: 700; color: #be185d;">📦 عدد القطع المباعة <span
                     style="color: #dc2626; font-size: 0.85rem;">* (إجباري)</span></label>
                 <input type="number" id="input_sales_items_count" data-field="sales_items_count"
@@ -715,12 +707,6 @@
             <label>اسم العمود / القناة:</label>
             <select id="salesFilterChannel" class="form-input" style="height:28px;" onchange="applySalesFilters()">
               <option value="all">كل العواميد (جميع القنوات)</option>
-              <option value="cash">صندوق</option>
-              <option value="delivery">توصيل</option>
-              <option value="visa">فيزا / NETWORK</option>
-              <option value="ittihad">فيزا / الاتحاد</option>
-              <option value="ittihad_qr">الاتحاد / QR</option>
-              <option value="cliq">كليك</option>
               <option value="cash" id="opt_sales_cash">صندوق</option>
               <option value="delivery" id="opt_sales_delivery">توصيل</option>
               <option value="visa" id="opt_sales_visa">فيزا / NETWORK</option>
@@ -763,32 +749,26 @@
           <span class="kpi-value" id="salesKpiDaysCount" style="color: #0284c7;">0</span>
         </div>
         <div class="kpi-card balance">
-          <span class="kpi-title">صندوق (نقدي)</span>
           <span class="kpi-title" id="kpiTitleCash">صندوق</span>
           <span class="kpi-value" id="salesKpiCash">0.00</span>
         </div>
         <div class="kpi-card advances">
-          <span class="kpi-title">توصيل</span>
           <span class="kpi-title" id="kpiTitleDelivery">توصيل</span>
           <span class="kpi-value" id="salesKpiDelivery">0.00</span>
         </div>
         <div class="kpi-card purchases">
-          <span class="kpi-title">فيزا / NETWORK</span>
           <span class="kpi-title" id="kpiTitleVisa">فيزا / NETWORK</span>
           <span class="kpi-value" id="salesKpiVisa">0.00</span>
         </div>
         <div class="kpi-card deposits">
-          <span class="kpi-title">فيزا / الاتحاد</span>
           <span class="kpi-title" id="kpiTitleIttihad">فيزا / الاتحاد</span>
           <span class="kpi-value" id="salesKpiIttihad">0.00</span>
         </div>
         <div class="kpi-card perfumes">
-          <span class="kpi-title">الاتحاد / QR</span>
           <span class="kpi-title" id="kpiTitleIttihadQr">الاتحاد / QR</span>
           <span class="kpi-value" id="salesKpiIttihadQr">0.00</span>
         </div>
         <div class="kpi-card total-safe">
-          <span class="kpi-title">كليك (CliQ)</span>
           <span class="kpi-title" id="kpiTitleCliq">كليك</span>
           <span class="kpi-value" id="salesKpiCliq">0.00</span>
         </div>
@@ -801,12 +781,6 @@
             <tr>
               <th style="width: 100px;">اليوم</th>
               <th style="width: 110px;">التاريخ</th>
-              <th style="width: 120px;">صندوق</th>
-              <th style="width: 120px;">توصيل</th>
-              <th style="width: 140px;">فيزا / NETWORK</th>
-              <th style="width: 140px;">فيزا / الاتحاد</th>
-              <th style="width: 140px;">الاتحاد / QR</th>
-              <th style="width: 120px;">كليك</th>
               <th id="th_sales_cash" style="width: 120px;">صندوق</th>
               <th id="th_sales_delivery" style="width: 120px;">توصيل</th>
               <th id="th_sales_visa" style="width: 140px;">فيزا / NETWORK</th>
@@ -1588,8 +1562,11 @@
               <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">رابط الإنترنت السحابي المباشر
                 (Cloudflare Tunnel):</label>
               <div style="display: flex; gap: 0.35rem; margin-top: 3px;">
-                <input type="text" id="settingTunnelUrl" class="form-input" value="https://tion-carries-swim-sometimes.trycloudflare.com" readonly style="direction: ltr; text-align: left; background: #f8fafc; font-size: 0.82rem;">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText('https://tion-carries-swim-sometimes.trycloudflare.com'); showToast('تم نسخ رابط السحابة')">نسخ</button>
+                <input type="text" id="settingTunnelUrl" class="form-input"
+                  value="https://nadeem-h8rz.onrender.com/" readonly
+                  style="direction: ltr; text-align: left; background: #f8fafc; font-size: 0.82rem;">
+                <button type="button" class="btn btn-secondary btn-sm"
+                  onclick="navigator.clipboard.writeText('https://nadeem-h8rz.onrender.com/'); showToast('تم نسخ الرابط السحابي الدائم')">نسخ</button>
               </div>
             </div>
           </div>
