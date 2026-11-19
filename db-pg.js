@@ -452,12 +452,24 @@ async function seedModuleData() {
 async function seedHistoricalSales() {
   try {
     const row = await get('SELECT COUNT(*) as count FROM daily_sheets');
-    if (row && parseInt(row.count, 10) >= 300) return;
+    if (row && parseInt(row.count, 10) >= 300) {
+      return { success: true, message: 'البيانات التاريخية موجودة بالفعل', count: parseInt(row.count, 10) };
+    }
 
-    const jsonPath = path.join(__dirname, 'historical_sales.json');
-    if (!fs.existsSync(jsonPath)) return;
+    let records = null;
+    try {
+      records = require('./historical_data.js');
+    } catch (e) {
+      const jsonPath = path.join(__dirname, 'historical_sales.json');
+      if (fs.existsSync(jsonPath)) {
+        records = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      }
+    }
 
-    const records = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+    if (!records || !records.length) {
+      return { success: false, message: 'ملف البيانات التاريخية غير موجود' };
+    }
+
     console.log(`⚡ [Supabase] Seeding ${records.length} historical daily sheets...`);
 
     await withTransaction(async (tx) => {
@@ -468,20 +480,33 @@ async function seedHistoricalSales() {
             sales_ittihad, sales_ittihad_qr, sales_cliq, sales_items_count,
             deposit_personal, deposit_business, deposit_personal_date, deposit_business_date,
             notes, perfume_desc, perfume_debit, perfume_credit
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, '', '', '', '', 0, 0)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, '', '', '', '', 0, 0)
           ON CONFLICT (sheet_date) DO UPDATE SET
             sales_cash = EXCLUDED.sales_cash,
             sales_delivery = EXCLUDED.sales_delivery,
             sales_visa = EXCLUDED.sales_visa,
             sales_ittihad = EXCLUDED.sales_ittihad,
             sales_ittihad_qr = EXCLUDED.sales_ittihad_qr,
-            sales_cliq = EXCLUDED.sales_cliq
-        `, [r.sheet_date, r.day_name, r.sales_cash, r.sales_delivery, r.sales_visa, r.sales_ittihad, r.sales_ittihad_qr, r.sales_cliq]);
+            sales_cliq = EXCLUDED.sales_cliq,
+            sales_items_count = EXCLUDED.sales_items_count
+        `, [
+          r.sheet_date,
+          r.day_name,
+          r.sales_cash,
+          r.sales_delivery,
+          r.sales_visa,
+          r.sales_ittihad,
+          r.sales_ittihad_qr,
+          r.sales_cliq,
+          Number(r.sales_items_count || 0)
+        ]);
       }
     });
     console.log('✅ [Supabase] Historical sales seeded successfully into Cloud Database!');
+    return { success: true, count: records.length, message: 'تم إدخال كافة بيانات السنة بنجاح في Supabase!' };
   } catch (err) {
     console.warn('Warning seeding historical sales to Supabase:', err.message);
+    return { success: false, error: err.message };
   }
 }
 
@@ -1835,5 +1860,6 @@ module.exports = {
   getImportsList,
   createImport,
   deleteImport,
-  getProfitLossStatement
+  getProfitLossStatement,
+  seedHistoricalSales
 };
