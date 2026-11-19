@@ -331,6 +331,7 @@ async function initSchema() {
 
     await seedDefaultAccounts();
     await seedModuleData();
+    await seedHistoricalSales();
     schemaInitialized = true;
     console.log('✅ [Supabase PostgreSQL] All tables and schemas initialized successfully!');
   } catch (err) {
@@ -445,6 +446,42 @@ async function seedModuleData() {
       ('EMP-001', 'أحمد سامي', 'مسؤول مبيعات', '0781112233', 450, '2026-01-15', 'دوام كامل'),
       ('EMP-002', 'عمر خالد', 'كاشير ومبيعات', '0782223344', 400, '2026-03-01', 'دوام كامل')
     `);
+  }
+}
+
+async function seedHistoricalSales() {
+  try {
+    const row = await get('SELECT COUNT(*) as count FROM daily_sheets');
+    if (row && parseInt(row.count, 10) >= 300) return;
+
+    const jsonPath = path.join(__dirname, 'historical_sales.json');
+    if (!fs.existsSync(jsonPath)) return;
+
+    const records = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+    console.log(`⚡ [Supabase] Seeding ${records.length} historical daily sheets...`);
+
+    await withTransaction(async (tx) => {
+      for (const r of records) {
+        await tx.run(`
+          INSERT INTO daily_sheets (
+            sheet_date, day_name, sales_cash, sales_delivery, sales_visa,
+            sales_ittihad, sales_ittihad_qr, sales_cliq, sales_items_count,
+            deposit_personal, deposit_business, deposit_personal_date, deposit_business_date,
+            notes, perfume_desc, perfume_debit, perfume_credit
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, '', '', '', '', 0, 0)
+          ON CONFLICT (sheet_date) DO UPDATE SET
+            sales_cash = EXCLUDED.sales_cash,
+            sales_delivery = EXCLUDED.sales_delivery,
+            sales_visa = EXCLUDED.sales_visa,
+            sales_ittihad = EXCLUDED.sales_ittihad,
+            sales_ittihad_qr = EXCLUDED.sales_ittihad_qr,
+            sales_cliq = EXCLUDED.sales_cliq
+        `, [r.sheet_date, r.day_name, r.sales_cash, r.sales_delivery, r.sales_visa, r.sales_ittihad, r.sales_ittihad_qr, r.sales_cliq]);
+      }
+    });
+    console.log('✅ [Supabase] Historical sales seeded successfully into Cloud Database!');
+  } catch (err) {
+    console.warn('Warning seeding historical sales to Supabase:', err.message);
   }
 }
 
