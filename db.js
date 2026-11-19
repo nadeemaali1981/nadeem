@@ -34,9 +34,11 @@ if (process.env.SUPABASE_URL) {
 // ----------------------------------------------------
 // Cloud Database Strategy (Supabase / PostgreSQL)
 // ----------------------------------------------------
-const CLOUD_DB_URL = process.env.DATABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_DEFAULT_URL = 'postgresql://postgres:nadeemamjad5@db.jyrvqezhzimtaxgukmhj.supabase.co:5432/postgres';
+const CLOUD_DB_URL = process.env.DATABASE_URL || process.env.SUPABASE_URL || SUPABASE_DEFAULT_URL;
 if (CLOUD_DB_URL && (CLOUD_DB_URL.startsWith('postgres://') || CLOUD_DB_URL.startsWith('postgresql://'))) {
   try {
+    process.env.DATABASE_URL = process.env.DATABASE_URL || SUPABASE_DEFAULT_URL;
     console.log('⚡ [Database Strategy] Active: Supabase Cloud PostgreSQL');
     module.exports = require('./db-pg.js');
     return;

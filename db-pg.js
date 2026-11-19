@@ -37,7 +37,8 @@ if (process.env.SUPABASE_URL) {
   process.env.SUPABASE_URL = process.env.SUPABASE_URL.replace(/:\[([^\]]+)\]@/, ':$1@');
 }
 
-const DATABASE_URL = process.env.DATABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_DEFAULT_URL = 'postgresql://postgres:nadeemamjad5@db.jyrvqezhzimtaxgukmhj.supabase.co:5432/postgres';
+const DATABASE_URL = process.env.DATABASE_URL || process.env.SUPABASE_URL || SUPABASE_DEFAULT_URL;
 
 if (!DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is missing for PostgreSQL driver');
