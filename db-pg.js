@@ -29,16 +29,21 @@ try {
   }
 } catch (e) {}
 
-// Sanitize DATABASE_URL if password has brackets like [password]
-if (process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = process.env.DATABASE_URL.replace(/:\[([^\]]+)\]@/, ':$1@');
-}
-if (process.env.SUPABASE_URL) {
-  process.env.SUPABASE_URL = process.env.SUPABASE_URL.replace(/:\[([^\]]+)\]@/, ':$1@');
+// Sanitize DATABASE_URL if password has brackets or points to IPv6 direct connection
+function sanitizeDatabaseUrl(url) {
+  if (!url) return 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
+  let s = url.replace(/:\[([^\]]+)\]@/, ':$1@');
+  if (s.includes('[YOUR-DATABASE-PASSWORD]')) {
+    s = s.replace('[YOUR-DATABASE-PASSWORD]', 'nadeemamjad5');
+  }
+  if (s.includes('db.jyrvqezhzimtaxgukmhj.supabase.co') || s.includes(':5432')) {
+    s = 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
+  }
+  return s;
 }
 
 const SUPABASE_DEFAULT_URL = 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
-const DATABASE_URL = process.env.DATABASE_URL || process.env.SUPABASE_URL || SUPABASE_DEFAULT_URL;
+const DATABASE_URL = sanitizeDatabaseUrl(process.env.DATABASE_URL || process.env.SUPABASE_URL || SUPABASE_DEFAULT_URL);
 
 if (!DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is missing for PostgreSQL driver');
@@ -329,6 +334,16 @@ async function initSchema() {
       );
     `);
 
+    try {
+      await exec(`
+        ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS sales_items_count INTEGER DEFAULT 0;
+        ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS deposit_personal_date TEXT DEFAULT '';
+        ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS deposit_business_date TEXT DEFAULT '';
+      `);
+    } catch (migErr) {
+      console.warn('PostgreSQL column migration note:', migErr.message);
+    }
+
     await seedDefaultAccounts();
     await seedModuleData();
     await seedHistoricalSales();
@@ -452,8 +467,12 @@ async function seedModuleData() {
 async function seedHistoricalSales() {
   try {
     const row = await get('SELECT COUNT(*) as count FROM daily_sheets');
-    if (row && parseInt(row.count, 10) >= 300) {
-      return { success: true, message: 'البيانات التاريخية موجودة بالفعل', count: parseInt(row.count, 10) };
+    const itemsRow = await get('SELECT COALESCE(SUM(sales_items_count), 0) as total_items FROM daily_sheets');
+    const count = parseInt(row?.count || 0, 10);
+    const totalItems = parseInt(itemsRow?.total_items || 0, 10);
+
+    if (count >= 300 && totalItems > 10000) {
+      return { success: true, message: 'البيانات التاريخية موجودة ومحدثة بالكامل مع عدد القطع', count, totalItems };
     }
 
     let records = null;
@@ -1206,9 +1225,37 @@ async function getPriorUndepositedCash(sheetDate) {
   return Math.round(totalNetCashBefore * 100) / 100;
 }
 
+async function getCumulativeStats(sheetDate) {
+  await initSchema();
+  const row = await get(`
+    SELECT
+      COALESCE(SUM(sales_cash + sales_delivery + sales_visa + sales_ittihad + sales_ittihad_qr + sales_cliq), 0) as cum_sales,
+      COALESCE(SUM(sales_items_count), 0) as cum_items
+    FROM daily_sheets
+    WHERE sheet_date <= ?
+  `, [sheetDate]);
+
+  const yearRow = await get(`
+    SELECT
+      COALESCE(SUM(sales_cash + sales_delivery + sales_visa + sales_ittihad + sales_ittihad_qr + sales_cliq), 0) as year_sales,
+      COALESCE(SUM(sales_items_count), 0) as year_items
+    FROM daily_sheets
+  `);
+
+  return {
+    cum_sales: Math.round(Number(row?.cum_sales || 0) * 100) / 100,
+    cum_items: Number(row?.cum_items || 0),
+    year_sales: Math.round(Number(yearRow?.year_sales || 0) * 100) / 100,
+    year_items: Number(yearRow?.year_items || 0)
+  };
+}
+
 async function getDailySheet(sheetDate) {
   await initSchema();
   let sheet = await get('SELECT * FROM daily_sheets WHERE sheet_date = ?', [sheetDate]);
+  const priorUndeposited = await getPriorUndepositedCash(sheetDate);
+  const priorPerfume = await getPriorPerfumeSales(sheetDate);
+  const cumStats = await getCumulativeStats(sheetDate);
 
   if (!sheet) {
     const dateObj = new Date(sheetDate + 'T00:00:00');
@@ -1218,6 +1265,9 @@ async function getDailySheet(sheetDate) {
     return {
       sheet_date: sheetDate,
       day_name: dayName,
+      prior_undeposited_cash: priorUndeposited,
+      prior_perfume_sales: priorPerfume,
+      cum_stats: cumStats,
       sales_cash: 0,
       sales_delivery: 0,
       sales_visa: 0,
@@ -1286,6 +1336,9 @@ async function getDailySheet(sheetDate) {
 
   return {
     ...sheet,
+    prior_undeposited_cash: priorUndeposited,
+    prior_perfume_sales: priorPerfume,
+    cum_stats: cumStats,
     items: categorizedItems
   };
 }
@@ -1835,6 +1888,7 @@ module.exports = {
   getDailySheet,
   saveDailySheet,
   getDailySheetsHistory,
+  getCumulativeStats,
   getPriorUndepositedCash,
   getPriorPerfumeSales,
   clearAllDailySheets,

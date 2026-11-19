@@ -23,22 +23,34 @@ try {
   }
 } catch (e) {}
 
-// Sanitize DATABASE_URL if password has brackets like [password]
+// Sanitize DATABASE_URL if password has brackets or points to IPv6 direct connection
+function sanitizeDatabaseUrl(url) {
+  if (!url) return 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
+  let s = url.replace(/:\[([^\]]+)\]@/, ':$1@');
+  if (s.includes('[YOUR-DATABASE-PASSWORD]')) {
+    s = s.replace('[YOUR-DATABASE-PASSWORD]', 'nadeemamjad5');
+  }
+  if (s.includes('db.jyrvqezhzimtaxgukmhj.supabase.co') || s.includes(':5432')) {
+    s = 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
+  }
+  return s;
+}
+
 if (process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = process.env.DATABASE_URL.replace(/:\[([^\]]+)\]@/, ':$1@');
+  process.env.DATABASE_URL = sanitizeDatabaseUrl(process.env.DATABASE_URL);
 }
 if (process.env.SUPABASE_URL) {
-  process.env.SUPABASE_URL = process.env.SUPABASE_URL.replace(/:\[([^\]]+)\]@/, ':$1@');
+  process.env.SUPABASE_URL = sanitizeDatabaseUrl(process.env.SUPABASE_URL);
 }
 
 // ----------------------------------------------------
 // Cloud Database Strategy (Supabase / PostgreSQL Pooler IPv4)
 // ----------------------------------------------------
 const SUPABASE_DEFAULT_URL = 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
-const CLOUD_DB_URL = process.env.DATABASE_URL || process.env.SUPABASE_URL || SUPABASE_DEFAULT_URL;
+const CLOUD_DB_URL = sanitizeDatabaseUrl(process.env.DATABASE_URL || process.env.SUPABASE_URL || SUPABASE_DEFAULT_URL);
 if (CLOUD_DB_URL && (CLOUD_DB_URL.startsWith('postgres://') || CLOUD_DB_URL.startsWith('postgresql://'))) {
   try {
-    process.env.DATABASE_URL = process.env.DATABASE_URL || SUPABASE_DEFAULT_URL;
+    process.env.DATABASE_URL = CLOUD_DB_URL;
     console.log('⚡ [Database Strategy] Active: Supabase Cloud PostgreSQL');
     module.exports = require('./db-pg.js');
     return;
@@ -248,11 +260,82 @@ function initSchema() {
     );
   `);
 
+  try { db.exec("ALTER TABLE daily_sheets ADD COLUMN sales_items_count INTEGER DEFAULT 0;"); } catch (e) {}
   try { db.exec("ALTER TABLE daily_sheets ADD COLUMN deposit_personal_date TEXT DEFAULT '';"); } catch (e) {}
   try { db.exec("ALTER TABLE daily_sheets ADD COLUMN deposit_business_date TEXT DEFAULT '';"); } catch (e) {}
 
   seedDefaultAccounts();
   seedModuleData();
+  seedHistoricalSales();
+}
+
+function seedHistoricalSales() {
+  try {
+    const row = db.prepare('SELECT COUNT(*) as count FROM daily_sheets').get();
+    const itemsRow = db.prepare('SELECT COALESCE(SUM(sales_items_count), 0) as total_items FROM daily_sheets').get();
+    const count = parseInt(row?.count || 0, 10);
+    const totalItems = parseInt(itemsRow?.total_items || 0, 10);
+
+    if (count >= 300 && totalItems > 10000) {
+      return { success: true, message: 'البيانات التاريخية موجودة ومحدثة بالكامل', count, totalItems };
+    }
+
+    let records = null;
+    try {
+      records = require('./historical_data.js');
+    } catch (e) {
+      const jsonPath = path.join(__dirname, 'historical_sales.json');
+      if (fs.existsSync(jsonPath)) {
+        records = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      }
+    }
+
+    if (!records || !records.length) {
+      return { success: false, message: 'ملف البيانات التاريخية غير موجود' };
+    }
+
+    db.exec('BEGIN TRANSACTION;');
+    try {
+      const insertStmt = db.prepare(`
+        INSERT INTO daily_sheets (
+          sheet_date, day_name, sales_cash, sales_delivery, sales_visa,
+          sales_ittihad, sales_ittihad_qr, sales_cliq, sales_items_count,
+          deposit_personal, deposit_business, deposit_personal_date, deposit_business_date,
+          notes, perfume_desc, perfume_debit, perfume_credit
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, '', '', '', '', 0, 0)
+        ON CONFLICT(sheet_date) DO UPDATE SET
+          sales_cash = excluded.sales_cash,
+          sales_delivery = excluded.sales_delivery,
+          sales_visa = excluded.sales_visa,
+          sales_ittihad = excluded.sales_ittihad,
+          sales_ittihad_qr = excluded.sales_ittihad_qr,
+          sales_cliq = excluded.sales_cliq,
+          sales_items_count = excluded.sales_items_count
+      `);
+
+      for (const r of records) {
+        insertStmt.run(
+          r.sheet_date,
+          r.day_name,
+          r.sales_cash,
+          r.sales_delivery,
+          r.sales_visa,
+          r.sales_ittihad,
+          r.sales_ittihad_qr,
+          r.sales_cliq,
+          Number(r.sales_items_count || 0)
+        );
+      }
+      db.exec('COMMIT;');
+      return { success: true, count: records.length, message: 'تم إدخال كافة بيانات السنة بنجاح!' };
+    } catch (err) {
+      db.exec('ROLLBACK;');
+      throw err;
+    }
+  } catch (err) {
+    console.warn('Warning seeding historical sales in SQLite:', err.message);
+    return { success: false, error: err.message };
+  }
 }
 
 // Seed default Chart of Accounts if empty
@@ -1052,10 +1135,35 @@ function getPriorUndepositedCash(sheetDate) {
   return Math.round(cumulative * 100) / 100;
 }
 
+function getCumulativeStats(sheetDate) {
+  const row = db.prepare(`
+    SELECT
+      COALESCE(SUM(sales_cash + sales_delivery + sales_visa + sales_ittihad + sales_ittihad_qr + sales_cliq), 0) as cum_sales,
+      COALESCE(SUM(sales_items_count), 0) as cum_items
+    FROM daily_sheets
+    WHERE sheet_date <= ?
+  `).get(sheetDate);
+
+  const yearRow = db.prepare(`
+    SELECT
+      COALESCE(SUM(sales_cash + sales_delivery + sales_visa + sales_ittihad + sales_ittihad_qr + sales_cliq), 0) as year_sales,
+      COALESCE(SUM(sales_items_count), 0) as year_items
+    FROM daily_sheets
+  `).get();
+
+  return {
+    cum_sales: Math.round((row?.cum_sales || 0) * 100) / 100,
+    cum_items: row?.cum_items || 0,
+    year_sales: Math.round((yearRow?.year_sales || 0) * 100) / 100,
+    year_items: yearRow?.year_items || 0
+  };
+}
+
 function getDailySheet(sheetDate) {
   let sheet = db.prepare('SELECT * FROM daily_sheets WHERE sheet_date = ?').get(sheetDate);
   const priorUndeposited = getPriorUndepositedCash(sheetDate);
   const priorPerfume = getPriorPerfumeSales(sheetDate);
+  const cumStats = getCumulativeStats(sheetDate);
   if (!sheet) {
     // Return empty template with default day name
     const dateObj = new Date(sheetDate + 'T00:00:00');
@@ -1066,6 +1174,7 @@ function getDailySheet(sheetDate) {
       day_name: dayName,
       prior_undeposited_cash: priorUndeposited,
       prior_perfume_sales: priorPerfume,
+      cum_stats: cumStats,
       sales_cash: 0,
       sales_delivery: 0,
       sales_visa: 0,
@@ -1117,6 +1226,7 @@ function getDailySheet(sheetDate) {
     ...sheet,
     prior_undeposited_cash: priorUndeposited,
     prior_perfume_sales: priorPerfume,
+    cum_stats: cumStats,
     items: categorizedItems
   };
 }
@@ -1776,6 +1886,7 @@ module.exports = {
   getDailySheet,
   saveDailySheet,
   getDailySheetsHistory,
+  getCumulativeStats,
   getPriorUndepositedCash,
   getPriorPerfumeSales,
   clearAllDailySheets,
@@ -1801,5 +1912,6 @@ module.exports = {
   getImportsList,
   createImport,
   deleteImport,
-  getProfitLossStatement
+  getProfitLossStatement,
+  seedHistoricalSales
 };

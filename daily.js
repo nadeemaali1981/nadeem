@@ -3,6 +3,13 @@
 let state = {
   date: new Date().toISOString().split('T')[0],
   dayName: '',
+  kpiMode: 'daily', // 'daily' or 'cumulative'
+  cum_stats: {
+    cum_sales: 0,
+    cum_items: 0,
+    year_sales: 0,
+    year_items: 0
+  },
   sales: {
     cash: 0,
     delivery: 0,
@@ -191,6 +198,7 @@ async function loadSheet(dateStr) {
     state.notes = data.notes || '';
     state.priorUndepositedCash = Number(data.prior_undeposited_cash || 0);
     state.priorPerfumeSales = Number(data.prior_perfume_sales || 0);
+    state.cum_stats = data.cum_stats || { cum_sales: 0, cum_items: 0, year_sales: 0, year_items: 0 };
     state.perfume = {
       desc: data.perfume_desc || '',
       debit: data.perfume_debit || 0,
@@ -646,6 +654,38 @@ window.updateRowAmount = function(categoryKey, idx, amountKey, val) {
   }
 };
 
+// KPI Mode Toggle (اليوم الحالي / تراكمي السنة)
+function setKpiMode(mode) {
+  state.kpiMode = mode;
+  const btnDaily = document.getElementById('btnKpiDaily');
+  const btnCum = document.getElementById('btnKpiCumulative');
+  const hint = document.getElementById('kpiModeHint');
+
+  if (mode === 'cumulative') {
+    if (btnDaily) {
+      btnDaily.style.background = 'transparent';
+      btnDaily.style.color = '#475569';
+    }
+    if (btnCum) {
+      btnCum.style.background = '#2563eb';
+      btnCum.style.color = '#fff';
+    }
+    if (hint) hint.textContent = 'معروض حالياً: أرقام تراكمية للسنة (حتى تاريخ اليومية)';
+  } else {
+    if (btnDaily) {
+      btnDaily.style.background = '#2563eb';
+      btnDaily.style.color = '#fff';
+    }
+    if (btnCum) {
+      btnCum.style.background = 'transparent';
+      btnCum.style.color = '#475569';
+    }
+    if (hint) hint.textContent = 'معروض حالياً: أرقام اليوم المحدد';
+  }
+  recalculateAll();
+}
+window.setKpiMode = setKpiMode;
+
 // Calculate all Totals and KPIs
 function recalculateAll() {
   // 1. Sales Total
@@ -657,7 +697,41 @@ function recalculateAll() {
                      (state.sales.cliq || 0);
 
   setText('totalSalesVal', formatMoney(totalSales));
-  setText('kpiTotalSales', formatMoney(totalSales));
+
+  // Cumulative vs Daily stats
+  const isCumulative = state.kpiMode === 'cumulative';
+  const cumSales = (state.cum_stats && state.cum_stats.cum_sales) || totalSales;
+  const cumItems = (state.cum_stats && state.cum_stats.cum_items) || (state.sales.items_count || 0);
+  const yearSales = (state.cum_stats && state.cum_stats.year_sales) || cumSales;
+  const yearItems = (state.cum_stats && state.cum_stats.year_items) || cumItems;
+  const dailyItems = state.sales.items_count || 0;
+
+  // KPI 1: إجمالي المبيعات
+  const salesTitleEl = document.querySelector('.kpi-card.sales .kpi-title');
+  const salesSubEl = document.querySelector('.kpi-card.sales .kpi-subtitle');
+  if (isCumulative) {
+    if (salesTitleEl) salesTitleEl.textContent = 'إجمالي المبيعات (تراكمي)';
+    setText('kpiTotalSales', formatMoney(cumSales));
+    if (salesSubEl) salesSubEl.textContent = `مبيعات اليوم: ${formatMoney(totalSales)} | إجمالي السنة: ${formatMoney(yearSales)}`;
+  } else {
+    if (salesTitleEl) salesTitleEl.textContent = 'إجمالي المبيعات (اليومي)';
+    setText('kpiTotalSales', formatMoney(totalSales));
+    if (salesSubEl) salesSubEl.textContent = `تراكمي حتى اليوم: ${formatMoney(cumSales)} | إجمالي السنة: ${formatMoney(yearSales)}`;
+  }
+
+  // KPI 2: عدد القطع المباعة
+  const itemsTitleEl = document.querySelector('#kpiItemsCard .kpi-title');
+  const itemsCountEl = document.getElementById('kpiItemsCount');
+  const itemsSubEl = document.getElementById('kpiItemsSub');
+  if (isCumulative) {
+    if (itemsTitleEl) itemsTitleEl.textContent = '📦 القطع المباعة (تراكمي)';
+    if (itemsCountEl) itemsCountEl.textContent = Number(cumItems).toLocaleString();
+    if (itemsSubEl) itemsSubEl.textContent = `مبيعات اليوم: ${dailyItems.toLocaleString()} قطعة | إجمالي السنة: ${yearItems.toLocaleString()} قطعة`;
+  } else {
+    if (itemsTitleEl) itemsTitleEl.textContent = '📦 القطع المباعة (اليومي)';
+    if (itemsCountEl) itemsCountEl.textContent = Number(dailyItems).toLocaleString();
+    if (itemsSubEl) itemsSubEl.textContent = `تراكمي حتى اليوم: ${cumItems.toLocaleString()} قطعة | إجمالي السنة: ${yearItems.toLocaleString()} قطعة`;
+  }
 
   // 2. Deposits Total
   const totalDeposits = (state.deposits.personal || 0) + (state.deposits.business || 0);
@@ -890,6 +964,9 @@ async function saveSheet(isManual = false) {
     }
     if (savedData && savedData.prior_perfume_sales !== undefined) {
       state.priorPerfumeSales = Number(savedData.prior_perfume_sales || 0);
+    }
+    if (savedData && savedData.cum_stats !== undefined) {
+      state.cum_stats = savedData.cum_stats;
     }
     recalculateAll();
 

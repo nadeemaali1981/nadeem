@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
@@ -215,12 +215,36 @@
         </div>
       </div>
 
+      <!-- KPI Mode Switcher (اليوم الحالي / تراكمي السنة) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; background: #fff; padding: 0.6rem 1rem; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">📊 عرض مؤشرات الأداء (KPIs):</span>
+          <div class="kpi-mode-toggle" style="display: inline-flex; background: #f1f5f9; border-radius: 8px; padding: 3px; border: 1px solid #cbd5e1;">
+            <button type="button" id="btnKpiDaily" onclick="setKpiMode('daily')" class="kpi-toggle-btn active" style="padding: 5px 14px; font-size: 0.85rem; font-weight: 700; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s; background: #2563eb; color: #fff;">
+              📅 اليوم الحالي
+            </button>
+            <button type="button" id="btnKpiCumulative" onclick="setKpiMode('cumulative')" class="kpi-toggle-btn" style="padding: 5px 14px; font-size: 0.85rem; font-weight: 700; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s; background: transparent; color: #475569;">
+              📈 تراكمي السنة (YTD)
+            </button>
+          </div>
+        </div>
+        <div id="kpiModeHint" style="font-size: 0.82rem; color: #64748b; font-weight: 600;">
+          معروض حالياً: أرقام اليوم المحدد
+        </div>
+      </div>
+
       <!-- KPI Live Metric Cards -->
       <div class="kpi-grid">
         <div class="kpi-card sales">
           <span class="kpi-title">إجمالي المبيعات</span>
           <span class="kpi-value" id="kpiTotalSales">0:00</span>
           <span class="kpi-subtitle">نقدي، فيزا، توصيل، بنك، كليك</span>
+        </div>
+
+        <div class="kpi-card" id="kpiItemsCard" style="border-right: 4px solid #be185d; background: #fdf2f8;">
+          <span class="kpi-title" style="color: #9d174d; font-weight: 700;">📦 القطع المباعة</span>
+          <span class="kpi-value" id="kpiItemsCount" style="color: #be185d; font-weight: 800;">0</span>
+          <span class="kpi-subtitle" id="kpiItemsSub" style="color: #9d174d;">تراكمي: 0 قطعة</span>
         </div>
 
         <div class="kpi-card expenses">
