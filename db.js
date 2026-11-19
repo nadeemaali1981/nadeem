@@ -32,9 +32,9 @@ if (process.env.SUPABASE_URL) {
 }
 
 // ----------------------------------------------------
-// Cloud Database Strategy (Supabase / PostgreSQL)
+// Cloud Database Strategy (Supabase / PostgreSQL Pooler IPv4)
 // ----------------------------------------------------
-const SUPABASE_DEFAULT_URL = 'postgresql://postgres:nadeemamjad5@db.jyrvqezhzimtaxgukmhj.supabase.co:5432/postgres';
+const SUPABASE_DEFAULT_URL = 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
 const CLOUD_DB_URL = process.env.DATABASE_URL || process.env.SUPABASE_URL || SUPABASE_DEFAULT_URL;
 if (CLOUD_DB_URL && (CLOUD_DB_URL.startsWith('postgres://') || CLOUD_DB_URL.startsWith('postgresql://'))) {
   try {

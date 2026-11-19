@@ -37,7 +37,7 @@ if (process.env.SUPABASE_URL) {
   process.env.SUPABASE_URL = process.env.SUPABASE_URL.replace(/:\[([^\]]+)\]@/, ':$1@');
 }
 
-const SUPABASE_DEFAULT_URL = 'postgresql://postgres:nadeemamjad5@db.jyrvqezhzimtaxgukmhj.supabase.co:5432/postgres';
+const SUPABASE_DEFAULT_URL = 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
 const DATABASE_URL = process.env.DATABASE_URL || process.env.SUPABASE_URL || SUPABASE_DEFAULT_URL;
 
 if (!DATABASE_URL) {
@@ -1358,7 +1358,7 @@ async function saveDailySheet(data) {
       }
     }
 
-    return { success: true, sheet_id: sheetId, sheet_date: data.sheet_date };
+    return await getDailySheet(data.sheet_date);
   });
 }
 
