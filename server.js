@@ -69,22 +69,22 @@ const server = http.createServer(async (req, res) => {
       if (pathname === '/api/daily-sheet') {
         if (method === 'GET') {
           const dateStr = parsedUrl.query.date || new Date().toISOString().split('T')[0];
-          return sendJson(res, 200, db.getDailySheet(dateStr));
+          return sendJson(res, 200, await db.getDailySheet(dateStr));
         }
         if (method === 'POST') {
           const body = await parseBody(req);
-          const saved = db.saveDailySheet(body);
+          const saved = await db.saveDailySheet(body);
           return sendJson(res, 200, saved);
         }
       }
 
       if (pathname === '/api/daily-sheets-history' && method === 'GET') {
         const limit = parseInt(parsedUrl.query.limit || '30', 10);
-        return sendJson(res, 200, db.getDailySheetsHistory(limit));
+        return sendJson(res, 200, await db.getDailySheetsHistory(limit));
       }
 
       if (pathname === '/api/daily-sheets/clear-all' && method === 'POST') {
-        const result = db.clearAllDailySheets();
+        const result = await db.clearAllDailySheets();
         return sendJson(res, 200, result);
       }
 
@@ -107,113 +107,113 @@ const server = http.createServer(async (req, res) => {
 
       // Modules API Routes (المبيعات، المصاريف، الموردون، الموظفون، الذمم، الشيكات، الشركاء، الاستثمار، ادارة الواردات، الارباح والخسائر)
       if (pathname === '/api/modules/sales-summary' && method === 'GET') {
-        return sendJson(res, 200, db.getSalesSummary());
+        return sendJson(res, 200, await db.getSalesSummary());
       }
 
       if (pathname === '/api/modules/expenses-summary' && method === 'GET') {
-        return sendJson(res, 200, db.getExpensesSummary());
+        return sendJson(res, 200, await db.getExpensesSummary());
       }
 
       if (pathname === '/api/modules/suppliers') {
-        if (method === 'GET') return sendJson(res, 200, db.getSuppliersList());
+        if (method === 'GET') return sendJson(res, 200, await db.getSuppliersList());
         if (method === 'POST') {
           const body = await parseBody(req);
-          return sendJson(res, 201, db.createSupplier(body));
+          return sendJson(res, 201, await db.createSupplier(body));
         }
       }
       if (pathname.startsWith('/api/modules/suppliers/') && method === 'DELETE') {
         const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, db.deleteSupplier(id));
+        return sendJson(res, 200, await db.deleteSupplier(id));
       }
 
       if (pathname === '/api/modules/employees') {
-        if (method === 'GET') return sendJson(res, 200, db.getEmployeesList());
+        if (method === 'GET') return sendJson(res, 200, await db.getEmployeesList());
         if (method === 'POST') {
           const body = await parseBody(req);
-          return sendJson(res, 201, db.createEmployee(body));
+          return sendJson(res, 201, await db.createEmployee(body));
         }
       }
       if (pathname.startsWith('/api/modules/employees/') && method === 'DELETE') {
         const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, db.deleteEmployee(id));
+        return sendJson(res, 200, await db.deleteEmployee(id));
       }
 
       if (pathname === '/api/modules/receivables' && method === 'GET') {
-        return sendJson(res, 200, db.getReceivablesSummary());
+        return sendJson(res, 200, await db.getReceivablesSummary());
       }
 
       if (pathname === '/api/modules/checks') {
-        if (method === 'GET') return sendJson(res, 200, db.getChecksList());
+        if (method === 'GET') return sendJson(res, 200, await db.getChecksList());
         if (method === 'POST') {
           const body = await parseBody(req);
-          return sendJson(res, 201, db.createCheck(body));
+          return sendJson(res, 201, await db.createCheck(body));
         }
       }
       if (pathname.startsWith('/api/modules/checks/') && pathname.endsWith('/status') && method === 'PATCH') {
         const parts = pathname.split('/');
         const id = parseInt(parts[parts.length - 2], 10);
         const body = await parseBody(req);
-        return sendJson(res, 200, db.updateCheckStatus(id, body.status));
+        return sendJson(res, 200, await db.updateCheckStatus(id, body.status));
       }
       if (pathname.startsWith('/api/modules/checks/') && method === 'DELETE') {
         const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, db.deleteCheck(id));
+        return sendJson(res, 200, await db.deleteCheck(id));
       }
 
       if (pathname === '/api/modules/partners') {
-        if (method === 'GET') return sendJson(res, 200, db.getPartnersList());
+        if (method === 'GET') return sendJson(res, 200, await db.getPartnersList());
         if (method === 'POST') {
           const body = await parseBody(req);
-          return sendJson(res, 201, db.createPartner(body));
+          return sendJson(res, 201, await db.createPartner(body));
         }
       }
       if (pathname.startsWith('/api/modules/partners/') && method === 'DELETE') {
         const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, db.deletePartner(id));
+        return sendJson(res, 200, await db.deletePartner(id));
       }
 
       if (pathname === '/api/modules/investments') {
-        if (method === 'GET') return sendJson(res, 200, db.getInvestmentsList());
+        if (method === 'GET') return sendJson(res, 200, await db.getInvestmentsList());
         if (method === 'POST') {
           const body = await parseBody(req);
-          return sendJson(res, 201, db.createInvestment(body));
+          return sendJson(res, 201, await db.createInvestment(body));
         }
       }
       if (pathname.startsWith('/api/modules/investments/') && method === 'DELETE') {
         const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, db.deleteInvestment(id));
+        return sendJson(res, 200, await db.deleteInvestment(id));
       }
 
       if (pathname === '/api/modules/imports') {
-        if (method === 'GET') return sendJson(res, 200, db.getImportsList());
+        if (method === 'GET') return sendJson(res, 200, await db.getImportsList());
         if (method === 'POST') {
           const body = await parseBody(req);
-          return sendJson(res, 201, db.createImport(body));
+          return sendJson(res, 201, await db.createImport(body));
         }
       }
       if (pathname.startsWith('/api/modules/imports/') && method === 'DELETE') {
         const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, db.deleteImport(id));
+        return sendJson(res, 200, await db.deleteImport(id));
       }
 
       if (pathname === '/api/modules/profit-loss' && method === 'GET') {
-        return sendJson(res, 200, db.getProfitLossStatement());
+        return sendJson(res, 200, await db.getProfitLossStatement());
       }
 
       // 1. Dashboard
       if (pathname === '/api/dashboard' && method === 'GET') {
-        const summary = db.getDashboardSummary();
+        const summary = await db.getDashboardSummary();
         return sendJson(res, 200, summary);
       }
 
       // 2. Accounts
       if (pathname === '/api/accounts') {
         if (method === 'GET') {
-          return sendJson(res, 200, db.getAccounts());
+          return sendJson(res, 200, await db.getAccounts());
         }
         if (method === 'POST') {
           const body = await parseBody(req);
-          const acc = db.createAccount(body);
+          const acc = await db.createAccount(body);
           return sendJson(res, 201, acc);
         }
       }
@@ -222,11 +222,11 @@ const server = http.createServer(async (req, res) => {
       if (pathname === '/api/journal') {
         if (method === 'GET') {
           const limit = parseInt(parsedUrl.query.limit || '100', 10);
-          return sendJson(res, 200, db.getJournalEntries(limit));
+          return sendJson(res, 200, await db.getJournalEntries(limit));
         }
         if (method === 'POST') {
           const body = await parseBody(req);
-          const entry = db.createJournalEntry(body);
+          const entry = await db.createJournalEntry(body);
           return sendJson(res, 201, entry);
         }
       }
@@ -235,11 +235,11 @@ const server = http.createServer(async (req, res) => {
       if (pathname === '/api/invoices') {
         if (method === 'GET') {
           const type = parsedUrl.query.type || 'sales';
-          return sendJson(res, 200, db.getInvoices(type));
+          return sendJson(res, 200, await db.getInvoices(type));
         }
         if (method === 'POST') {
           const body = await parseBody(req);
-          const inv = db.createInvoice(body);
+          const inv = await db.createInvoice(body);
           return sendJson(res, 201, inv);
         }
       }
@@ -248,11 +248,11 @@ const server = http.createServer(async (req, res) => {
       if (pathname === '/api/vouchers') {
         if (method === 'GET') {
           const type = parsedUrl.query.type || 'receipt';
-          return sendJson(res, 200, db.getVouchers(type));
+          return sendJson(res, 200, await db.getVouchers(type));
         }
         if (method === 'POST') {
           const body = await parseBody(req);
-          const voucher = db.createVoucher(body);
+          const voucher = await db.createVoucher(body);
           return sendJson(res, 201, voucher);
         }
       }
@@ -261,18 +261,18 @@ const server = http.createServer(async (req, res) => {
       if (pathname === '/api/contacts') {
         if (method === 'GET') {
           const type = parsedUrl.query.type || null;
-          return sendJson(res, 200, db.getContacts(type));
+          return sendJson(res, 200, await db.getContacts(type));
         }
         if (method === 'POST') {
           const body = await parseBody(req);
-          const contact = db.createContact(body);
+          const contact = await db.createContact(body);
           return sendJson(res, 201, contact);
         }
       }
 
       // 7. Reports
       if (pathname === '/api/reports/trial-balance' && method === 'GET') {
-        return sendJson(res, 200, db.getTrialBalance());
+        return sendJson(res, 200, await db.getTrialBalance());
       }
 
       if (pathname === '/api/reports/general-ledger' && method === 'GET') {
@@ -282,15 +282,15 @@ const server = http.createServer(async (req, res) => {
         }
         const startDate = parsedUrl.query.startDate || null;
         const endDate = parsedUrl.query.endDate || null;
-        return sendJson(res, 200, db.getGeneralLedger(accountId, startDate, endDate));
+        return sendJson(res, 200, await db.getGeneralLedger(accountId, startDate, endDate));
       }
 
       if (pathname === '/api/reports/income-statement' && method === 'GET') {
-        return sendJson(res, 200, db.getIncomeStatement());
+        return sendJson(res, 200, await db.getIncomeStatement());
       }
 
       if (pathname === '/api/reports/balance-sheet' && method === 'GET') {
-        return sendJson(res, 200, db.getBalanceSheet());
+        return sendJson(res, 200, await db.getBalanceSheet());
       }
 
       return sendJson(res, 404, { error: 'نقطة الاتصال غير موجودة' });

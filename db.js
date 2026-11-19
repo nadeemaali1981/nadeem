@@ -1,6 +1,54 @@
-const { DatabaseSync } = require('node:sqlite');
 const path = require('node:path');
+const fs = require('node:fs');
 
+// Load .env file if present
+try {
+  if (typeof process.loadEnvFile === 'function') {
+    process.loadEnvFile();
+  } else {
+    const envPath = path.join(__dirname, '.env');
+    if (fs.existsSync(envPath)) {
+      const lines = fs.readFileSync(envPath, 'utf8').split('\n');
+      for (const line of lines) {
+        const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+        if (match) {
+          const key = match[1];
+          let val = (match[2] || '').trim();
+          if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+          if (val.startsWith("'") && val.endsWith("'")) val = val.slice(1, -1);
+          if (!process.env[key]) process.env[key] = val;
+        }
+      }
+    }
+  }
+} catch (e) {}
+
+// Sanitize DATABASE_URL if password has brackets like [password]
+if (process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.DATABASE_URL.replace(/:\[([^\]]+)\]@/, ':$1@');
+}
+if (process.env.SUPABASE_URL) {
+  process.env.SUPABASE_URL = process.env.SUPABASE_URL.replace(/:\[([^\]]+)\]@/, ':$1@');
+}
+
+// ----------------------------------------------------
+// Cloud Database Strategy (Supabase / PostgreSQL)
+// ----------------------------------------------------
+const CLOUD_DB_URL = process.env.DATABASE_URL || process.env.SUPABASE_URL;
+if (CLOUD_DB_URL && (CLOUD_DB_URL.startsWith('postgres://') || CLOUD_DB_URL.startsWith('postgresql://'))) {
+  try {
+    console.log('⚡ [Database Strategy] Active: Supabase Cloud PostgreSQL');
+    module.exports = require('./db-pg.js');
+    return;
+  } catch (err) {
+    console.error('❌ [Database Strategy] Failed to connect to Supabase, falling back to local SQLite:', err.message);
+  }
+}
+
+// ----------------------------------------------------
+// Local Offline Database Strategy (SQLite)
+// ----------------------------------------------------
+const { DatabaseSync } = require('node:sqlite');
 const DB_PATH = path.join(__dirname, 'accounting.db');
 const db = new DatabaseSync(DB_PATH);
 

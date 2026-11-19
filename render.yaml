@@ -4,10 +4,12 @@ services:
     runtime: node
     plan: free
     region: frankfurt
-    buildCommand: echo "Build done"
+    buildCommand: npm install
     startCommand: node server.js
     envVars:
       - key: NODE_VERSION
         value: 22.11.0
       - key: PORT
         value: 3000
+      - key: DATABASE_URL
+        value: postgresql://postgres:nadeemamjad5@db.jyrvqezhzimtaxgukmhj.supabase.co:5432/postgres
