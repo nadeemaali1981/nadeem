@@ -236,8 +236,10 @@ async function initSchema() {
         sales_items_count INTEGER DEFAULT 0,
         deposit_personal REAL DEFAULT 0,
         deposit_business REAL DEFAULT 0,
+        deposit_owner_hand REAL DEFAULT 0,
         deposit_personal_date TEXT DEFAULT '',
         deposit_business_date TEXT DEFAULT '',
+        deposit_owner_hand_date TEXT DEFAULT '',
         notes TEXT,
         perfume_desc TEXT,
         perfume_debit REAL DEFAULT 0,
@@ -351,6 +353,8 @@ async function initSchema() {
         ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS sales_items_count INTEGER DEFAULT 0;
         ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS deposit_personal_date TEXT DEFAULT '';
         ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS deposit_business_date TEXT DEFAULT '';
+        ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS deposit_owner_hand REAL DEFAULT 0;
+        ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS deposit_owner_hand_date TEXT DEFAULT '';
       `);
     } catch (migErr) {
       console.warn('PostgreSQL column migration note:', migErr.message);
@@ -1216,7 +1220,7 @@ async function getPriorUndepositedCash(sheetDate) {
       COALESCE(SUM(
         (COALESCE(s.sales_cash, 0) + COALESCE(s.sales_delivery, 0) + COALESCE(item_agg.extra_rev, 0))
         - (COALESCE(item_agg.total_expenses, 0) + CASE WHEN item_agg.perfume_credit > 0 THEN item_agg.perfume_credit ELSE COALESCE(s.perfume_credit, 0) END)
-        - (COALESCE(s.deposit_personal, 0) + COALESCE(s.deposit_business, 0))
+        - (COALESCE(s.deposit_personal, 0) + COALESCE(s.deposit_business, 0) + COALESCE(s.deposit_owner_hand, 0))
       ), 0) as total_undeposited
     FROM daily_sheets s
     LEFT JOIN (
@@ -1282,8 +1286,10 @@ async function getDailySheet(sheetDate) {
       sales_items_count: 0,
       deposit_personal: 0,
       deposit_business: 0,
+      deposit_owner_hand: 0,
       deposit_personal_date: '',
       deposit_business_date: '',
+      deposit_owner_hand_date: '',
       notes: '',
       perfume_desc: '',
       perfume_debit: 0,
@@ -1368,8 +1374,10 @@ async function saveDailySheet(data) {
           sales_items_count = ?,
           deposit_personal = ?,
           deposit_business = ?,
+          deposit_owner_hand = ?,
           deposit_personal_date = ?,
           deposit_business_date = ?,
+          deposit_owner_hand_date = ?,
           notes = ?,
           perfume_desc = ?,
           perfume_debit = ?,
@@ -1387,8 +1395,10 @@ async function saveDailySheet(data) {
         Number(data.sales_items_count || 0),
         Number(data.deposit_personal || 0),
         Number(data.deposit_business || 0),
+        Number(data.deposit_owner_hand || 0),
         data.deposit_personal_date || '',
         data.deposit_business_date || '',
+        data.deposit_owner_hand_date || '',
         data.notes || '',
         data.perfume_desc || '',
         Number(data.perfume_debit || 0),
@@ -1402,9 +1412,10 @@ async function saveDailySheet(data) {
         INSERT INTO daily_sheets (
           sheet_date, day_name, sales_cash, sales_delivery, sales_visa,
           sales_ittihad, sales_ittihad_qr, sales_cliq, sales_items_count,
-          deposit_personal, deposit_business, deposit_personal_date, deposit_business_date,
+          deposit_personal, deposit_business, deposit_owner_hand,
+          deposit_personal_date, deposit_business_date, deposit_owner_hand_date,
           notes, perfume_desc, perfume_debit, perfume_credit
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         data.sheet_date,
         data.day_name || '',
@@ -1417,8 +1428,10 @@ async function saveDailySheet(data) {
         Number(data.sales_items_count || 0),
         Number(data.deposit_personal || 0),
         Number(data.deposit_business || 0),
+        Number(data.deposit_owner_hand || 0),
         data.deposit_personal_date || '',
         data.deposit_business_date || '',
+        data.deposit_owner_hand_date || '',
         data.notes || '',
         data.perfume_desc || '',
         Number(data.perfume_debit || 0),
@@ -1495,7 +1508,7 @@ async function getDailySheetsHistory(limit = 500) {
       day_name: s.day_name,
       total_sales: Math.round(totalSales * 100) / 100,
       sales_items_count: Number(s.sales_items_count || 0),
-      total_deposits: Number(s.deposit_personal || 0) + Number(s.deposit_business || 0),
+      total_deposits: Number(s.deposit_personal || 0) + Number(s.deposit_business || 0) + Number(s.deposit_owner_hand || 0),
       total_expenses: 0,
       notes: s.notes || '',
       created_at: s.created_at
