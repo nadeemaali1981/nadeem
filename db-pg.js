@@ -54,7 +54,7 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false
   },
-  max: 10,
+  max: process.env.AWS_LAMBDA_FUNCTION_NAME ? 3 : 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000
 });
@@ -143,7 +143,7 @@ async function withTransaction(callback) {
 // Auto Initialize PostgreSQL Schema
 let schemaInitialized = false;
 async function initSchema() {
-  if (schemaInitialized) return;
+  if (schemaInitialized || process.env.SKIP_SCHEMA_INIT === '1') return;
   try {
     await exec(`
       CREATE TABLE IF NOT EXISTS accounts (

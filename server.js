@@ -46,7 +46,7 @@ function parseBody(req) {
   });
 }
 
-const server = http.createServer(async (req, res) => {
+const requestHandler = async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
   const method = req.method;
@@ -357,9 +357,13 @@ const server = http.createServer(async (req, res) => {
     console.error('Server Error:', err);
     sendJson(res, 500, { error: err.message || 'حدث خطأ في الخادم' });
   }
-});
+};
 
-server.listen(PORT, '0.0.0.0', () => {
+const server = http.createServer(requestHandler);
+
+module.exports = { handler: requestHandler };
+
+if (require.main === module) server.listen(PORT, '0.0.0.0', () => {
   console.log(`====================================================`);
   console.log(`  البرنامج المحاسبي قيد التشغيل الآن بنجاح!`);
   console.log(`  الرابط المحلي: http://localhost:${PORT}`);
