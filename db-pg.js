@@ -330,6 +330,23 @@ async function initSchema() {
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS media_assets (
+        id SERIAL PRIMARY KEY,
+        entity_type TEXT NOT NULL DEFAULT 'product',
+        entity_id TEXT DEFAULT '',
+        title TEXT DEFAULT '',
+        mime_type TEXT DEFAULT 'image/webp',
+        original_size INTEGER DEFAULT 0,
+        compressed_size INTEGER DEFAULT 0,
+        compression_ratio REAL DEFAULT 0,
+        width INTEGER DEFAULT 0,
+        height INTEGER DEFAULT 0,
+        thumb_data TEXT DEFAULT '',
+        image_data TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_media_entity ON media_assets (entity_type, entity_id);
     `);
 
     try {
