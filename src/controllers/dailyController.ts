@@ -193,20 +193,18 @@ function setupEventListeners() {
     });
   });
 
-  // Click anywhere on inputs/tables while locked to prompt for edit
+  // Click on locked input field to prompt for edit (once per click)
   document.addEventListener('click', (e) => {
-    if (state.isLocked) {
-      const target = e.target;
-      if (
-        target.classList.contains('sales-binding') ||
-        target.classList.contains('table-input') ||
-        target.classList.contains('deposit-date-binding') ||
-        target.closest('.sales-row-item') ||
-        target.closest('.sales-box') ||
-        target.closest('.tables-subgrid')
-      ) {
-        requestEditSheet();
-      }
+    if (!state.isLocked) return;
+    const target = e.target as HTMLElement;
+    if (!target) return;
+    if (
+      target.classList.contains('sales-binding') ||
+      target.classList.contains('table-input') ||
+      target.classList.contains('deposit-date-binding')
+    ) {
+      e.stopImmediatePropagation();
+      requestEditSheet(target);
     }
   });
 
@@ -346,16 +344,31 @@ function setSheetLockedState(locked) {
 }
 
 // المطالبة بتأكيد التعديل عبر نافذة منبثقة
-function requestEditSheet() {
-  const confirmed = confirm(
-    'هل أنت متأكد من تعديل الدفتر؟\n\n' +
-    'عند النقر على "موافق" (نعم)، سيتم فتح جميع الخانات لتعديل الأرقام وستتمكن من حفظ التعديلات الجديدة.'
-  );
-  if (!confirmed) return;
-  setSheetLockedState(false);
-  showToast('تم فتح الدفتر للتعديل');
-  const firstInput = document.getElementById('input_sales_cash');
-  if (firstInput) firstInput.focus();
+let editPromptActive = false;
+function requestEditSheet(clickedInput) {
+  if (!state.isLocked || editPromptActive) return;
+  editPromptActive = true;
+  try {
+    const confirmed = window.confirm(
+      'هل أنت متأكد من تعديل الدفتر؟\n\n' +
+      'عند النقر على "موافق" (OK)، سيتم فتح جميع الخانات لتعديل الأرقام وستتمكن من حفظ التعديلات الجديدة.'
+    );
+    if (!confirmed) {
+      if (clickedInput && typeof clickedInput.blur === 'function') clickedInput.blur();
+      if (document.activeElement && typeof (document.activeElement as HTMLElement).blur === 'function') {
+        (document.activeElement as HTMLElement).blur();
+      }
+      return;
+    }
+    setSheetLockedState(false);
+    showToast('تم فتح الدفتر للتعديل');
+    const targetToFocus = (clickedInput && typeof clickedInput.focus === 'function')
+      ? clickedInput
+      : document.getElementById('input_sales_cash');
+    if (targetToFocus) targetToFocus.focus();
+  } finally {
+    setTimeout(() => { editPromptActive = false; }, 150);
+  }
 }
 window.requestEditSheet = requestEditSheet;
 
@@ -520,20 +533,18 @@ function renderUI() {
   const depBizDate = document.getElementById('input_deposit_business_date');
   if (depBizDate) depBizDate.value = state.deposits.business_date || state.sheet_date || '';
 
-  // Click anywhere on inputs/tables while locked to prompt for edit
+  // Click on locked input field to prompt for edit (once per click)
   document.addEventListener('click', (e) => {
-    if (state.isLocked) {
-      const target = e.target;
-      if (
-        target.classList.contains('sales-binding') ||
-        target.classList.contains('table-input') ||
-        target.classList.contains('deposit-date-binding') ||
-        target.closest('.sales-row-item') ||
-        target.closest('.sales-box') ||
-        target.closest('.tables-subgrid')
-      ) {
-        requestEditSheet();
-      }
+    if (!state.isLocked) return;
+    const target = e.target as HTMLElement;
+    if (!target) return;
+    if (
+      target.classList.contains('sales-binding') ||
+      target.classList.contains('table-input') ||
+      target.classList.contains('deposit-date-binding')
+    ) {
+      e.stopImmediatePropagation();
+      requestEditSheet(target);
     }
   });
 
