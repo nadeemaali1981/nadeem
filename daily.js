@@ -1096,29 +1096,13 @@ function markUnsaved() {
 }
 
 async function saveSheet(isManual = true) {
-  // 1. التحقق الإجباري من إدخال عدد القطع المباعة
+  // عدد القطع المباعة اختياري: إذا تُرك فارغاً يُحفظ كـ 0
   const itemsCountInput = document.getElementById('input_sales_items_count');
   const itemsCountVal = itemsCountInput ? itemsCountInput.value.trim() : '';
-  const parsedCount = parseInt(itemsCountVal, 10);
+  let parsedCount = parseInt(itemsCountVal, 10);
+  if (isNaN(parsedCount) || parsedCount < 0) parsedCount = 0;
 
-  // إذا كانت الخانة فارغة أو ليست رقماً صالحاً أو رقماً سالباً:
-  if (itemsCountVal === '' || isNaN(parsedCount) || parsedCount < 0) {
-    if (itemsCountInput) {
-      itemsCountInput.focus();
-      itemsCountInput.style.borderColor = '#dc2626';
-      itemsCountInput.style.boxShadow = '0 0 0 3px rgba(220, 38, 38, 0.25)';
-      itemsCountInput.classList.add('input-error');
-    }
-    const statusEl = document.getElementById('autoSaveBadge');
-    if (statusEl) {
-      statusEl.textContent = 'لم يتم الحفظ: يجب تحديد عدد القطع المباعة!';
-      statusEl.style.color = '#dc2626';
-    }
-    alert('⚠️ تنبيه: لا يمكن حفظ اليومية قبل تعبئة خانة "عدد القطع المباعة"!\n(إذا لم تكن هناك قطع مباعة، اكتب 0 لأن الصفر رقم صحيح ومقبول).');
-    return false;
-  }
-
-  // إزالة أي تمييز خطأ بعد التحقق الناجح
+  // إزالة أي تمييز خطأ قديم
   if (itemsCountInput) {
     itemsCountInput.style.borderColor = '';
     itemsCountInput.style.boxShadow = '';
