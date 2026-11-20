@@ -1,12 +1,233 @@
+/**
+ * server.js - Modern Hono Serverless & Edge ERP API Engine
+ * Built for Netlify Serverless Functions + Supabase PostgreSQL (Clothes Store ERP)
+ */
+
+const { Hono } = require('hono');
+const { cors } = require('hono/cors');
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const url = require('node:url');
 const db = require('./db.js');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
+const app = new Hono();
+
+// Global CORS & Security Headers
+app.use('/api/*', cors({
+  origin: '*',
+  allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Centralized Error Handler
+app.onError((err, c) => {
+  console.error('[ERP API Error]:', err);
+  return c.json({ error: err.message || 'حدث خطأ في الخادم' }, 500);
+});
+
+// ============================================================================
+// 0. Daily Journal (دفتر اليومية المطور)
+// ============================================================================
+app.get('/api/daily-sheet', async (c) => {
+  const dateStr = c.req.query('date') || new Date().toISOString().split('T')[0];
+  return c.json(await db.getDailySheet(dateStr));
+});
+
+app.post('/api/daily-sheet', async (c) => {
+  const body = await c.req.json();
+  return c.json(await db.saveDailySheet(body));
+});
+
+app.get('/api/daily-sheets-history', async (c) => {
+  const limit = parseInt(c.req.query('limit') || '30', 10);
+  return c.json(await db.getDailySheetsHistory(limit));
+});
+
+app.post('/api/daily-sheets/clear-all', async (c) => {
+  const body = await c.req.json();
+  if (body.confirm !== 'CONFIRM_DELETE_ALL') {
+    return c.json({ success: false, error: 'يتطلب تأكيد أمني لحذف كافة السجلات' }, 400);
+  }
+  return c.json(await db.clearAllDailySheets());
+});
+
+app.all('/api/seed-historical', async (c) => {
+  if (typeof db.seedHistoricalSales === 'function') {
+    return c.json(await db.seedHistoricalSales(true));
+  }
+  return c.json({ success: true, message: 'البيانات محملة' });
+});
+
+// Cloud PostgreSQL Full JSON Backup (النسخة الاحتياطية السحابية)
+app.get('/api/backup', async (c) => {
+  const [sales, expenses, suppliers, employees, checks, partners, investments, imports, accounts] = await Promise.all([
+    db.getSalesSummary(),
+    db.getExpensesSummary(),
+    db.getSuppliersList(),
+    db.getEmployeesList(),
+    db.getChecksList(),
+    db.getPartnersList(),
+    db.getInvestmentsList(),
+    db.getImportsList(),
+    db.getAccounts()
+  ]);
+  const payload = JSON.stringify({
+    exported_at: new Date().toISOString(),
+    system: 'Nadeem Clothes Store ERP (Supabase PostgreSQL)',
+    sales,
+    expenses,
+    suppliers,
+    employees,
+    checks,
+    partners,
+    investments,
+    imports,
+    accounts
+  }, null, 2);
+
+  const fileName = `nadeem-erp-backup-${new Date().toISOString().split('T')[0]}.json`;
+  return new Response(payload, {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Content-Disposition': `attachment; filename="${fileName}"`
+    }
+  });
+});
+
+// ============================================================================
+// 1. Compressed Media Assets Engine (محرك ضغط وحفظ صور الموديلات والفواتير)
+// ============================================================================
+app.get('/api/media/stats', async (c) => {
+  return c.json(await db.getMediaStorageStats());
+});
+
+app.get('/api/media', async (c) => {
+  const entity_type = c.req.query('entity_type') || '';
+  const entity_id = c.req.query('entity_id') || '';
+  const limit = parseInt(c.req.query('limit') || '100', 10);
+  return c.json(await db.getMediaAssetsList({ entity_type, entity_id, limit }));
+});
+
+app.post('/api/media', async (c) => {
+  const body = await c.req.json();
+  const saved = await db.saveMediaAsset(body);
+  return c.json(saved, 201);
+});
+
+app.get('/api/media/:id/raw', async (c) => {
+  const id = parseInt(c.req.param('id'), 10);
+  const asset = await db.getMediaAssetById(id);
+  if (!asset || !asset.image_data) {
+    return c.json({ error: 'الصورة غير موجودة' }, 404);
+  }
+  const match = asset.image_data.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) {
+    return c.json({ error: 'بيانات الصورة غير صالحة' }, 400);
+  }
+  const mimeType = match[1];
+  const binary = Buffer.from(match[2], 'base64');
+  return new Response(binary, {
+    status: 200,
+    headers: {
+      'Content-Type': mimeType,
+      'Content-Length': String(binary.length),
+      'Cache-Control': 'public, max-age=31536000, immutable'
+    }
+  });
+});
+
+app.get('/api/media/:id', async (c) => {
+  const id = parseInt(c.req.param('id'), 10);
+  const asset = await db.getMediaAssetById(id);
+  if (!asset) return c.json({ error: 'الصورة غير موجودة' }, 404);
+  return c.json(asset);
+});
+
+app.delete('/api/media/:id', async (c) => {
+  const id = parseInt(c.req.param('id'), 10);
+  return c.json(await db.deleteMediaAsset(id));
+});
+
+// ============================================================================
+// 2. ERP Operational Modules (المبيعات، المصاريف، الموردون، الموظفون، الشيكات...)
+// ============================================================================
+app.get('/api/modules/sales-summary', async (c) => c.json(await db.getSalesSummary()));
+app.get('/api/modules/expenses-summary', async (c) => c.json(await db.getExpensesSummary()));
+
+app.get('/api/modules/suppliers', async (c) => c.json(await db.getSuppliersList()));
+app.post('/api/modules/suppliers', async (c) => c.json(await db.createSupplier(await c.req.json()), 201));
+app.delete('/api/modules/suppliers/:id', async (c) => c.json(await db.deleteSupplier(parseInt(c.req.param('id'), 10))));
+
+app.get('/api/modules/employees', async (c) => c.json(await db.getEmployeesList()));
+app.post('/api/modules/employees', async (c) => c.json(await db.createEmployee(await c.req.json()), 201));
+app.delete('/api/modules/employees/:id', async (c) => c.json(await db.deleteEmployee(parseInt(c.req.param('id'), 10))));
+
+app.get('/api/modules/receivables', async (c) => c.json(await db.getReceivablesSummary()));
+
+app.get('/api/modules/checks', async (c) => c.json(await db.getChecksList()));
+app.post('/api/modules/checks', async (c) => c.json(await db.createCheck(await c.req.json()), 201));
+app.patch('/api/modules/checks/:id/status', async (c) => {
+  const id = parseInt(c.req.param('id'), 10);
+  const body = await c.req.json();
+  return c.json(await db.updateCheckStatus(id, body.status));
+});
+app.delete('/api/modules/checks/:id', async (c) => c.json(await db.deleteCheck(parseInt(c.req.param('id'), 10))));
+
+app.get('/api/modules/partners', async (c) => c.json(await db.getPartnersList()));
+app.post('/api/modules/partners', async (c) => c.json(await db.createPartner(await c.req.json()), 201));
+app.delete('/api/modules/partners/:id', async (c) => c.json(await db.deletePartner(parseInt(c.req.param('id'), 10))));
+
+app.get('/api/modules/investments', async (c) => c.json(await db.getInvestmentsList()));
+app.post('/api/modules/investments', async (c) => c.json(await db.createInvestment(await c.req.json()), 201));
+app.delete('/api/modules/investments/:id', async (c) => c.json(await db.deleteInvestment(parseInt(c.req.param('id'), 10))));
+
+app.get('/api/modules/imports', async (c) => c.json(await db.getImportsList()));
+app.post('/api/modules/imports', async (c) => c.json(await db.createImport(await c.req.json()), 201));
+app.delete('/api/modules/imports/:id', async (c) => c.json(await db.deleteImport(parseInt(c.req.param('id'), 10))));
+
+app.get('/api/modules/profit-loss', async (c) => c.json(await db.getProfitLossStatement()));
+
+// ============================================================================
+// 3. Accounting Core (لوحة التحكم، دليل الحسابات، القيود، الفواتير، السندات، التقارير)
+// ============================================================================
+app.get('/api/dashboard', async (c) => c.json(await db.getDashboardSummary()));
+
+app.get('/api/accounts', async (c) => c.json(await db.getAccounts()));
+app.post('/api/accounts', async (c) => c.json(await db.createAccount(await c.req.json()), 201));
+
+app.get('/api/journal', async (c) => {
+  const limit = parseInt(c.req.query('limit') || '100', 10);
+  return c.json(await db.getJournalEntries(limit));
+});
+app.post('/api/journal', async (c) => c.json(await db.createJournalEntry(await c.req.json()), 201));
+
+app.get('/api/invoices', async (c) => c.json(await db.getInvoices(c.req.query('type') || 'sales')));
+app.post('/api/invoices', async (c) => c.json(await db.createInvoice(await c.req.json()), 201));
+
+app.get('/api/vouchers', async (c) => c.json(await db.getVouchers(c.req.query('type') || 'receipt')));
+app.post('/api/vouchers', async (c) => c.json(await db.createVoucher(await c.req.json()), 201));
+
+app.get('/api/contacts', async (c) => c.json(await db.getContacts(c.req.query('type') || null)));
+app.post('/api/contacts', async (c) => c.json(await db.createContact(await c.req.json()), 201));
+
+app.get('/api/reports/trial-balance', async (c) => c.json(await db.getTrialBalance()));
+app.get('/api/reports/general-ledger', async (c) => {
+  const accountId = parseInt(c.req.query('accountId') || '0', 10);
+  if (!accountId) return c.json({ error: 'رقم الحساب مطلوب (accountId)' }, 400);
+  return c.json(await db.getGeneralLedger(accountId, c.req.query('startDate') || null, c.req.query('endDate') || null));
+});
+app.get('/api/reports/income-statement', async (c) => c.json(await db.getIncomeStatement()));
+app.get('/api/reports/balance-sheet', async (c) => c.json(await db.getBalanceSheet()));
+
+app.all('/api/*', (c) => c.json({ error: 'نقطة الاتصال غير موجودة' }, 404));
+
+// ============================================================================
+// Local Development HTTP Adapter (Serves Hono API + Static `public/` directory)
+// ============================================================================
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -14,358 +235,70 @@ const MIME_TYPES = {
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.webp': 'image/webp',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon'
 };
 
-function sendJson(res, statusCode, data) {
-  res.writeHead(statusCode, {
-    'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
-  });
-  res.end(JSON.stringify(data));
-}
-
-function parseBody(req) {
-  return new Promise((resolve, reject) => {
-    let body = '';
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-    req.on('end', () => {
-      try {
-        const json = body ? JSON.parse(body) : {};
-        resolve(json);
-      } catch (e) {
-        reject(e);
-      }
-    });
-    req.on('error', err => reject(err));
-  });
-}
-
 const requestHandler = async (req, res) => {
-  const parsedUrl = url.parse(req.url, true);
-  const pathname = parsedUrl.pathname;
-  const method = req.method;
-
-  // Handle CORS Preflight
-  if (method === 'OPTIONS') {
-    res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
-    });
-    res.end();
-    return;
-  }
-
   try {
-    // API Routes
-    if (pathname.startsWith('/api/')) {
-      // 0. Daily Sheet (دفتر اليومية المطور)
-      if (pathname === '/api/daily-sheet') {
-        if (method === 'GET') {
-          const dateStr = parsedUrl.query.date || new Date().toISOString().split('T')[0];
-          return sendJson(res, 200, await db.getDailySheet(dateStr));
-        }
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          const saved = await db.saveDailySheet(body);
-          return sendJson(res, 200, saved);
-        }
-      }
+    const rawUrl = req.url || '/';
+    if (rawUrl.startsWith('/api/') || rawUrl === '/api') {
+      const chunks = [];
+      for await (const chunk of req) chunks.push(chunk);
+      const bodyBuffer = Buffer.concat(chunks);
 
-      if (pathname === '/api/daily-sheets-history' && method === 'GET') {
-        const limit = parseInt(parsedUrl.query.limit || '30', 10);
-        return sendJson(res, 200, await db.getDailySheetsHistory(limit));
-      }
+      const fullUrl = `http://${req.headers.host || 'localhost'}${rawUrl}`;
+      const webReq = new Request(fullUrl, {
+        method: req.method,
+        headers: req.headers,
+        body: ['GET', 'HEAD'].includes(req.method) || bodyBuffer.length === 0 ? undefined : bodyBuffer
+      });
 
-      if (pathname === '/api/daily-sheets/clear-all' && method === 'POST') {
-        const body = await parseBody(req);
-        if (body.confirm !== 'CONFIRM_DELETE_ALL') {
-          return sendJson(res, 400, { success: false, error: 'يتطلب تأكيد أمني لحذف كافة السجلات' });
-        }
-        const result = await db.clearAllDailySheets();
-        return sendJson(res, 200, result);
-      }
-
-      if (pathname === '/api/seed-historical') {
-        if (typeof db.seedHistoricalSales === 'function') {
-          const resData = await db.seedHistoricalSales(true);
-          return sendJson(res, 200, resData);
-        }
-        return sendJson(res, 200, { success: true, message: 'البيانات محملة' });
-      }
-
-      // Download Database Backup (النسخة الاحتياطية)
-      if (pathname === '/api/backup' && method === 'GET') {
-        const dbPath = path.join(__dirname, 'accounting.db');
-        if (fs.existsSync(dbPath)) {
-          const stat = fs.statSync(dbPath);
-          res.writeHead(200, {
-            'Content-Type': 'application/octet-stream',
-            'Content-Disposition': `attachment; filename="accounting-backup-${new Date().toISOString().split('T')[0]}.db"`,
-            'Content-Length': stat.size
-          });
-          const stream = fs.createReadStream(dbPath);
-          return stream.pipe(res);
-        } else {
-          return sendJson(res, 404, { error: 'ملف قاعدة البيانات غير موجود' });
-        }
-      }
-
-      // Modules API Routes (المبيعات، المصاريف، الموردون، الموظفون، الذمم، الشيكات، الشركاء، الاستثمار، ادارة الواردات، الارباح والخسائر)
-      if (pathname === '/api/modules/sales-summary' && method === 'GET') {
-        return sendJson(res, 200, await db.getSalesSummary());
-      }
-
-      if (pathname === '/api/modules/expenses-summary' && method === 'GET') {
-        return sendJson(res, 200, await db.getExpensesSummary());
-      }
-
-      if (pathname === '/api/modules/suppliers') {
-        if (method === 'GET') return sendJson(res, 200, await db.getSuppliersList());
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          return sendJson(res, 201, await db.createSupplier(body));
-        }
-      }
-      if (pathname.startsWith('/api/modules/suppliers/') && method === 'DELETE') {
-        const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, await db.deleteSupplier(id));
-      }
-
-      if (pathname === '/api/modules/employees') {
-        if (method === 'GET') return sendJson(res, 200, await db.getEmployeesList());
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          return sendJson(res, 201, await db.createEmployee(body));
-        }
-      }
-      if (pathname.startsWith('/api/modules/employees/') && method === 'DELETE') {
-        const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, await db.deleteEmployee(id));
-      }
-
-      if (pathname === '/api/modules/receivables' && method === 'GET') {
-        return sendJson(res, 200, await db.getReceivablesSummary());
-      }
-
-      if (pathname === '/api/modules/checks') {
-        if (method === 'GET') return sendJson(res, 200, await db.getChecksList());
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          return sendJson(res, 201, await db.createCheck(body));
-        }
-      }
-      if (pathname.startsWith('/api/modules/checks/') && pathname.endsWith('/status') && method === 'PATCH') {
-        const parts = pathname.split('/');
-        const id = parseInt(parts[parts.length - 2], 10);
-        const body = await parseBody(req);
-        return sendJson(res, 200, await db.updateCheckStatus(id, body.status));
-      }
-      if (pathname.startsWith('/api/modules/checks/') && method === 'DELETE') {
-        const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, await db.deleteCheck(id));
-      }
-
-      if (pathname === '/api/modules/partners') {
-        if (method === 'GET') return sendJson(res, 200, await db.getPartnersList());
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          return sendJson(res, 201, await db.createPartner(body));
-        }
-      }
-      if (pathname.startsWith('/api/modules/partners/') && method === 'DELETE') {
-        const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, await db.deletePartner(id));
-      }
-
-      if (pathname === '/api/modules/investments') {
-        if (method === 'GET') return sendJson(res, 200, await db.getInvestmentsList());
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          return sendJson(res, 201, await db.createInvestment(body));
-        }
-      }
-      if (pathname.startsWith('/api/modules/investments/') && method === 'DELETE') {
-        const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, await db.deleteInvestment(id));
-      }
-
-      if (pathname === '/api/modules/imports') {
-        if (method === 'GET') return sendJson(res, 200, await db.getImportsList());
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          return sendJson(res, 201, await db.createImport(body));
-        }
-      }
-      if (pathname.startsWith('/api/modules/imports/') && method === 'DELETE') {
-        const id = parseInt(pathname.split('/').pop(), 10);
-        return sendJson(res, 200, await db.deleteImport(id));
-      }
-
-      if (pathname === '/api/modules/profit-loss' && method === 'GET') {
-        return sendJson(res, 200, await db.getProfitLossStatement());
-      }
-
-      // 1. Dashboard
-      if (pathname === '/api/dashboard' && method === 'GET') {
-        const summary = await db.getDashboardSummary();
-        return sendJson(res, 200, summary);
-      }
-
-      // 2. Accounts
-      if (pathname === '/api/accounts') {
-        if (method === 'GET') {
-          return sendJson(res, 200, await db.getAccounts());
-        }
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          const acc = await db.createAccount(body);
-          return sendJson(res, 201, acc);
-        }
-      }
-
-      // 3. Journal Entries
-      if (pathname === '/api/journal') {
-        if (method === 'GET') {
-          const limit = parseInt(parsedUrl.query.limit || '100', 10);
-          return sendJson(res, 200, await db.getJournalEntries(limit));
-        }
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          const entry = await db.createJournalEntry(body);
-          return sendJson(res, 201, entry);
-        }
-      }
-
-      // 4. Invoices
-      if (pathname === '/api/invoices') {
-        if (method === 'GET') {
-          const type = parsedUrl.query.type || 'sales';
-          return sendJson(res, 200, await db.getInvoices(type));
-        }
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          const inv = await db.createInvoice(body);
-          return sendJson(res, 201, inv);
-        }
-      }
-
-      // 5. Vouchers
-      if (pathname === '/api/vouchers') {
-        if (method === 'GET') {
-          const type = parsedUrl.query.type || 'receipt';
-          return sendJson(res, 200, await db.getVouchers(type));
-        }
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          const voucher = await db.createVoucher(body);
-          return sendJson(res, 201, voucher);
-        }
-      }
-
-      // 6. Contacts
-      if (pathname === '/api/contacts') {
-        if (method === 'GET') {
-          const type = parsedUrl.query.type || null;
-          return sendJson(res, 200, await db.getContacts(type));
-        }
-        if (method === 'POST') {
-          const body = await parseBody(req);
-          const contact = await db.createContact(body);
-          return sendJson(res, 201, contact);
-        }
-      }
-
-      // 7. Reports
-      if (pathname === '/api/reports/trial-balance' && method === 'GET') {
-        return sendJson(res, 200, await db.getTrialBalance());
-      }
-
-      if (pathname === '/api/reports/general-ledger' && method === 'GET') {
-        const accountId = parseInt(parsedUrl.query.accountId, 10);
-        if (!accountId) {
-          return sendJson(res, 400, { error: 'رقم الحساب مطلوب (accountId)' });
-        }
-        const startDate = parsedUrl.query.startDate || null;
-        const endDate = parsedUrl.query.endDate || null;
-        return sendJson(res, 200, await db.getGeneralLedger(accountId, startDate, endDate));
-      }
-
-      if (pathname === '/api/reports/income-statement' && method === 'GET') {
-        return sendJson(res, 200, await db.getIncomeStatement());
-      }
-
-      if (pathname === '/api/reports/balance-sheet' && method === 'GET') {
-        return sendJson(res, 200, await db.getBalanceSheet());
-      }
-
-      return sendJson(res, 404, { error: 'نقطة الاتصال غير موجودة' });
-    }
-
-    // Static File Serving
-    let safePath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
-    if (safePath === '/' || safePath === '\\') safePath = '/index.html';
-
-    const baseName = path.basename(safePath);
-    const candidatePaths = [
-      path.join(PUBLIC_DIR, safePath),
-      path.join(__dirname, safePath),
-      path.join(PUBLIC_DIR, baseName),
-      path.join(__dirname, baseName),
-      path.join(__dirname, 'css', baseName),
-      path.join(__dirname, 'js', baseName)
-    ];
-
-    let foundFile = null;
-    for (const p of candidatePaths) {
-      if (fs.existsSync(p) && fs.statSync(p).isFile()) {
-        foundFile = p;
-        break;
-      }
-    }
-
-    if (foundFile) {
-      const ext = path.extname(foundFile).toLowerCase();
-      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-      res.writeHead(200, { 'Content-Type': contentType });
-      fs.createReadStream(foundFile).pipe(res);
+      const webRes = await app.fetch(webReq);
+      const headersObj = {};
+      webRes.headers.forEach((v, k) => { headersObj[k] = v; });
+      res.writeHead(webRes.status, headersObj);
+      const arrayBuf = await webRes.arrayBuffer();
+      res.end(Buffer.from(arrayBuf));
       return;
     }
 
-    // Fallback to index.html for SPA
-    const fallbackPaths = [
-      path.join(PUBLIC_DIR, 'index.html'),
-      path.join(__dirname, 'index.html')
-    ];
-    for (const p of fallbackPaths) {
-      if (fs.existsSync(p)) {
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        fs.createReadStream(p).pipe(res);
-        return;
-      }
+    // Static File Serving from public/
+    const pathname = rawUrl.split('?')[0];
+    let safePath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
+    if (safePath === '/' || safePath === '\\') safePath = '/index.html';
+
+    const candidate = path.join(PUBLIC_DIR, safePath);
+    const foundFile = (fs.existsSync(candidate) && fs.statSync(candidate).isFile())
+      ? candidate
+      : path.join(PUBLIC_DIR, 'index.html');
+
+    if (fs.existsSync(foundFile)) {
+      const ext = path.extname(foundFile).toLowerCase();
+      res.writeHead(200, { 'Content-Type': MIME_TYPES[ext] || 'application/octet-stream' });
+      fs.createReadStream(foundFile).pipe(res);
+      return;
     }
 
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('404 Not Found');
   } catch (err) {
     console.error('Server Error:', err);
-    sendJson(res, 500, { error: err.message || 'حدث خطأ في الخادم' });
+    res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ error: err.message || 'حدث خطأ في الخادم' }));
   }
 };
 
 const server = http.createServer(requestHandler);
 
-module.exports = { handler: requestHandler };
+module.exports = { app, handler: requestHandler };
 
-if (require.main === module) server.listen(PORT, '0.0.0.0', () => {
-  console.log(`====================================================`);
-  console.log(`  البرنامج المحاسبي قيد التشغيل الآن بنجاح!`);
-  console.log(`  الرابط المحلي: http://localhost:${PORT}`);
-  console.log(`====================================================`);
-});
+if (require.main === module) {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`====================================================`);
+    console.log(`  نظام نديم ERP لإدارة محلات الألبسة والحسابات (Hono + Supabase)`);
+    console.log(`  الرابط المحلي: http://localhost:${PORT}`);
+    console.log(`====================================================`);
+  });
+}
