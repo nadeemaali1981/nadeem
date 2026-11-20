@@ -1,3 +1,9 @@
+// @ts-nocheck
+export function mountModulesController() {
+  if (typeof window === 'undefined') return;
+  if ((window as any).__mountModulesController_loaded) return;
+  (window as any).__mountModulesController_loaded = true;
+
 // modules.js - Logic for ERP modules: Sales, Expenses, Suppliers, Employees, Checks, Partners, Investments, Imports, Receivables, Profit & Loss
 
 // Global state for modules
@@ -1080,4 +1086,20 @@ if (document.readyState === 'loading') {
   });
 } else {
   if (typeof window.applyCustomFieldNames === 'function') window.applyCustomFieldNames();
+}
+
+
+  (window as any).formatCurrency = formatCurrency;
+  (window as any).loadSalesTab = loadSalesTab;
+  (window as any).loadExpensesTab = loadExpensesTab;
+  (window as any).loadSuppliersTab = loadSuppliersTab;
+  (window as any).loadEmployeesTab = loadEmployeesTab;
+  (window as any).loadReceivablesTab = loadReceivablesTab;
+  (window as any).loadChecksTab = loadChecksTab;
+  (window as any).updateCheckStatus = updateCheckStatus;
+  (window as any).loadPartnersTab = loadPartnersTab;
+  (window as any).loadInvestmentsTab = loadInvestmentsTab;
+  (window as any).loadImportsTab = loadImportsTab;
+  (window as any).loadProfitLossTab = loadProfitLossTab;
+  (window as any).submitForm = submitForm;
 }

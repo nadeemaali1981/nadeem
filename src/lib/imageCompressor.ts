@@ -1,3 +1,9 @@
+// @ts-nocheck
+export function mountImageCompressor() {
+  if (typeof window === 'undefined') return;
+  if ((window as any).__mountImageCompressor_loaded) return;
+  (window as any).__mountImageCompressor_loaded = true;
+
 /**
  * image-compressor.js - Visually-Lossless Smart WebP Image Compression Engine
  * Engineered for Clothes Store ERP (Nadeem ERP):
@@ -321,3 +327,7 @@
     formatBytes
   };
 })();
+
+
+
+}

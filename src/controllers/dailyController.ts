@@ -1,3 +1,9 @@
+// @ts-nocheck
+export function mountDailyController() {
+  if (typeof window === 'undefined') return;
+  if ((window as any).__mountDailyController_loaded) return;
+  (window as any).__mountDailyController_loaded = true;
+
 // Daily Journal (دفتر اليومية المطور) - Logic & Calculations
 
 // Day Names in Arabic
@@ -1419,4 +1425,41 @@ function showToast(msg) {
   toast.textContent = msg;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+
+  (window as any).formatLocalDate = formatLocalDate;
+  (window as any).getDayNameFromDateStr = getDayNameFromDateStr;
+  (window as any).formatDisplayDateTime = formatDisplayDateTime;
+  (window as any).initDailyJournal = initDailyJournal;
+  (window as any).setupEventListeners = setupEventListeners;
+  (window as any).changeDay = changeDay;
+  (window as any).setSheetLockedState = setSheetLockedState;
+  (window as any).requestEditSheet = requestEditSheet;
+  (window as any).loadSheet = loadSheet;
+  (window as any).filterEmptyRows = filterEmptyRows;
+  (window as any).renderUI = renderUI;
+  (window as any).renderPerfumeSalesTable = renderPerfumeSalesTable;
+  (window as any).renderSimpleTable = renderSimpleTable;
+  (window as any).renderEmployeeSalesTable = renderEmployeeSalesTable;
+  (window as any).renderMerchantDispatchesTable = renderMerchantDispatchesTable;
+  (window as any).renderExtraRevenuesTable = renderExtraRevenuesTable;
+  (window as any).renderRevenueExpensesTable = renderRevenueExpensesTable;
+  (window as any).renderDailyNotesTable = renderDailyNotesTable;
+  (window as any).setKpiMode = setKpiMode;
+  (window as any).recalculateAll = recalculateAll;
+  (window as any).parseMoney = parseMoney;
+  (window as any).sumCategory = sumCategory;
+  (window as any).formatMoney = formatMoney;
+  (window as any).setText = setText;
+  (window as any).escapeHtml = escapeHtml;
+  (window as any).markUnsaved = markUnsaved;
+  (window as any).saveSheet = saveSheet;
+  (window as any).clearCurrentSheetFields = clearCurrentSheetFields;
+  (window as any).reSeedHistoricalData = reSeedHistoricalData;
+  (window as any).openHistoryModal = openHistoryModal;
+  (window as any).renderHistoryRows = renderHistoryRows;
+  (window as any).filterHistoryList = filterHistoryList;
+  (window as any).closeHistoryModal = closeHistoryModal;
+  (window as any).showToast = showToast;
 }

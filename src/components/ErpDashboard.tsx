@@ -1,40 +1,50 @@
+'use client';
+// @ts-nocheck
 import React, { useEffect } from 'react';
-import HeaderSection from './components/HeaderSection.jsx';
-import DailyJournalSection from './components/DailyJournalSection.jsx';
-import SalesModuleSection from './components/SalesModuleSection.jsx';
-import FinancialModulesSection from './components/FinancialModulesSection.jsx';
-import SettingsSection from './components/SettingsSection.jsx';
-import ModalsSection from './components/ModalsSection.jsx';
+import HeaderSection from './HeaderSection';
+import DailyJournalSection from './DailyJournalSection';
+import SalesModuleSection from './SalesModuleSection';
+import FinancialModulesSection from './FinancialModulesSection';
+import SettingsSection from './SettingsSection';
+import ModalsSection from './ModalsSection';
+import { mountImageCompressor } from '@/lib/imageCompressor';
+import { mountModulesController } from '@/controllers/modulesController';
+import { mountDailyController } from '@/controllers/dailyController';
 
-export default function App() {
+export default function ErpDashboard() {
   useEffect(() => {
-    // 1. Bind Navigation Tab Switching
+    // 1. Mount TypeScript ERP Controllers & Smart WebP Image Compression Engine
+    mountImageCompressor();
+    mountModulesController();
+    mountDailyController();
+
+    // 2. Bind Navigation Tab Switching
     const tabs = document.querySelectorAll('.nav-tab');
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
-        const target = tab.dataset.tab;
-        if (typeof window.switchTab === 'function') {
-          window.switchTab(target);
+        const target = (tab as HTMLElement).dataset.tab;
+        if (typeof (window as any).switchTab === 'function') {
+          (window as any).switchTab(target);
         }
       });
     });
 
-    // 2. Bind Accounts Loader
-    window.loadAccountsTab = async function () {
+    // 3. Bind Accounts Tab Loader
+    (window as any).loadAccountsTab = async function () {
       const tbody = document.getElementById('accountsTableBody');
       if (!tbody) return;
       try {
         const res = await fetch('/api/accounts');
         const data = await res.json();
         tbody.innerHTML = '';
-        const typeNames = {
+        const typeNames: Record<string, string> = {
           asset: 'أصول',
           liability: 'خصوم / التزامات',
           equity: 'حقوق ملكية',
           revenue: 'إيرادات',
           expense: 'مصروفات'
         };
-        data.forEach(acc => {
+        data.forEach((acc: any) => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td style="font-weight:700;">${acc.code}</td>
@@ -52,19 +62,18 @@ export default function App() {
       }
     };
 
-    document.getElementById('btnRefreshAccounts')?.addEventListener('click', window.loadAccountsTab);
+    document.getElementById('btnRefreshAccounts')?.addEventListener('click', (window as any).loadAccountsTab);
 
-    // 3. Initialize Custom Field Names & Daily Journal Engine
-    if (typeof window.applyCustomFieldNames === 'function') {
-      window.applyCustomFieldNames();
+    if (typeof (window as any).applyCustomFieldNames === 'function') {
+      (window as any).applyCustomFieldNames();
     }
-    if (typeof window.initDailyJournal === 'function') {
-      window.initDailyJournal();
+    if (typeof (window as any).initDailyJournal === 'function') {
+      (window as any).initDailyJournal();
     }
   }, []);
 
   return (
-    <div className="erp-react-root" style={{ display: 'contents' }}>
+    <div className="erp-nextjs-root" style={{ display: 'contents' }}>
       <HeaderSection />
       <main className="main-content">
         <DailyJournalSection />

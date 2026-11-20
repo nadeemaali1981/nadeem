@@ -1,3 +1,5 @@
+// @ts-nocheck
+import historicalData from "./historicalData";
 /**
  * db-pg.js - المحرك السحابي لقاعدة بيانات Supabase (PostgreSQL)
  * يوفر استدامة كاملة وحفظاً دائماً لبيانات المحاسبة ودفتر اليومية بدون أي فقدان.
@@ -494,7 +496,7 @@ async function seedHistoricalSales(force = false) {
 
     let records = null;
     try {
-      records = require('./historical_data.js');
+      records = historicalData;
     } catch (e) {
       const jsonPath = path.join(__dirname, 'historical_sales.json');
       if (fs.existsSync(jsonPath)) {

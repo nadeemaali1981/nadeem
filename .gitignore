@@ -10,3 +10,7 @@ Thumbs.db
 *.db-journal
 *.db-wal
 *.db-shm
+
+.next/
+out/
+next-env.d.ts

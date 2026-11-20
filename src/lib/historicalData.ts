@@ -1,4 +1,5 @@
-module.exports = [
+// @ts-nocheck
+const historicalData = [
   {
     "sheet_date": "2026-01-01",
     "day_name": "الخميس",
@@ -4015,3 +4016,5 @@ module.exports = [
     "sales_items_count": 0
   }
 ];
+
+export default historicalData;
