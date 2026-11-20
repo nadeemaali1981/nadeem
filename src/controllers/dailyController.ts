@@ -533,21 +533,6 @@ function renderUI() {
   const depBizDate = document.getElementById('input_deposit_business_date');
   if (depBizDate) depBizDate.value = state.deposits.business_date || state.sheet_date || '';
 
-  // Click on locked input field to prompt for edit (once per click)
-  document.addEventListener('click', (e) => {
-    if (!state.isLocked) return;
-    const target = e.target as HTMLElement;
-    if (!target) return;
-    if (
-      target.classList.contains('sales-binding') ||
-      target.classList.contains('table-input') ||
-      target.classList.contains('deposit-date-binding')
-    ) {
-      e.stopImmediatePropagation();
-      requestEditSheet(target);
-    }
-  });
-
   // Notes
   const notesEl = document.getElementById('notesTextarea');
   if (notesEl) notesEl.value = state.notes;
