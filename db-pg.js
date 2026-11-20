@@ -31,18 +31,12 @@ try {
 
 // Sanitize DATABASE_URL if password has brackets or points to IPv6 direct connection
 function sanitizeDatabaseUrl(url) {
-  if (!url) return 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
-  let s = url.replace(/:\[([^\]]+)\]@/, ':$1@');
-  if (s.includes('[YOUR-DATABASE-PASSWORD]')) {
-    s = s.replace('[YOUR-DATABASE-PASSWORD]', 'nadeemamjad5');
-  }
-  if (s.includes('db.jyrvqezhzimtaxgukmhj.supabase.co') || s.includes(':5432')) {
-    s = 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
-  }
-  return s;
+  if (!url) return '';
+  // Remove accidental [brackets] around the password, e.g. user:[password]@host
+  return url.replace(/:\[([^\]]+)\]@/, ':$1@');
 }
 
-const SUPABASE_DEFAULT_URL = 'postgresql://postgres.jyrvqezhzimtaxgukmhj:nadeemamjad5@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres';
+const SUPABASE_DEFAULT_URL = '';
 const DATABASE_URL = sanitizeDatabaseUrl(process.env.DATABASE_URL || process.env.SUPABASE_URL || SUPABASE_DEFAULT_URL);
 
 if (!DATABASE_URL) {
