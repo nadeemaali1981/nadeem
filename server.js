@@ -84,8 +84,20 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (pathname === '/api/daily-sheets/clear-all' && method === 'POST') {
+        const body = await parseBody(req);
+        if (body.confirm !== 'CONFIRM_DELETE_ALL') {
+          return sendJson(res, 400, { success: false, error: 'يتطلب تأكيد أمني لحذف كافة السجلات' });
+        }
         const result = await db.clearAllDailySheets();
         return sendJson(res, 200, result);
+      }
+
+      if (pathname === '/api/seed-historical') {
+        if (typeof db.seedHistoricalSales === 'function') {
+          const resData = await db.seedHistoricalSales(true);
+          return sendJson(res, 200, resData);
+        }
+        return sendJson(res, 200, { success: true, message: 'البيانات محملة' });
       }
 
       // Download Database Backup (النسخة الاحتياطية)

@@ -464,15 +464,17 @@ async function seedModuleData() {
   }
 }
 
-async function seedHistoricalSales() {
+async function seedHistoricalSales(force = false) {
   try {
-    const row = await get('SELECT COUNT(*) as count FROM daily_sheets');
-    const itemsRow = await get('SELECT COALESCE(SUM(sales_items_count), 0) as total_items FROM daily_sheets');
-    const count = parseInt(row?.count || 0, 10);
-    const totalItems = parseInt(itemsRow?.total_items || 0, 10);
+    if (!force) {
+      const row = await get('SELECT COUNT(*) as count FROM daily_sheets');
+      const itemsRow = await get('SELECT COALESCE(SUM(sales_items_count), 0) as total_items FROM daily_sheets');
+      const count = parseInt(row?.count || 0, 10);
+      const totalItems = parseInt(itemsRow?.total_items || 0, 10);
 
-    if (count >= 300 && totalItems > 10000) {
-      return { success: true, message: 'البيانات التاريخية موجودة ومحدثة بالكامل مع عدد القطع', count, totalItems };
+      if (count >= 365 && totalItems >= 13666) {
+        return { success: true, message: 'البيانات التاريخية كاملة لجميع أيام السنة ومحدثة مع عدد القطع', count, totalItems };
+      }
     }
 
     let records = null;
@@ -1477,7 +1479,7 @@ async function saveDailySheet(data) {
   });
 }
 
-async function getDailySheetsHistory(limit = 30) {
+async function getDailySheetsHistory(limit = 500) {
   await initSchema();
   const sheets = await all('SELECT * FROM daily_sheets ORDER BY sheet_date DESC LIMIT ?', [limit]);
   return sheets.map(s => {
@@ -1489,7 +1491,9 @@ async function getDailySheetsHistory(limit = 30) {
       sheet_date: s.sheet_date,
       day_name: s.day_name,
       total_sales: Math.round(totalSales * 100) / 100,
-      sales_items_count: s.sales_items_count || 0,
+      sales_items_count: Number(s.sales_items_count || 0),
+      total_deposits: Number(s.deposit_personal || 0) + Number(s.deposit_business || 0),
+      total_expenses: 0,
       notes: s.notes || '',
       created_at: s.created_at
     };

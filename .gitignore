@@ -1,0 +1,7 @@
+node_modules/
+bin/cloudflared.exe
+*.log
+tunnel_url.txt
+.DS_Store
+Thumbs.db
+.env

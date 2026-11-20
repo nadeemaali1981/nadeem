@@ -973,11 +973,8 @@ window.loadSettingsTab = function() {
 };
 
 window.clearAllDailySheetsConfirm = function() {
-  if (typeof window.handleClearAllDailySheets === 'function') {
-    window.handleClearAllDailySheets();
-  } else {
-    const btn = document.getElementById('btnClearAllDailySheets');
-    if (btn) btn.click();
+  if (typeof window.clearCurrentSheetFields === 'function') {
+    window.clearCurrentSheetFields();
   }
 };
 

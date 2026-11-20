@@ -1,8 +1,50 @@
 // Daily Journal (دفتر اليومية المطور) - Logic & Calculations
 
+// Day Names in Arabic
+const DAY_NAMES = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+function formatLocalDate(dt) {
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getDayNameFromDateStr(dateStr) {
+  if (!dateStr) return '';
+  const parts = String(dateStr).split('-');
+  if (parts.length === 3) {
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    // Use noon 12:00:00 to avoid any timezone/DST shift issues
+    const dt = new Date(y, m, d, 12, 0, 0);
+    return DAY_NAMES[dt.getDay()];
+  }
+  const dt = new Date(dateStr);
+  return !isNaN(dt) ? DAY_NAMES[dt.getDay()] : '';
+}
+
+function formatDisplayDateTime(dtStr) {
+  if (!dtStr) return '';
+  try {
+    const d = new Date(dtStr);
+    if (isNaN(d.getTime())) return dtStr;
+    return d.toLocaleString('ar-JO', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit'
+    });
+  } catch (e) {
+    return dtStr;
+  }
+}
+
 let state = {
-  date: new Date().toISOString().split('T')[0],
+  date: formatLocalDate(new Date()),
   dayName: '',
+  isLocked: false,
+  hasSavedData: false,
+  updatedAt: null,
   kpiMode: 'daily', // 'daily' or 'cumulative'
   cum_stats: {
     cum_sales: 0,
@@ -50,9 +92,6 @@ let state = {
 
 let autoSaveTimer = null;
 
-// Day Names in Arabic
-const DAY_NAMES = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
@@ -73,17 +112,18 @@ function setupEventListeners() {
   document.getElementById('btnPrevDay')?.addEventListener('click', () => changeDay(-1));
   document.getElementById('btnNextDay')?.addEventListener('click', () => changeDay(1));
   document.getElementById('btnToday')?.addEventListener('click', () => {
-    state.date = new Date().toISOString().split('T')[0];
+    state.date = formatLocalDate(new Date());
     if (dateInput) dateInput.value = state.date;
     loadSheet(state.date);
   });
 
   // Action Buttons
+  document.getElementById('btnEditSheet')?.addEventListener('click', requestEditSheet);
   document.getElementById('btnSaveManual')?.addEventListener('click', () => saveSheet(true));
   document.getElementById('btnPrint')?.addEventListener('click', () => window.print());
   document.getElementById('btnHistory')?.addEventListener('click', openHistoryModal);
   document.getElementById('btnCloseHistory')?.addEventListener('click', closeHistoryModal);
-  document.getElementById('btnClearAllDailySheets')?.addEventListener('click', handleClearAllDailySheets);
+  document.getElementById('btnClearSheetFields')?.addEventListener('click', clearCurrentSheetFields);
 
   // Bind Sales and Deposits Inputs
   const salesInputs = document.querySelectorAll('.sales-binding');
@@ -91,9 +131,13 @@ function setupEventListeners() {
     input.addEventListener('input', (e) => {
       const field = e.target.dataset.field;
       if (field === 'sales_items_count') {
-        const val = parseInt(e.target.value, 10) || 0;
-        state.sales.items_count = val;
-        if (val > 0) {
+        const valStr = e.target.value.trim();
+        if (valStr === '') {
+          state.sales.items_count = '';
+        } else {
+          state.sales.items_count = parseInt(valStr, 10);
+        }
+        if (valStr !== '' && !isNaN(parseInt(valStr, 10)) && parseInt(valStr, 10) >= 0) {
           e.target.style.borderColor = '';
           e.target.style.boxShadow = '';
           e.target.classList.remove('input-error');
@@ -108,7 +152,7 @@ function setupEventListeners() {
         }
       }
       recalculateAll();
-      triggerAutoSave();
+      markUnsaved();
     });
 
     input.addEventListener('blur', (e) => {
@@ -129,7 +173,7 @@ function setupEventListeners() {
       } else if (field === 'deposit_business_date') {
         state.deposits.business_date = e.target.value;
       }
-      triggerAutoSave();
+      markUnsaved();
     });
   });
 
@@ -138,7 +182,7 @@ function setupEventListeners() {
   if (notesEl) {
     notesEl.addEventListener('input', (e) => {
       state.notes = e.target.value;
-      triggerAutoSave();
+      markUnsaved();
     });
   }
 
@@ -151,20 +195,123 @@ function setupEventListeners() {
         if (id === 'perfume_debit') state.perfume.debit = parseMoney(e.target.value);
         if (id === 'perfume_credit') state.perfume.credit = parseMoney(e.target.value);
         recalculateAll();
-        triggerAutoSave();
+        markUnsaved();
       });
     }
   });
 }
 
 function changeDay(delta) {
-  const d = new Date(state.date + 'T00:00:00');
-  d.setDate(d.getDate() + delta);
-  state.date = d.toISOString().split('T')[0];
+  const parts = state.date.split('-');
+  const y = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10) - 1;
+  const d = parseInt(parts[2], 10);
+  const dt = new Date(y, m, d + delta, 12, 0, 0);
+  state.date = formatLocalDate(dt);
   const dateInput = document.getElementById('sheetDateInput');
   if (dateInput) dateInput.value = state.date;
   loadSheet(state.date);
 }
+
+// قفل / فتح حقول الدفتر والتأكيد على التعديل
+function setSheetLockedState(locked) {
+  state.isLocked = locked;
+
+  // الحقول التي يتم تفعيلها أو إيقافها
+  const inputsToToggle = document.querySelectorAll(
+    '.sales-binding, .table-input, #notesTextarea, .deposit-date-binding, .btn-del-row, #perfume_desc, #perfume_debit, #perfume_credit'
+  );
+  inputsToToggle.forEach(input => {
+    if (locked) {
+      input.setAttribute('disabled', 'disabled');
+      input.style.backgroundColor = '#f8fafc';
+      input.style.cursor = 'not-allowed';
+    } else {
+      input.removeAttribute('disabled');
+      input.style.backgroundColor = '';
+      input.style.cursor = '';
+    }
+  });
+
+  // إيقاف نقرات إضافة السطور في الجداول إذا كان مقفولاً
+  document.querySelectorAll('.empty-row-placeholder span, .card-body tfoot button').forEach(el => {
+    if (locked) {
+      el.style.pointerEvents = 'none';
+      el.style.opacity = '0.4';
+    } else {
+      el.style.pointerEvents = '';
+      el.style.opacity = '';
+    }
+  });
+
+  const btnEditSheet = document.getElementById('btnEditSheet');
+  const btnSaveManual = document.getElementById('btnSaveManual');
+  const btnSaveManualText = document.getElementById('btnSaveManualText');
+  const btnClear = document.getElementById('btnClearSheetFields');
+  const banner = document.getElementById('sheetStatusBanner');
+  const bannerText = document.getElementById('sheetBannerText');
+  const bannerDate = document.getElementById('sheetBannerDate');
+
+  if (btnClear) {
+    btnClear.disabled = locked;
+    btnClear.style.opacity = locked ? '0.5' : '1';
+    btnClear.style.cursor = locked ? 'not-allowed' : 'pointer';
+  }
+
+  if (locked) {
+    if (btnEditSheet) btnEditSheet.style.display = 'inline-flex';
+    if (btnSaveManual) btnSaveManual.style.display = 'none';
+
+    if (banner) {
+      banner.style.display = 'flex';
+      banner.style.background = '#fef3c7';
+      banner.style.color = '#92400e';
+      banner.style.border = '1px solid #fde68a';
+      if (bannerText) {
+        bannerText.innerHTML = '🔒 <b>الدفتر مقفل للعرض والحماية من التعديل غير المقصود</b>. لتعديل أي أرقام انقر على زر <span style="text-decoration: underline;">[✏️ تعديل الدفتر]</span> بالأعلى.';
+      }
+      if (bannerDate) {
+        const dtStr = state.updatedAt ? formatDisplayDateTime(state.updatedAt) : '';
+        bannerDate.textContent = dtStr ? `آخر حفظ/تعديل: ${dtStr}` : '';
+      }
+    }
+  } else {
+    if (btnEditSheet) btnEditSheet.style.display = 'none';
+    if (btnSaveManual) btnSaveManual.style.display = 'inline-flex';
+    if (btnSaveManualText) {
+      btnSaveManualText.textContent = state.hasSavedData ? 'حفظ التعديلات' : 'حفظ اليومية';
+    }
+
+    if (state.hasSavedData) {
+      if (banner) {
+        banner.style.display = 'flex';
+        banner.style.background = '#eff6ff';
+        banner.style.color = '#1e40af';
+        banner.style.border = '1px solid #bfdbfe';
+        if (bannerText) {
+          bannerText.innerHTML = '✏️ <b>وضع التعديل مفعّل</b>: يمكنك الآن تعديل الأرقام، وبعد الانتهاء انقر على زر <b>[💾 حفظ التعديلات]</b> بالأعلى لحفظ التعديلات.';
+        }
+        if (bannerDate) bannerDate.textContent = '';
+      }
+    } else {
+      if (banner) banner.style.display = 'none';
+    }
+  }
+}
+
+// المطالبة بتأكيد التعديل عبر نافذة منبثقة
+function requestEditSheet() {
+  const confirmed = confirm(
+    'هل أنت متأكد من تعديل الدفتر؟\n\n' +
+    'عند النقر على "موافق" (نعم)، سيتم فتح جميع الخانات لتعديل الأرقام وستتمكن من حفظ التعديلات الجديدة.'
+  );
+  if (!confirmed) return;
+  setSheetLockedState(false);
+  showToast('تم فتح الدفتر للتعديل');
+  const firstInput = document.getElementById('input_sales_cash');
+  if (firstInput) firstInput.focus();
+}
+window.requestEditSheet = requestEditSheet;
 
 // Fetch Sheet from Server
 async function loadSheet(dateStr) {
@@ -174,9 +321,8 @@ async function loadSheet(dateStr) {
     if (!res.ok) throw new Error('فشل جلب بيانات اليومية');
     const data = await res.json();
 
-    // Map server data to state
-    const dObj = new Date(dateStr + 'T00:00:00');
-    state.dayName = data.day_name || (!isNaN(dObj) ? DAY_NAMES[dObj.getDay()] : '');
+    // المطابقة الدقيقة لليوم والتاريخ دائماً
+    state.dayName = getDayNameFromDateStr(dateStr);
 
     state.sales = {
       cash: data.sales_cash || 0,
@@ -185,7 +331,7 @@ async function loadSheet(dateStr) {
       ittihad: data.sales_ittihad || 0,
       ittihad_qr: data.sales_ittihad_qr || 0,
       cliq: data.sales_cliq || 0,
-      items_count: data.sales_items_count || 0
+      items_count: (data.sales_items_count !== undefined && data.sales_items_count !== null && data.sales_items_count !== '') ? data.sales_items_count : 0
     };
 
     state.deposits = {
@@ -241,9 +387,33 @@ async function loadSheet(dateStr) {
 
     renderUI();
     recalculateAll();
+
+    // التحقق مما إذا كان الدفتر محفوظاً مسبقاً في قاعدة البيانات
+    const hasExistingRecord = Boolean(
+      data.id ||
+      (Number(data.sales_cash || 0) > 0) ||
+      (Number(data.sales_delivery || 0) > 0) ||
+      (Number(data.sales_visa || 0) > 0) ||
+      (Number(data.sales_ittihad || 0) > 0) ||
+      (Number(data.sales_cliq || 0) > 0) ||
+      (Number(data.sales_items_count || 0) > 0) ||
+      (Number(data.deposit_personal || 0) > 0) ||
+      (Number(data.deposit_business || 0) > 0) ||
+      (data.items && Object.values(data.items).some(arr => Array.isArray(arr) && arr.length > 0))
+    );
+
+    state.hasSavedData = hasExistingRecord;
+    state.updatedAt = data.updated_at || null;
+
+    // تطبيق حالة القفل بناءً على وجود سجل سابق
+    setSheetLockedState(state.hasSavedData);
+
     showToast('تم تحميل اليومية بنجاح');
   } catch (err) {
     console.error(err);
+    showToast('حدث خطأ أثناء تحميل اليومية');
+  }
+}
     showToast('حدث خطأ أثناء تحميل اليومية');
   }
 }
@@ -285,11 +455,9 @@ function renderUI() {
     const input = document.getElementById(`input_sales_${k}`);
     if (input) {
       if (k === 'items_count') {
-        input.value = v > 0 ? v : '';
-        if (v > 0) {
-          input.style.borderColor = '';
-          input.style.boxShadow = '';
-        }
+        input.value = (v !== '' && v !== null && v !== undefined && !isNaN(v) && Number(v) >= 0) ? v : '';
+        input.style.borderColor = '';
+        input.style.boxShadow = '';
       } else {
         input.value = v > 0 ? formatMoney(v) : '';
       }
@@ -321,6 +489,11 @@ function renderUI() {
   renderEmployeeSalesTable();
   renderMerchantDispatchesTable();
   renderDailyNotesTable();
+
+  // الحفاظ على حالة القفل بعد إعادة بناء الجداول
+  if (state.isLocked) {
+    setSheetLockedState(true);
+  }
 }
 
 // Render Perfume Sales Table (البيان، دائن، مدين)
@@ -618,20 +791,20 @@ window.addRow = function(categoryKey) {
   state.items[categoryKey].push({ col1: '', col2: '', col3: '', col4: '', col5: '', amount1: 0, amount2: 0 });
   renderUI();
   recalculateAll();
-  triggerAutoSave();
+  markUnsaved();
 };
 
 window.deleteRow = function(categoryKey, idx) {
   state.items[categoryKey].splice(idx, 1);
   renderUI();
   recalculateAll();
-  triggerAutoSave();
+  markUnsaved();
 };
 
 window.updateRowCol = function(categoryKey, idx, colKey, val) {
   if (state.items[categoryKey][idx]) {
     state.items[categoryKey][idx][colKey] = val;
-    triggerAutoSave();
+    markUnsaved();
   }
 };
 
@@ -650,7 +823,7 @@ window.updateRowAmount = function(categoryKey, idx, amountKey, val) {
         }
       }
     }
-    triggerAutoSave();
+    markUnsaved();
   }
 };
 
@@ -867,27 +1040,23 @@ function escapeHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// Auto Save with Debounce
-function triggerAutoSave() {
-  clearTimeout(autoSaveTimer);
+// Unsaved changes badge indicator (بدون أي حفظ تلقائي في الخلفية)
+function markUnsaved() {
   const statusEl = document.getElementById('autoSaveBadge');
   if (statusEl) {
-    statusEl.textContent = 'جاري الحفظ...';
+    statusEl.textContent = 'تعديلات غير محفوظة (اضغط حفظ اليومية)';
     statusEl.style.color = '#d97706';
   }
-
-  autoSaveTimer = setTimeout(() => {
-    saveSheet(false);
-  }, 1200);
 }
 
-async function saveSheet(isManual = false) {
+async function saveSheet(isManual = true) {
   // 1. التحقق الإجباري من إدخال عدد القطع المباعة
   const itemsCountInput = document.getElementById('input_sales_items_count');
   const itemsCountVal = itemsCountInput ? itemsCountInput.value.trim() : '';
   const parsedCount = parseInt(itemsCountVal, 10);
 
-  if (!itemsCountVal || isNaN(parsedCount) || parsedCount <= 0) {
+  // إذا كانت الخانة فارغة أو ليست رقماً صالحاً أو رقماً سالباً:
+  if (itemsCountVal === '' || isNaN(parsedCount) || parsedCount < 0) {
     if (itemsCountInput) {
       itemsCountInput.focus();
       itemsCountInput.style.borderColor = '#dc2626';
@@ -896,14 +1065,26 @@ async function saveSheet(isManual = false) {
     }
     const statusEl = document.getElementById('autoSaveBadge');
     if (statusEl) {
-      statusEl.textContent = 'لم يتم الحفظ: يجب كتابة عدد القطع المباعة!';
+      statusEl.textContent = 'لم يتم الحفظ: يجب تحديد عدد القطع المباعة!';
       statusEl.style.color = '#dc2626';
     }
-    showToast('⚠️ يرجى كتابة عدد القطع المباعة (حقل إجباري لإتمام الحفظ)');
-    if (isManual) {
-      alert('⚠️ تنبيه: خانة عدد القطع المباعة إجبارية! يرجى كتابة عدد القطع المباعة أولاً ليتم حفظ اليومية.');
-    }
+    alert('⚠️ تنبيه: لا يمكن حفظ اليومية قبل تعبئة خانة "عدد القطع المباعة"!\n(إذا لم تكن هناك قطع مباعة، اكتب 0 لأن الصفر رقم صحيح ومقبول).');
     return false;
+  }
+
+  // إزالة أي تمييز خطأ بعد التحقق الناجح
+  if (itemsCountInput) {
+    itemsCountInput.style.borderColor = '';
+    itemsCountInput.style.boxShadow = '';
+    itemsCountInput.classList.remove('input-error');
+  }
+
+  state.sales.items_count = parsedCount;
+
+  const statusEl = document.getElementById('autoSaveBadge');
+  if (statusEl) {
+    statusEl.textContent = 'جاري الحفظ...';
+    statusEl.style.color = '#2563eb';
   }
 
   try {
@@ -939,7 +1120,7 @@ async function saveSheet(isManual = false) {
       sales_ittihad: state.sales.ittihad,
       sales_ittihad_qr: state.sales.ittihad_qr,
       sales_cliq: state.sales.cliq,
-      sales_items_count: state.sales.items_count,
+      sales_items_count: parsedCount,
       deposit_personal: state.deposits.personal,
       deposit_business: state.deposits.business,
       deposit_personal_date: state.deposits.personal_date || '',
@@ -970,63 +1151,208 @@ async function saveSheet(isManual = false) {
     }
     recalculateAll();
 
-    const statusEl = document.getElementById('autoSaveBadge');
+    state.hasSavedData = true;
+    const now = new Date();
+    const nowFormatted = now.toLocaleString('ar-JO', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    state.updatedAt = now.toISOString();
+
+    // قفل الدفتر بعد الحفظ الناجح
+    setSheetLockedState(true);
+
+    // إظهار رسالة النجاح وتاريخ التعديل أعلى الدفتر
+    const banner = document.getElementById('sheetStatusBanner');
+    const bannerText = document.getElementById('sheetBannerText');
+    const bannerDate = document.getElementById('sheetBannerDate');
+    if (banner) {
+      banner.style.display = 'flex';
+      banner.style.background = '#ecfdf5';
+      banner.style.color = '#065f46';
+      banner.style.border = '1px solid #a7f3d0';
+      if (bannerText) {
+        bannerText.innerHTML = `✅ <b>تم تعديل الدفتر وحفظ التعديلات بنجاح</b>`;
+      }
+      if (bannerDate) {
+        bannerDate.innerHTML = `<b>تاريخ ووقت التعديل:</b> ${nowFormatted}`;
+      }
+    }
+
     if (statusEl) {
-      statusEl.textContent = 'تم الحفظ تلقائياً';
+      statusEl.textContent = 'تم حفظ اليومية بنجاح';
       statusEl.style.color = '#059669';
     }
 
-    if (isManual) {
-      showToast('تم حفظ اليومية بنجاح!');
-    }
+    showToast('تم حفظ اليومية بنجاح!');
+    return true;
   } catch (err) {
     console.error(err);
-    const statusEl = document.getElementById('autoSaveBadge');
     if (statusEl) {
       statusEl.textContent = 'خطأ في الحفظ';
       statusEl.style.color = '#dc2626';
     }
-    if (isManual) showToast('حدث خطأ أثناء الحفظ');
+    alert('حدث خطأ أثناء الحفظ في الخادم: ' + err.message);
+    return false;
   }
 }
 
+// تفريغ خانات اليوم الحالي المعروض فقط (دون حذف أي سجلات تاريخية)
+function clearCurrentSheetFields() {
+  const confirmed = confirm(
+    'هل أنت متأكد من تفريغ وتصفير خانات اليوم الحالي المعروض في الشاشة؟\n\n' +
+    '📌 ملاحظة هامة: هذا التصفير للشاشة الحالية فقط ولا يحذف أي سجلات سابقة، ولن يُحفظ في الخادم إلا عند نقرك على "حفظ اليومية".'
+  );
+  if (!confirmed) return;
+
+  state.sales = { cash: 0, delivery: 0, visa: 0, ittihad: 0, ittihad_qr: 0, cliq: 0, items_count: '' };
+  state.deposits = { personal: 0, business: 0, personal_date: '', business_date: '' };
+  state.notes = '';
+  state.perfume = { desc: '', debit: 0, credit: 0 };
+  state.items = {
+    internal_expenses: [],
+    employee_advances: [],
+    supplier_payments: [],
+    cash_purchases: [],
+    perfume_sales: [],
+    merchant_dispatches: [],
+    employee_sales: [],
+    extra_revenues: [],
+    revenue_expenses: [],
+    daily_notes: []
+  };
+
+  state.hasSavedData = false;
+  setSheetLockedState(false);
+  renderUI();
+  recalculateAll();
+
+  // تفريغ المدخلات على الشاشة
+  document.querySelectorAll('.sales-binding').forEach(inp => {
+    inp.value = '';
+    inp.style.borderColor = '';
+    inp.style.boxShadow = '';
+    inp.classList.remove('input-error');
+  });
+
+  const notesEl = document.getElementById('notesTextarea');
+  if (notesEl) notesEl.value = '';
+
+  const statusEl = document.getElementById('autoSaveBadge');
+  if (statusEl) {
+    statusEl.textContent = 'تم تفريغ خانات اليوم (غير محفوظ - اضغط حفظ اليومية إذا أردت تثبيت التصفير)';
+    statusEl.style.color = '#64748b';
+  }
+
+  showToast('تم تفريغ خانات اليوم الحالي في الشاشة');
+}
+window.clearCurrentSheetFields = clearCurrentSheetFields;
+
+// استرجاع وإعادة تحميل بيانات الإكسل (321 يوم)
+async function reSeedHistoricalData() {
+  const confirmed = confirm(
+    'هل ترغب في استرجاع وإعادة تحميل كافة بيانات ملف الإكسل (321 يوماً مع عدد القطع المباعة) إلى قاعدة البيانات؟\n\n' +
+    'سيتم تحديث كافة المبيعات والقنوات وعدد القطع بالكامل.'
+  );
+  if (!confirmed) return;
+
+  showToast('جاري استرجاع بيانات الإكسل إلى قاعدة البيانات...');
+  try {
+    const res = await fetch('/api/seed-historical');
+    const data = await res.json();
+    if (data.success) {
+      alert(`✅ تم استرجاع وتحميل بيانات الإكسل بنجاح!\nعدد السجلات: ${data.count || 321} يوماً\nتم تحديث المبيعات وعدد القطع المباعة.`);
+      await loadSheet(state.date);
+      await openHistoryModal();
+    } else {
+      alert('ملاحظة: ' + (data.message || data.error));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('حدث خطأ أثناء الاتصال بالخادم: ' + err.message);
+  }
+}
+window.reSeedHistoricalData = reSeedHistoricalData;
+
 // History Modal
+let allHistoryData = [];
+
 async function openHistoryModal() {
   const modal = document.getElementById('historyModal');
   const tbody = document.getElementById('historyListBody');
+  const summaryEl = document.getElementById('historySummaryText');
   if (!modal || !tbody) return;
 
-  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">جاري التحميل...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 2rem;">جاري التحميل...</td></tr>';
   modal.classList.add('open');
 
   try {
-    const res = await fetch('/api/daily-sheets-history');
-    const list = await res.json();
+    const res = await fetch('/api/daily-sheets-history?limit=500');
+    allHistoryData = await res.json();
 
-    if (list.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">لا توجد يوميات مسجلة سابقاً</td></tr>';
+    if (!allHistoryData || allHistoryData.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 2rem;">لا توجد يوميات مسجلة سابقاً</td></tr>';
+      if (summaryEl) summaryEl.textContent = 'إجمالي السجلات: 0 يوم';
       return;
     }
 
-    tbody.innerHTML = '';
-    list.forEach(item => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td style="font-weight:700;">${item.sheet_date} (${item.day_name || ''})</td>
-        <td style="text-align:left; direction:ltr; font-weight:700; color:#1e3a8a;">${formatMoney(item.total_sales || 0)}</td>
-        <td style="text-align:left; direction:ltr; color:#dc2626;">${formatMoney(item.total_expenses || 0)}</td>
-        <td style="text-align:left; direction:ltr;">${formatMoney(item.total_deposits || 0)}</td>
-        <td style="text-align:center;">
-          <button class="btn btn-secondary btn-sm" onclick="selectHistoryDay('${item.sheet_date}')">فتح اليومية</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
+    let sumSales = 0;
+    let sumItems = 0;
+    allHistoryData.forEach(item => {
+      sumSales += Number(item.total_sales || 0);
+      sumItems += Number(item.sales_items_count || 0);
     });
+
+    if (summaryEl) {
+      summaryEl.innerHTML = `إجمالي السجلات: <b>${allHistoryData.length} يوم</b> | إجمالي المبيعات: <b>${formatMoney(sumSales)} د.أ</b> | إجمالي القطع: <b>${sumItems.toLocaleString()} قطعة</b>`;
+    }
+
+    renderHistoryRows(allHistoryData);
   } catch (err) {
     console.error(err);
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#dc2626;">فشل تحميل السجل</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#dc2626;">فشل تحميل السجل</td></tr>';
   }
 }
+
+function renderHistoryRows(list) {
+  const tbody = document.getElementById('historyListBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 1.5rem; color:#64748b;">لا توجد نتائج مطابقة للبحث</td></tr>';
+    return;
+  }
+
+  list.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:700;">${item.sheet_date} <span style="color:#64748b; font-weight:normal;">(${item.day_name || ''})</span></td>
+      <td style="text-align:left; direction:ltr; font-weight:700; color:#1e3a8a;">${formatMoney(item.total_sales || 0)}</td>
+      <td style="text-align:center; font-weight:700; color:#be185d;">${Number(item.sales_items_count || 0).toLocaleString()} قطعة</td>
+      <td style="text-align:left; direction:ltr; color:#dc2626;">${formatMoney(item.total_expenses || 0)}</td>
+      <td style="text-align:left; direction:ltr;">${formatMoney(item.total_deposits || 0)}</td>
+      <td style="text-align:center;">
+        <button class="btn btn-secondary btn-sm" onclick="selectHistoryDay('${item.sheet_date}')">فتح اليومية</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterHistoryList(query) {
+  const q = (query || '').trim().toLowerCase();
+  if (!q) {
+    renderHistoryRows(allHistoryData);
+    return;
+  }
+  const filtered = allHistoryData.filter(item => {
+    return (item.sheet_date && item.sheet_date.includes(q)) ||
+           (item.day_name && item.day_name.toLowerCase().includes(q));
+  });
+  renderHistoryRows(filtered);
+}
+window.filterHistoryList = filterHistoryList;
 
 function closeHistoryModal() {
   const modal = document.getElementById('historyModal');
@@ -1040,32 +1366,6 @@ window.selectHistoryDay = function(dateStr) {
   closeHistoryModal();
   loadSheet(state.date);
 };
-
-// Clear all daily sheets across all days (تفريغ حقول دفتر اليومية لجميع الأيام)
-async function handleClearAllDailySheets() {
-  const confirmed = confirm(
-    'هل أنت متأكد من تفريغ حقول دفتر اليومية ومسح جميع الأرقام من جميع الأيام؟\n\n' +
-    '⚠️ تنبيه: سيتم مسح كافة الأرقام والبيانات المسجلة في دفاتر اليومية لجميع الأيام وتصفير الصندوق بالكامل، ولا يمكن التراجع عن هذه الخطوة.'
-  );
-  if (!confirmed) return;
-
-  showToast('جاري تفريغ الحقول لجميع الأيام...');
-  try {
-    const res = await fetch('/api/daily-sheets/clear-all', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    if (!res.ok) throw new Error('فشل تفريغ الحقول في السيرفر');
-
-    showToast('تم تفريغ جميع حقول دفاتر اليومية بنجاح!');
-
-    // Reload currently active sheet (will load fully blank/zeroed)
-    await loadSheet(state.date);
-  } catch (err) {
-    console.error(err);
-    alert('حدث خطأ أثناء تفريغ الحقول: ' + err.message);
-  }
-}
 
 // Toast notification
 function showToast(msg) {

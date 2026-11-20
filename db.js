@@ -269,15 +269,17 @@ function initSchema() {
   seedHistoricalSales();
 }
 
-function seedHistoricalSales() {
+function seedHistoricalSales(force = false) {
   try {
-    const row = db.prepare('SELECT COUNT(*) as count FROM daily_sheets').get();
-    const itemsRow = db.prepare('SELECT COALESCE(SUM(sales_items_count), 0) as total_items FROM daily_sheets').get();
-    const count = parseInt(row?.count || 0, 10);
-    const totalItems = parseInt(itemsRow?.total_items || 0, 10);
+    if (!force) {
+      const row = db.prepare('SELECT COUNT(*) as count FROM daily_sheets').get();
+      const itemsRow = db.prepare('SELECT COALESCE(SUM(sales_items_count), 0) as total_items FROM daily_sheets').get();
+      const count = parseInt(row?.count || 0, 10);
+      const totalItems = parseInt(itemsRow?.total_items || 0, 10);
 
-    if (count >= 300 && totalItems > 10000) {
-      return { success: true, message: 'البيانات التاريخية موجودة ومحدثة بالكامل', count, totalItems };
+      if (count >= 365 && totalItems >= 13666) {
+        return { success: true, message: 'البيانات التاريخية كاملة لجميع أيام السنة ومحدثة مع عدد القطع', count, totalItems };
+      }
     }
 
     let records = null;
@@ -1378,7 +1380,7 @@ function saveDailySheet(data) {
   }
 }
 
-function getDailySheetsHistory(limit = 30) {
+function getDailySheetsHistory(limit = 500) {
   return db.prepare(`
     SELECT
       s.id,
