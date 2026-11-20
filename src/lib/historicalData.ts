@@ -9,13 +9,7 @@ const historicalData = [
     "sales_ittihad": 158,
     "sales_ittihad_qr": 0,
     "sales_cliq": 49,
-    "sales_items_count": 30,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 30
   },
   {
     "sheet_date": "2026-01-02",
@@ -26,13 +20,7 @@ const historicalData = [
     "sales_ittihad": 457,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 46,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 46
   },
   {
     "sheet_date": "2026-01-03",
@@ -43,13 +31,7 @@ const historicalData = [
     "sales_ittihad": 94,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 24,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 24
   },
   {
     "sheet_date": "2026-01-04",
@@ -60,13 +42,7 @@ const historicalData = [
     "sales_ittihad": 304,
     "sales_ittihad_qr": 0,
     "sales_cliq": 73,
-    "sales_items_count": 66,
-    "deposit_personal": 207,
-    "deposit_business": 20,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-01-04",
-    "deposit_business_date": "2026-01-04",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 66
   },
   {
     "sheet_date": "2026-01-05",
@@ -77,13 +53,7 @@ const historicalData = [
     "sales_ittihad": 159,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 33,
-    "deposit_personal": 341,
-    "deposit_business": 15,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-01-05",
-    "deposit_business_date": "2026-01-05",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 33
   },
   {
     "sheet_date": "2026-01-06",
@@ -94,13 +64,7 @@ const historicalData = [
     "sales_ittihad": 140,
     "sales_ittihad_qr": 0,
     "sales_cliq": 25,
-    "sales_items_count": 27,
-    "deposit_personal": 267,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-01-06",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 27
   },
   {
     "sheet_date": "2026-01-07",
@@ -111,13 +75,7 @@ const historicalData = [
     "sales_ittihad": 390,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 38,
-    "deposit_personal": 109.1,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-01-07",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 38
   },
   {
     "sheet_date": "2026-01-08",
@@ -128,13 +86,7 @@ const historicalData = [
     "sales_ittihad": 339,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 39,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 39
   },
   {
     "sheet_date": "2026-01-09",
@@ -145,13 +97,7 @@ const historicalData = [
     "sales_ittihad": 165,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 16,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 16
   },
   {
     "sheet_date": "2026-01-10",
@@ -162,13 +108,7 @@ const historicalData = [
     "sales_ittihad": 333,
     "sales_ittihad_qr": 0,
     "sales_cliq": 10,
-    "sales_items_count": 48,
-    "deposit_personal": 188,
-    "deposit_business": 0,
-    "deposit_owner_hand": 188,
-    "deposit_personal_date": "2026-01-10",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-01-10"
+    "sales_items_count": 48
   },
   {
     "sheet_date": "2026-01-11",
@@ -179,13 +119,7 @@ const historicalData = [
     "sales_ittihad": 209,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 34,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 34
   },
   {
     "sheet_date": "2026-01-12",
@@ -196,13 +130,7 @@ const historicalData = [
     "sales_ittihad": 160,
     "sales_ittihad_qr": 0,
     "sales_cliq": 57,
-    "sales_items_count": 43,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 43
   },
   {
     "sheet_date": "2026-01-13",
@@ -213,13 +141,7 @@ const historicalData = [
     "sales_ittihad": 91,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 34,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 34
   },
   {
     "sheet_date": "2026-01-14",
@@ -230,13 +152,7 @@ const historicalData = [
     "sales_ittihad": 121,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 34,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 34
   },
   {
     "sheet_date": "2026-01-15",
@@ -247,13 +163,7 @@ const historicalData = [
     "sales_ittihad": 305,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 45,
-    "deposit_personal": 383.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 383.5,
-    "deposit_personal_date": "2026-01-15",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-01-15"
+    "sales_items_count": 45
   },
   {
     "sheet_date": "2026-01-16",
@@ -264,13 +174,7 @@ const historicalData = [
     "sales_ittihad": 113,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 27,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 27
   },
   {
     "sheet_date": "2026-01-17",
@@ -281,13 +185,7 @@ const historicalData = [
     "sales_ittihad": 252,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 389,
-    "deposit_business": 0,
-    "deposit_owner_hand": 389,
-    "deposit_personal_date": "2026-01-17",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-01-17"
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-01-18",
@@ -298,13 +196,7 @@ const historicalData = [
     "sales_ittihad": 647,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 53,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 53
   },
   {
     "sheet_date": "2026-01-19",
@@ -315,13 +207,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 5,
-    "sales_items_count": 18,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 18
   },
   {
     "sheet_date": "2026-01-20",
@@ -332,13 +218,7 @@ const historicalData = [
     "sales_ittihad": 450,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 42,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 42
   },
   {
     "sheet_date": "2026-01-21",
@@ -349,13 +229,7 @@ const historicalData = [
     "sales_ittihad": 236,
     "sales_ittihad_qr": 0,
     "sales_cliq": 21,
-    "sales_items_count": 38,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 38
   },
   {
     "sheet_date": "2026-01-22",
@@ -366,13 +240,7 @@ const historicalData = [
     "sales_ittihad": 118,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 16,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 16
   },
   {
     "sheet_date": "2026-01-23",
@@ -383,13 +251,7 @@ const historicalData = [
     "sales_ittihad": 228,
     "sales_ittihad_qr": 0,
     "sales_cliq": 82,
-    "sales_items_count": 24,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 24
   },
   {
     "sheet_date": "2026-01-24",
@@ -400,13 +262,7 @@ const historicalData = [
     "sales_ittihad": 252,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 46,
-    "deposit_personal": 328.65,
-    "deposit_business": 0,
-    "deposit_owner_hand": 328.65,
-    "deposit_personal_date": "2026-01-24",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-01-24"
+    "sales_items_count": 46
   },
   {
     "sheet_date": "2026-01-25",
@@ -417,13 +273,7 @@ const historicalData = [
     "sales_ittihad": 84,
     "sales_ittihad_qr": 0,
     "sales_cliq": 25,
-    "sales_items_count": 22,
-    "deposit_personal": 204.4,
-    "deposit_business": 0,
-    "deposit_owner_hand": 204.4,
-    "deposit_personal_date": "2026-01-25",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-01-25"
+    "sales_items_count": 22
   },
   {
     "sheet_date": "2026-01-26",
@@ -434,13 +284,7 @@ const historicalData = [
     "sales_ittihad": 163,
     "sales_ittihad_qr": 0,
     "sales_cliq": 13,
-    "sales_items_count": 34,
-    "deposit_personal": 41.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 41.5,
-    "deposit_personal_date": "2026-01-26",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-01-26"
+    "sales_items_count": 34
   },
   {
     "sheet_date": "2026-01-27",
@@ -451,13 +295,7 @@ const historicalData = [
     "sales_ittihad": 218,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-01-28",
@@ -468,13 +306,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 12,
-    "sales_items_count": 45,
-    "deposit_personal": 90.65,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-01-28",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 45
   },
   {
     "sheet_date": "2026-01-29",
@@ -485,13 +317,7 @@ const historicalData = [
     "sales_ittihad": 132,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 48,
-    "deposit_personal": 0,
-    "deposit_business": 208,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "2026-01-29",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 48
   },
   {
     "sheet_date": "2026-01-30",
@@ -502,13 +328,7 @@ const historicalData = [
     "sales_ittihad": 650,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 56,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 56
   },
   {
     "sheet_date": "2026-01-31",
@@ -519,13 +339,7 @@ const historicalData = [
     "sales_ittihad": 263,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 77,
-    "deposit_personal": 233,
-    "deposit_business": 0,
-    "deposit_owner_hand": 233,
-    "deposit_personal_date": "2026-01-31",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-01-31"
+    "sales_items_count": 77
   },
   {
     "sheet_date": "2026-02-01",
@@ -536,13 +350,7 @@ const historicalData = [
     "sales_ittihad": 291,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 51,
-    "deposit_personal": 292.8,
-    "deposit_business": 50,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-02-01",
-    "deposit_business_date": "2026-02-01",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 51
   },
   {
     "sheet_date": "2026-02-02",
@@ -553,13 +361,7 @@ const historicalData = [
     "sales_ittihad": 143,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 31,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-02-03",
@@ -570,13 +372,7 @@ const historicalData = [
     "sales_ittihad": 123,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 42,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 42
   },
   {
     "sheet_date": "2026-02-04",
@@ -587,13 +383,7 @@ const historicalData = [
     "sales_ittihad": 564,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 53,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 53
   },
   {
     "sheet_date": "2026-02-05",
@@ -604,13 +394,7 @@ const historicalData = [
     "sales_ittihad": 286,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 53,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 53
   },
   {
     "sheet_date": "2026-02-06",
@@ -621,13 +405,7 @@ const historicalData = [
     "sales_ittihad": 114,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 14,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 14
   },
   {
     "sheet_date": "2026-02-07",
@@ -638,13 +416,7 @@ const historicalData = [
     "sales_ittihad": 337,
     "sales_ittihad_qr": 0,
     "sales_cliq": 70,
-    "sales_items_count": 63,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 63
   },
   {
     "sheet_date": "2026-02-08",
@@ -655,13 +427,7 @@ const historicalData = [
     "sales_ittihad": 99,
     "sales_ittihad_qr": 0,
     "sales_cliq": 83,
-    "sales_items_count": 36,
-    "deposit_personal": 415.4,
-    "deposit_business": 24,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-02-08",
-    "deposit_business_date": "2026-02-08",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-02-09",
@@ -672,13 +438,7 @@ const historicalData = [
     "sales_ittihad": 243,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 52,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 52
   },
   {
     "sheet_date": "2026-02-10",
@@ -689,13 +449,7 @@ const historicalData = [
     "sales_ittihad": 84,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 33,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 33
   },
   {
     "sheet_date": "2026-02-11",
@@ -706,13 +460,7 @@ const historicalData = [
     "sales_ittihad": 208,
     "sales_ittihad_qr": 0,
     "sales_cliq": 86,
-    "sales_items_count": 43,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 43
   },
   {
     "sheet_date": "2026-02-12",
@@ -723,13 +471,7 @@ const historicalData = [
     "sales_ittihad": 174,
     "sales_ittihad_qr": 0,
     "sales_cliq": 57,
-    "sales_items_count": 53,
-    "deposit_personal": 33,
-    "deposit_business": 34,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-02-12",
-    "deposit_business_date": "2026-02-12",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 53
   },
   {
     "sheet_date": "2026-02-13",
@@ -740,13 +482,7 @@ const historicalData = [
     "sales_ittihad": 281,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 43,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 43
   },
   {
     "sheet_date": "2026-02-14",
@@ -757,13 +493,7 @@ const historicalData = [
     "sales_ittihad": 141,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-02-15",
@@ -774,13 +504,7 @@ const historicalData = [
     "sales_ittihad": 248,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 462,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-02-15",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-02-16",
@@ -791,13 +515,7 @@ const historicalData = [
     "sales_ittihad": 304,
     "sales_ittihad_qr": 0,
     "sales_cliq": 60,
-    "sales_items_count": 42,
-    "deposit_personal": 37,
-    "deposit_business": 38,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-02-16",
-    "deposit_business_date": "2026-02-16",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 42
   },
   {
     "sheet_date": "2026-02-17",
@@ -808,13 +526,7 @@ const historicalData = [
     "sales_ittihad": 42,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 16,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 16
   },
   {
     "sheet_date": "2026-02-18",
@@ -825,13 +537,7 @@ const historicalData = [
     "sales_ittihad": 130,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 27,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 27
   },
   {
     "sheet_date": "2026-02-19",
@@ -842,13 +548,7 @@ const historicalData = [
     "sales_ittihad": 13,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 5,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 5
   },
   {
     "sheet_date": "2026-02-20",
@@ -859,13 +559,7 @@ const historicalData = [
     "sales_ittihad": 165,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 20,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 20
   },
   {
     "sheet_date": "2026-02-21",
@@ -876,13 +570,7 @@ const historicalData = [
     "sales_ittihad": 122,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 25,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 25
   },
   {
     "sheet_date": "2026-02-22",
@@ -893,13 +581,7 @@ const historicalData = [
     "sales_ittihad": 113,
     "sales_ittihad_qr": 0,
     "sales_cliq": 9,
-    "sales_items_count": 25,
-    "deposit_personal": 184,
-    "deposit_business": 28,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-02-22",
-    "deposit_business_date": "2026-02-22",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 25
   },
   {
     "sheet_date": "2026-02-23",
@@ -910,13 +592,7 @@ const historicalData = [
     "sales_ittihad": 10,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 23,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 23
   },
   {
     "sheet_date": "2026-02-24",
@@ -927,13 +603,7 @@ const historicalData = [
     "sales_ittihad": 429,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 44,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 44
   },
   {
     "sheet_date": "2026-02-25",
@@ -944,13 +614,7 @@ const historicalData = [
     "sales_ittihad": 120,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 44,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 44
   },
   {
     "sheet_date": "2026-02-26",
@@ -961,13 +625,7 @@ const historicalData = [
     "sales_ittihad": 295,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 62,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 62
   },
   {
     "sheet_date": "2026-02-27",
@@ -978,13 +636,7 @@ const historicalData = [
     "sales_ittihad": 161,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 23,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 23
   },
   {
     "sheet_date": "2026-02-28",
@@ -995,13 +647,7 @@ const historicalData = [
     "sales_ittihad": 309,
     "sales_ittihad_qr": 0,
     "sales_cliq": 25,
-    "sales_items_count": 46,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 46
   },
   {
     "sheet_date": "2026-03-01",
@@ -1012,13 +658,7 @@ const historicalData = [
     "sales_ittihad": 165,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 22,
-    "deposit_personal": 573,
-    "deposit_business": 73,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-01",
-    "deposit_business_date": "2026-03-01",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 22
   },
   {
     "sheet_date": "2026-03-02",
@@ -1029,13 +669,7 @@ const historicalData = [
     "sales_ittihad": 176,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 45,
-    "deposit_personal": 35,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-02",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 45
   },
   {
     "sheet_date": "2026-03-03",
@@ -1046,13 +680,7 @@ const historicalData = [
     "sales_ittihad": 175,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 33,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 33
   },
   {
     "sheet_date": "2026-03-04",
@@ -1063,13 +691,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 29,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 29
   },
   {
     "sheet_date": "2026-03-05",
@@ -1080,13 +702,7 @@ const historicalData = [
     "sales_ittihad": 85,
     "sales_ittihad_qr": 0,
     "sales_cliq": 30,
-    "sales_items_count": 57,
-    "deposit_personal": 310.5,
-    "deposit_business": 60,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-05",
-    "deposit_business_date": "2026-03-05",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 57
   },
   {
     "sheet_date": "2026-03-06",
@@ -1097,13 +713,7 @@ const historicalData = [
     "sales_ittihad": 200,
     "sales_ittihad_qr": 0,
     "sales_cliq": 94,
-    "sales_items_count": 60,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 60
   },
   {
     "sheet_date": "2026-03-07",
@@ -1114,13 +724,7 @@ const historicalData = [
     "sales_ittihad": 741,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 92,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 92
   },
   {
     "sheet_date": "2026-03-08",
@@ -1131,13 +735,7 @@ const historicalData = [
     "sales_ittihad": 161,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 31,
-    "deposit_personal": 775,
-    "deposit_business": 101,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-08",
-    "deposit_business_date": "2026-03-08",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-03-09",
@@ -1148,13 +746,7 @@ const historicalData = [
     "sales_ittihad": 10,
     "sales_ittihad_qr": 0,
     "sales_cliq": 40,
-    "sales_items_count": 36,
-    "deposit_personal": 194,
-    "deposit_business": 31,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-09",
-    "deposit_business_date": "2026-03-09",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-03-10",
@@ -1165,13 +757,7 @@ const historicalData = [
     "sales_ittihad": 416,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 38,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 38
   },
   {
     "sheet_date": "2026-03-11",
@@ -1182,13 +768,7 @@ const historicalData = [
     "sales_ittihad": 201,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 45,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 45
   },
   {
     "sheet_date": "2026-03-12",
@@ -1199,13 +779,7 @@ const historicalData = [
     "sales_ittihad": 408,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 48,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 48
   },
   {
     "sheet_date": "2026-03-13",
@@ -1216,13 +790,7 @@ const historicalData = [
     "sales_ittihad": 934,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 109,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 109
   },
   {
     "sheet_date": "2026-03-14",
@@ -1233,13 +801,7 @@ const historicalData = [
     "sales_ittihad": 646,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 80,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 80
   },
   {
     "sheet_date": "2026-03-15",
@@ -1250,13 +812,7 @@ const historicalData = [
     "sales_ittihad": 260,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 70,
-    "deposit_personal": 688.5,
-    "deposit_business": 188,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-15",
-    "deposit_business_date": "2026-03-15",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 70
   },
   {
     "sheet_date": "2026-03-16",
@@ -1267,13 +823,7 @@ const historicalData = [
     "sales_ittihad": 589,
     "sales_ittihad_qr": 0,
     "sales_cliq": 169,
-    "sales_items_count": 121,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 121
   },
   {
     "sheet_date": "2026-03-17",
@@ -1284,13 +834,7 @@ const historicalData = [
     "sales_ittihad": 901,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 130,
-    "deposit_personal": 611.5,
-    "deposit_business": 255,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-17",
-    "deposit_business_date": "2026-03-17",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 130
   },
   {
     "sheet_date": "2026-03-18",
@@ -1301,13 +845,7 @@ const historicalData = [
     "sales_ittihad": 880,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 159,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 159
   },
   {
     "sheet_date": "2026-03-19",
@@ -1318,13 +856,7 @@ const historicalData = [
     "sales_ittihad": 1396,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 253,
-    "deposit_personal": 599.75,
-    "deposit_business": 350,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-19",
-    "deposit_business_date": "2026-03-19",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 253
   },
   {
     "sheet_date": "2026-03-20",
@@ -1335,13 +867,7 @@ const historicalData = [
     "sales_ittihad": 428,
     "sales_ittihad_qr": 0,
     "sales_cliq": 27,
-    "sales_items_count": 88,
-    "deposit_personal": 1010.25,
-    "deposit_business": 0,
-    "deposit_owner_hand": 1010.25,
-    "deposit_personal_date": "2026-03-20",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-03-20"
+    "sales_items_count": 88
   },
   {
     "sheet_date": "2026-03-21",
@@ -1352,13 +878,7 @@ const historicalData = [
     "sales_ittihad": 29,
     "sales_ittihad_qr": 0,
     "sales_cliq": 15,
-    "sales_items_count": 18,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 18
   },
   {
     "sheet_date": "2026-03-22",
@@ -1369,13 +889,7 @@ const historicalData = [
     "sales_ittihad": 15,
     "sales_ittihad_qr": 0,
     "sales_cliq": 15,
-    "sales_items_count": 18,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 18
   },
   {
     "sheet_date": "2026-03-23",
@@ -1386,13 +900,7 @@ const historicalData = [
     "sales_ittihad": 278,
     "sales_ittihad_qr": 0,
     "sales_cliq": 12,
-    "sales_items_count": 60,
-    "deposit_personal": 898.25,
-    "deposit_business": 0,
-    "deposit_owner_hand": 898.25,
-    "deposit_personal_date": "2026-03-23",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-03-23"
+    "sales_items_count": 60
   },
   {
     "sheet_date": "2026-03-24",
@@ -1403,13 +911,7 @@ const historicalData = [
     "sales_ittihad": 23,
     "sales_ittihad_qr": 0,
     "sales_cliq": 30,
-    "sales_items_count": 24,
-    "deposit_personal": 289,
-    "deposit_business": 50,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-24",
-    "deposit_business_date": "2026-03-24",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 24
   },
   {
     "sheet_date": "2026-03-25",
@@ -1420,13 +922,7 @@ const historicalData = [
     "sales_ittihad": 103,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 26,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 26
   },
   {
     "sheet_date": "2026-03-26",
@@ -1437,13 +933,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 6,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 6
   },
   {
     "sheet_date": "2026-03-27",
@@ -1454,13 +944,7 @@ const historicalData = [
     "sales_ittihad": 187,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 18,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 18
   },
   {
     "sheet_date": "2026-03-28",
@@ -1471,13 +955,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 9,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 9
   },
   {
     "sheet_date": "2026-03-29",
@@ -1488,13 +966,7 @@ const historicalData = [
     "sales_ittihad": 19,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 46,
-    "deposit_personal": 212,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-29",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 46
   },
   {
     "sheet_date": "2026-03-30",
@@ -1505,13 +977,7 @@ const historicalData = [
     "sales_ittihad": 113,
     "sales_ittihad_qr": 0,
     "sales_cliq": 94,
-    "sales_items_count": 27,
-    "deposit_personal": 380,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-30",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 27
   },
   {
     "sheet_date": "2026-03-31",
@@ -1522,13 +988,7 @@ const historicalData = [
     "sales_ittihad": 12,
     "sales_ittihad_qr": 0,
     "sales_cliq": 22,
-    "sales_items_count": 31,
-    "deposit_personal": 54.25,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-03-31",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-04-01",
@@ -1539,13 +999,7 @@ const historicalData = [
     "sales_ittihad": 80,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 27,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 27
   },
   {
     "sheet_date": "2026-04-02",
@@ -1556,13 +1010,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 16,
-    "deposit_personal": 43,
-    "deposit_business": 0,
-    "deposit_owner_hand": 43,
-    "deposit_personal_date": "2026-04-02",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-04-02"
+    "sales_items_count": 16
   },
   {
     "sheet_date": "2026-04-03",
@@ -1573,13 +1021,7 @@ const historicalData = [
     "sales_ittihad": 263,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 29,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 29
   },
   {
     "sheet_date": "2026-04-04",
@@ -1590,13 +1032,7 @@ const historicalData = [
     "sales_ittihad": 183,
     "sales_ittihad_qr": 0,
     "sales_cliq": 315,
-    "sales_items_count": 53,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 53
   },
   {
     "sheet_date": "2026-04-05",
@@ -1607,13 +1043,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 45,
-    "sales_items_count": 15,
-    "deposit_personal": 180.5,
-    "deposit_business": 71.5,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-04-05",
-    "deposit_business_date": "2026-04-05",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 15
   },
   {
     "sheet_date": "2026-04-06",
@@ -1624,13 +1054,7 @@ const historicalData = [
     "sales_ittihad": 50,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 16,
-    "deposit_personal": 137,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-04-06",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 16
   },
   {
     "sheet_date": "2026-04-07",
@@ -1641,13 +1065,7 @@ const historicalData = [
     "sales_ittihad": 23,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 20,
-    "deposit_personal": 59,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-04-07",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 20
   },
   {
     "sheet_date": "2026-04-08",
@@ -1658,13 +1076,7 @@ const historicalData = [
     "sales_ittihad": 17,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 26,
-    "deposit_personal": 0,
-    "deposit_business": 29.5,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "2026-04-08",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 26
   },
   {
     "sheet_date": "2026-04-09",
@@ -1675,13 +1087,7 @@ const historicalData = [
     "sales_ittihad": 281,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 60,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 60
   },
   {
     "sheet_date": "2026-04-10",
@@ -1692,13 +1098,7 @@ const historicalData = [
     "sales_ittihad": 263,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 59,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 59
   },
   {
     "sheet_date": "2026-04-11",
@@ -1709,13 +1109,7 @@ const historicalData = [
     "sales_ittihad": 165,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 67,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 67
   },
   {
     "sheet_date": "2026-04-12",
@@ -1726,13 +1120,7 @@ const historicalData = [
     "sales_ittihad": 213,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 35,
-    "deposit_personal": 527.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-04-12",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 35
   },
   {
     "sheet_date": "2026-04-13",
@@ -1743,13 +1131,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 10,
-    "deposit_personal": 0,
-    "deposit_business": 32,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "2026-04-13",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 10
   },
   {
     "sheet_date": "2026-04-14",
@@ -1760,13 +1142,7 @@ const historicalData = [
     "sales_ittihad": 76,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 23,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 23
   },
   {
     "sheet_date": "2026-04-15",
@@ -1777,13 +1153,7 @@ const historicalData = [
     "sales_ittihad": 22,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 3,
-    "deposit_personal": 15.25,
-    "deposit_business": 35,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-04-15",
-    "deposit_business_date": "2026-04-15",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 3
   },
   {
     "sheet_date": "2026-04-16",
@@ -1794,13 +1164,7 @@ const historicalData = [
     "sales_ittihad": 268,
     "sales_ittihad_qr": 0,
     "sales_cliq": 30,
-    "sales_items_count": 53,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 53
   },
   {
     "sheet_date": "2026-04-17",
@@ -1811,13 +1175,7 @@ const historicalData = [
     "sales_ittihad": 193,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 17,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 17
   },
   {
     "sheet_date": "2026-04-18",
@@ -1828,13 +1186,7 @@ const historicalData = [
     "sales_ittihad": 278,
     "sales_ittihad_qr": 0,
     "sales_cliq": 89,
-    "sales_items_count": 56,
-    "deposit_personal": 230,
-    "deposit_business": 0,
-    "deposit_owner_hand": 230,
-    "deposit_personal_date": "2026-04-18",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-04-18"
+    "sales_items_count": 56
   },
   {
     "sheet_date": "2026-04-19",
@@ -1845,13 +1197,7 @@ const historicalData = [
     "sales_ittihad": 753,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 89,
-    "deposit_personal": 25.75,
-    "deposit_business": 0,
-    "deposit_owner_hand": 25.75,
-    "deposit_personal_date": "2026-04-19",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-04-19"
+    "sales_items_count": 89
   },
   {
     "sheet_date": "2026-04-20",
@@ -1862,13 +1208,7 @@ const historicalData = [
     "sales_ittihad": 137,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 35,
-    "deposit_personal": 74.4,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-04-20",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 35
   },
   {
     "sheet_date": "2026-04-21",
@@ -1879,13 +1219,7 @@ const historicalData = [
     "sales_ittihad": 137,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 21,
-    "deposit_personal": 120.8,
-    "deposit_business": 20,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-04-21",
-    "deposit_business_date": "2026-04-21",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 21
   },
   {
     "sheet_date": "2026-04-22",
@@ -1896,13 +1230,7 @@ const historicalData = [
     "sales_ittihad": 37,
     "sales_ittihad_qr": 0,
     "sales_cliq": 69,
-    "sales_items_count": 15,
-    "deposit_personal": 64.5,
-    "deposit_business": 40,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-04-22",
-    "deposit_business_date": "2026-04-22",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 15
   },
   {
     "sheet_date": "2026-04-23",
@@ -1913,13 +1241,7 @@ const historicalData = [
     "sales_ittihad": 32,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 23,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 23
   },
   {
     "sheet_date": "2026-04-24",
@@ -1930,13 +1252,7 @@ const historicalData = [
     "sales_ittihad": 398,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 41,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 41
   },
   {
     "sheet_date": "2026-04-25",
@@ -1947,13 +1263,7 @@ const historicalData = [
     "sales_ittihad": 223,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 56,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 56
   },
   {
     "sheet_date": "2026-04-26",
@@ -1964,13 +1274,7 @@ const historicalData = [
     "sales_ittihad": 206,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 28,
-    "deposit_personal": 333.5,
-    "deposit_business": 37,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-04-26",
-    "deposit_business_date": "2026-04-26",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 28
   },
   {
     "sheet_date": "2026-04-27",
@@ -1981,13 +1285,7 @@ const historicalData = [
     "sales_ittihad": 192,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 34,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 34
   },
   {
     "sheet_date": "2026-04-28",
@@ -1998,13 +1296,7 @@ const historicalData = [
     "sales_ittihad": 348,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 55,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 55
   },
   {
     "sheet_date": "2026-04-29",
@@ -2015,13 +1307,7 @@ const historicalData = [
     "sales_ittihad": 251,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 50,
-    "deposit_personal": 142.5,
-    "deposit_business": 36,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-04-29",
-    "deposit_business_date": "2026-04-29",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 50
   },
   {
     "sheet_date": "2026-04-30",
@@ -2032,13 +1318,7 @@ const historicalData = [
     "sales_ittihad": 381,
     "sales_ittihad_qr": 0,
     "sales_cliq": 15,
-    "sales_items_count": 77,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 77
   },
   {
     "sheet_date": "2026-05-01",
@@ -2049,13 +1329,7 @@ const historicalData = [
     "sales_ittihad": 259,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 42,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 42
   },
   {
     "sheet_date": "2026-05-02",
@@ -2066,13 +1340,7 @@ const historicalData = [
     "sales_ittihad": 262,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 38,
-    "deposit_personal": 641.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 641.5,
-    "deposit_personal_date": "2026-05-02",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-05-02"
+    "sales_items_count": 38
   },
   {
     "sheet_date": "2026-05-03",
@@ -2083,13 +1351,7 @@ const historicalData = [
     "sales_ittihad": 95,
     "sales_ittihad_qr": 0,
     "sales_cliq": 5,
-    "sales_items_count": 31,
-    "deposit_personal": 75,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-03",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-05-04",
@@ -2100,13 +1362,7 @@ const historicalData = [
     "sales_ittihad": 58,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 46,
-    "deposit_personal": 59,
-    "deposit_business": 81,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-04",
-    "deposit_business_date": "2026-05-04",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 46
   },
   {
     "sheet_date": "2026-05-05",
@@ -2117,13 +1373,7 @@ const historicalData = [
     "sales_ittihad": 274,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 41,
-    "deposit_personal": 362.15,
-    "deposit_business": 64,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-05",
-    "deposit_business_date": "2026-05-05",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 41
   },
   {
     "sheet_date": "2026-05-06",
@@ -2134,13 +1384,7 @@ const historicalData = [
     "sales_ittihad": 523,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 58,
-    "deposit_personal": 195,
-    "deposit_business": 55,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-06",
-    "deposit_business_date": "2026-05-06",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 58
   },
   {
     "sheet_date": "2026-05-07",
@@ -2151,13 +1395,7 @@ const historicalData = [
     "sales_ittihad": 404,
     "sales_ittihad_qr": 0,
     "sales_cliq": 6,
-    "sales_items_count": 58,
-    "deposit_personal": 176,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-07",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 58
   },
   {
     "sheet_date": "2026-05-08",
@@ -2168,13 +1406,7 @@ const historicalData = [
     "sales_ittihad": 599,
     "sales_ittihad_qr": 0,
     "sales_cliq": 83,
-    "sales_items_count": 119,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 119
   },
   {
     "sheet_date": "2026-05-09",
@@ -2185,13 +1417,7 @@ const historicalData = [
     "sales_ittihad": 249,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 46,
-    "deposit_personal": 818.65,
-    "deposit_business": 0,
-    "deposit_owner_hand": 818.65,
-    "deposit_personal_date": "2026-05-09",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-05-09"
+    "sales_items_count": 46
   },
   {
     "sheet_date": "2026-05-10",
@@ -2202,13 +1428,7 @@ const historicalData = [
     "sales_ittihad": 291,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 61,
-    "deposit_personal": 113.1,
-    "deposit_business": 0,
-    "deposit_owner_hand": 113.1,
-    "deposit_personal_date": "2026-05-10",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-05-10"
+    "sales_items_count": 61
   },
   {
     "sheet_date": "2026-05-11",
@@ -2219,13 +1439,7 @@ const historicalData = [
     "sales_ittihad": 195,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 32,
-    "deposit_personal": 77,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-11",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 32
   },
   {
     "sheet_date": "2026-05-12",
@@ -2236,13 +1450,7 @@ const historicalData = [
     "sales_ittihad": 54,
     "sales_ittihad_qr": 0,
     "sales_cliq": 30,
-    "sales_items_count": 17,
-    "deposit_personal": 75,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-12",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 17
   },
   {
     "sheet_date": "2026-05-13",
@@ -2253,13 +1461,7 @@ const historicalData = [
     "sales_ittihad": 287,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 53,
-    "deposit_personal": 36.5,
-    "deposit_business": 34,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-13",
-    "deposit_business_date": "2026-05-13",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 53
   },
   {
     "sheet_date": "2026-05-14",
@@ -2270,13 +1472,7 @@ const historicalData = [
     "sales_ittihad": 385,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 65,
-    "deposit_personal": 269,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-14",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 65
   },
   {
     "sheet_date": "2026-05-15",
@@ -2287,13 +1483,7 @@ const historicalData = [
     "sales_ittihad": 577,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 73,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 73
   },
   {
     "sheet_date": "2026-05-16",
@@ -2304,13 +1494,7 @@ const historicalData = [
     "sales_ittihad": 405,
     "sales_ittihad_qr": 0,
     "sales_cliq": 82,
-    "sales_items_count": 75,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 75
   },
   {
     "sheet_date": "2026-05-17",
@@ -2321,13 +1505,7 @@ const historicalData = [
     "sales_ittihad": 335,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 61,
-    "deposit_personal": 604,
-    "deposit_business": 140,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-17",
-    "deposit_business_date": "2026-05-17",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 61
   },
   {
     "sheet_date": "2026-05-18",
@@ -2338,13 +1516,7 @@ const historicalData = [
     "sales_ittihad": 206,
     "sales_ittihad_qr": 0,
     "sales_cliq": 13,
-    "sales_items_count": 53,
-    "deposit_personal": 394,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-18",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 53
   },
   {
     "sheet_date": "2026-05-19",
@@ -2355,13 +1527,7 @@ const historicalData = [
     "sales_ittihad": 201,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 267,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-19",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-05-20",
@@ -2372,13 +1538,7 @@ const historicalData = [
     "sales_ittihad": 96,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 32,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 32
   },
   {
     "sheet_date": "2026-05-21",
@@ -2389,13 +1549,7 @@ const historicalData = [
     "sales_ittihad": 163,
     "sales_ittihad_qr": 0,
     "sales_cliq": 14,
-    "sales_items_count": 38,
-    "deposit_personal": 138,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-21",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 38
   },
   {
     "sheet_date": "2026-05-22",
@@ -2406,13 +1560,7 @@ const historicalData = [
     "sales_ittihad": 1021,
     "sales_ittihad_qr": 0,
     "sales_cliq": 10,
-    "sales_items_count": 116,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 116
   },
   {
     "sheet_date": "2026-05-23",
@@ -2423,13 +1571,7 @@ const historicalData = [
     "sales_ittihad": 608,
     "sales_ittihad_qr": 0,
     "sales_cliq": 287,
-    "sales_items_count": 112,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 112
   },
   {
     "sheet_date": "2026-05-24",
@@ -2440,13 +1582,7 @@ const historicalData = [
     "sales_ittihad": 643,
     "sales_ittihad_qr": 0,
     "sales_cliq": 37,
-    "sales_items_count": 108,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 108
   },
   {
     "sheet_date": "2026-05-25",
@@ -2457,13 +1593,7 @@ const historicalData = [
     "sales_ittihad": 463,
     "sales_ittihad_qr": 240,
     "sales_cliq": 0,
-    "sales_items_count": 182,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 182
   },
   {
     "sheet_date": "2026-05-26",
@@ -2474,13 +1604,7 @@ const historicalData = [
     "sales_ittihad": 1028,
     "sales_ittihad_qr": 0,
     "sales_cliq": 129,
-    "sales_items_count": 191,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 191
   },
   {
     "sheet_date": "2026-05-27",
@@ -2491,13 +1615,7 @@ const historicalData = [
     "sales_ittihad": 695,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 87,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 87
   },
   {
     "sheet_date": "2026-05-28",
@@ -2508,13 +1626,7 @@ const historicalData = [
     "sales_ittihad": 116,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 14,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 14
   },
   {
     "sheet_date": "2026-05-29",
@@ -2525,13 +1637,7 @@ const historicalData = [
     "sales_ittihad": 401,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 46,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 46
   },
   {
     "sheet_date": "2026-05-30",
@@ -2542,13 +1648,7 @@ const historicalData = [
     "sales_ittihad": 75,
     "sales_ittihad_qr": 0,
     "sales_cliq": 55,
-    "sales_items_count": 13,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 13
   },
   {
     "sheet_date": "2026-05-31",
@@ -2559,13 +1659,7 @@ const historicalData = [
     "sales_ittihad": 177,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 30,
-    "deposit_personal": 541,
-    "deposit_business": 96,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-05-31",
-    "deposit_business_date": "2026-05-31",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 30
   },
   {
     "sheet_date": "2026-06-01",
@@ -2576,13 +1670,7 @@ const historicalData = [
     "sales_ittihad": 170,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 629.85,
-    "deposit_business": 488,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-01",
-    "deposit_business_date": "2026-06-01",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-06-02",
@@ -2593,13 +1681,7 @@ const historicalData = [
     "sales_ittihad": 137,
     "sales_ittihad_qr": 0,
     "sales_cliq": 29,
-    "sales_items_count": 21,
-    "deposit_personal": 178,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-02",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 21
   },
   {
     "sheet_date": "2026-06-03",
@@ -2610,13 +1692,7 @@ const historicalData = [
     "sales_ittihad": 212,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 41,
-    "deposit_personal": 107,
-    "deposit_business": 12,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-03",
-    "deposit_business_date": "2026-06-03",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 41
   },
   {
     "sheet_date": "2026-06-04",
@@ -2627,13 +1703,7 @@ const historicalData = [
     "sales_ittihad": 355,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 31,
-    "deposit_personal": 153,
-    "deposit_business": 14,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-04",
-    "deposit_business_date": "2026-06-04",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-06-05",
@@ -2644,13 +1714,7 @@ const historicalData = [
     "sales_ittihad": 383,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 68,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 68
   },
   {
     "sheet_date": "2026-06-06",
@@ -2661,13 +1725,7 @@ const historicalData = [
     "sales_ittihad": 160,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 29,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 29
   },
   {
     "sheet_date": "2026-06-07",
@@ -2678,13 +1736,7 @@ const historicalData = [
     "sales_ittihad": 22,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 21,
-    "deposit_personal": 283,
-    "deposit_business": 14,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-07",
-    "deposit_business_date": "2026-06-07",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 21
   },
   {
     "sheet_date": "2026-06-08",
@@ -2695,13 +1747,7 @@ const historicalData = [
     "sales_ittihad": 173,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 24,
-    "deposit_personal": 212.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-08",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 24
   },
   {
     "sheet_date": "2026-06-09",
@@ -2712,13 +1758,7 @@ const historicalData = [
     "sales_ittihad": 373,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 45,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 45
   },
   {
     "sheet_date": "2026-06-10",
@@ -2729,13 +1769,7 @@ const historicalData = [
     "sales_ittihad": 215,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 33,
-    "deposit_personal": 168.25,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-10",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 33
   },
   {
     "sheet_date": "2026-06-11",
@@ -2746,13 +1780,7 @@ const historicalData = [
     "sales_ittihad": 184,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 75.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-11",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-06-12",
@@ -2763,13 +1791,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 67,
-    "sales_items_count": 45,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 45
   },
   {
     "sheet_date": "2026-06-13",
@@ -2780,13 +1802,7 @@ const historicalData = [
     "sales_ittihad": 118,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 28,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 28
   },
   {
     "sheet_date": "2026-06-14",
@@ -2797,13 +1813,7 @@ const historicalData = [
     "sales_ittihad": 200,
     "sales_ittihad_qr": 0,
     "sales_cliq": 17,
-    "sales_items_count": 36,
-    "deposit_personal": 495,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-14",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-06-15",
@@ -2814,13 +1824,7 @@ const historicalData = [
     "sales_ittihad": 151,
     "sales_ittihad_qr": 0,
     "sales_cliq": 10,
-    "sales_items_count": 18,
-    "deposit_personal": 117,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-15",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 18
   },
   {
     "sheet_date": "2026-06-16",
@@ -2831,13 +1835,7 @@ const historicalData = [
     "sales_ittihad": 190,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 32,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 32
   },
   {
     "sheet_date": "2026-06-17",
@@ -2848,13 +1846,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 7,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 7
   },
   {
     "sheet_date": "2026-06-18",
@@ -2865,13 +1857,7 @@ const historicalData = [
     "sales_ittihad": 33,
     "sales_ittihad_qr": 0,
     "sales_cliq": 28,
-    "sales_items_count": 20,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 20
   },
   {
     "sheet_date": "2026-06-19",
@@ -2882,13 +1868,7 @@ const historicalData = [
     "sales_ittihad": 167,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 20,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 20
   },
   {
     "sheet_date": "2026-06-20",
@@ -2899,13 +1879,7 @@ const historicalData = [
     "sales_ittihad": 546,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 58,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 58
   },
   {
     "sheet_date": "2026-06-21",
@@ -2916,13 +1890,7 @@ const historicalData = [
     "sales_ittihad": 124,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 29,
-    "deposit_personal": 77,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-21",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 29
   },
   {
     "sheet_date": "2026-06-22",
@@ -2933,13 +1901,7 @@ const historicalData = [
     "sales_ittihad": 115,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 34,
-    "deposit_personal": 287.2,
-    "deposit_business": 16,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-22",
-    "deposit_business_date": "2026-06-22",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 34
   },
   {
     "sheet_date": "2026-06-23",
@@ -2950,13 +1912,7 @@ const historicalData = [
     "sales_ittihad": 160,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 21,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 21
   },
   {
     "sheet_date": "2026-06-24",
@@ -2967,13 +1923,7 @@ const historicalData = [
     "sales_ittihad": 28,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 19,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 19
   },
   {
     "sheet_date": "2026-06-25",
@@ -2984,13 +1934,7 @@ const historicalData = [
     "sales_ittihad": 182,
     "sales_ittihad_qr": 0,
     "sales_cliq": 20,
-    "sales_items_count": 26,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 26
   },
   {
     "sheet_date": "2026-06-26",
@@ -3001,13 +1945,7 @@ const historicalData = [
     "sales_ittihad": 61,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 11,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 11
   },
   {
     "sheet_date": "2026-06-27",
@@ -3018,13 +1956,7 @@ const historicalData = [
     "sales_ittihad": 166,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 35,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 35
   },
   {
     "sheet_date": "2026-06-28",
@@ -3035,13 +1967,7 @@ const historicalData = [
     "sales_ittihad": 25,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 17,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 17
   },
   {
     "sheet_date": "2026-06-29",
@@ -3052,13 +1978,7 @@ const historicalData = [
     "sales_ittihad": 139,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 29,
-    "deposit_personal": 220.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-06-29",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 29
   },
   {
     "sheet_date": "2026-06-30",
@@ -3069,13 +1989,7 @@ const historicalData = [
     "sales_ittihad": 129,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 37,
-    "deposit_personal": 0,
-    "deposit_business": 400,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "2026-06-30",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 37
   },
   {
     "sheet_date": "2026-07-01",
@@ -3086,13 +2000,7 @@ const historicalData = [
     "sales_ittihad": 159,
     "sales_ittihad_qr": 0,
     "sales_cliq": 58,
-    "sales_items_count": 34,
-    "deposit_personal": 102,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-01",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 34
   },
   {
     "sheet_date": "2026-07-02",
@@ -3103,13 +2011,7 @@ const historicalData = [
     "sales_ittihad": 286,
     "sales_ittihad_qr": 0,
     "sales_cliq": 39,
-    "sales_items_count": 57,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 57
   },
   {
     "sheet_date": "2026-07-03",
@@ -3120,13 +2022,7 @@ const historicalData = [
     "sales_ittihad": 161,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 41,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 41
   },
   {
     "sheet_date": "2026-07-04",
@@ -3137,13 +2033,7 @@ const historicalData = [
     "sales_ittihad": 204,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 37,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 37
   },
   {
     "sheet_date": "2026-07-05",
@@ -3154,13 +2044,7 @@ const historicalData = [
     "sales_ittihad": 86,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 24,
-    "deposit_personal": 146.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-05",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 24
   },
   {
     "sheet_date": "2026-07-06",
@@ -3171,13 +2055,7 @@ const historicalData = [
     "sales_ittihad": 102,
     "sales_ittihad_qr": 0,
     "sales_cliq": 15,
-    "sales_items_count": 35,
-    "deposit_personal": 60,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-06",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 35
   },
   {
     "sheet_date": "2026-07-07",
@@ -3188,13 +2066,7 @@ const historicalData = [
     "sales_ittihad": 8,
     "sales_ittihad_qr": 0,
     "sales_cliq": 62,
-    "sales_items_count": 26,
-    "deposit_personal": 152,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-07",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 26
   },
   {
     "sheet_date": "2026-07-08",
@@ -3205,13 +2077,7 @@ const historicalData = [
     "sales_ittihad": 213,
     "sales_ittihad_qr": 0,
     "sales_cliq": 24,
-    "sales_items_count": 53,
-    "deposit_personal": 98.5,
-    "deposit_business": 13,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-08",
-    "deposit_business_date": "2026-07-08",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 53
   },
   {
     "sheet_date": "2026-07-09",
@@ -3222,13 +2088,7 @@ const historicalData = [
     "sales_ittihad": 372,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 114,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 114
   },
   {
     "sheet_date": "2026-07-10",
@@ -3239,13 +2099,7 @@ const historicalData = [
     "sales_ittihad": 263,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 43,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 43
   },
   {
     "sheet_date": "2026-07-11",
@@ -3256,13 +2110,7 @@ const historicalData = [
     "sales_ittihad": 348,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 55,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 55
   },
   {
     "sheet_date": "2026-07-12",
@@ -3273,13 +2121,7 @@ const historicalData = [
     "sales_ittihad": 151,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 30,
-    "deposit_personal": 398,
-    "deposit_business": 10,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-12",
-    "deposit_business_date": "2026-07-12",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 30
   },
   {
     "sheet_date": "2026-07-13",
@@ -3290,13 +2132,7 @@ const historicalData = [
     "sales_ittihad": 286,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 64,
-    "deposit_personal": 86.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-13",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 64
   },
   {
     "sheet_date": "2026-07-14",
@@ -3307,13 +2143,7 @@ const historicalData = [
     "sales_ittihad": 440,
     "sales_ittihad_qr": 0,
     "sales_cliq": 10,
-    "sales_items_count": 69,
-    "deposit_personal": 95,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-14",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 69
   },
   {
     "sheet_date": "2026-07-15",
@@ -3324,13 +2154,7 @@ const historicalData = [
     "sales_ittihad": 118,
     "sales_ittihad_qr": 0,
     "sales_cliq": 30,
-    "sales_items_count": 43,
-    "deposit_personal": 200,
-    "deposit_business": 0,
-    "deposit_owner_hand": 200,
-    "deposit_personal_date": "2026-07-15",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-07-15"
+    "sales_items_count": 43
   },
   {
     "sheet_date": "2026-07-16",
@@ -3341,13 +2165,7 @@ const historicalData = [
     "sales_ittihad": 193,
     "sales_ittihad_qr": 0,
     "sales_cliq": 180,
-    "sales_items_count": 69,
-    "deposit_personal": 254,
-    "deposit_business": 72,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-16",
-    "deposit_business_date": "2026-07-16",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 69
   },
   {
     "sheet_date": "2026-07-17",
@@ -3358,13 +2176,7 @@ const historicalData = [
     "sales_ittihad": 92,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-07-18",
@@ -3375,13 +2187,7 @@ const historicalData = [
     "sales_ittihad": 312,
     "sales_ittihad_qr": 0,
     "sales_cliq": 43,
-    "sales_items_count": 66,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 66
   },
   {
     "sheet_date": "2026-07-19",
@@ -3392,13 +2198,7 @@ const historicalData = [
     "sales_ittihad": 85,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 31,
-    "deposit_personal": 296.5,
-    "deposit_business": 96,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-19",
-    "deposit_business_date": "2026-07-19",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-07-20",
@@ -3409,13 +2209,7 @@ const historicalData = [
     "sales_ittihad": 88,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 32,
-    "deposit_personal": 125,
-    "deposit_business": 5,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-20",
-    "deposit_business_date": "2026-07-20",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 32
   },
   {
     "sheet_date": "2026-07-21",
@@ -3426,13 +2220,7 @@ const historicalData = [
     "sales_ittihad": 97,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 33,
-    "deposit_personal": 191,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-21",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 33
   },
   {
     "sheet_date": "2026-07-22",
@@ -3443,13 +2231,7 @@ const historicalData = [
     "sales_ittihad": 297,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 69,
-    "deposit_personal": 23,
-    "deposit_business": 42,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-22",
-    "deposit_business_date": "2026-07-22",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 69
   },
   {
     "sheet_date": "2026-07-23",
@@ -3460,13 +2242,7 @@ const historicalData = [
     "sales_ittihad": 132,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 45,
-    "deposit_personal": 266,
-    "deposit_business": 15,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-23",
-    "deposit_business_date": "2026-07-23",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 45
   },
   {
     "sheet_date": "2026-07-24",
@@ -3477,13 +2253,7 @@ const historicalData = [
     "sales_ittihad": 342,
     "sales_ittihad_qr": 0,
     "sales_cliq": 15,
-    "sales_items_count": 51,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 51
   },
   {
     "sheet_date": "2026-07-25",
@@ -3494,13 +2264,7 @@ const historicalData = [
     "sales_ittihad": 493,
     "sales_ittihad_qr": 0,
     "sales_cliq": 26,
-    "sales_items_count": 69,
-    "deposit_personal": 479.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-25",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 69
   },
   {
     "sheet_date": "2026-07-26",
@@ -3511,13 +2275,7 @@ const historicalData = [
     "sales_ittihad": 428,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 71,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 71
   },
   {
     "sheet_date": "2026-07-27",
@@ -3528,13 +2286,7 @@ const historicalData = [
     "sales_ittihad": 159,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 63,
-    "deposit_personal": 290.25,
-    "deposit_business": 16,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-27",
-    "deposit_business_date": "2026-07-27",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 63
   },
   {
     "sheet_date": "2026-07-28",
@@ -3545,13 +2297,7 @@ const historicalData = [
     "sales_ittihad": 110,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 31,
-    "deposit_personal": 391,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-28",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-07-29",
@@ -3562,13 +2308,7 @@ const historicalData = [
     "sales_ittihad": 294,
     "sales_ittihad_qr": 0,
     "sales_cliq": 50,
-    "sales_items_count": 38,
-    "deposit_personal": 100,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-29",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 38
   },
   {
     "sheet_date": "2026-07-30",
@@ -3579,13 +2319,7 @@ const historicalData = [
     "sales_ittihad": 341,
     "sales_ittihad_qr": 0,
     "sales_cliq": 35,
-    "sales_items_count": 67,
-    "deposit_personal": 210,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-07-30",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 67
   },
   {
     "sheet_date": "2026-07-31",
@@ -3596,13 +2330,7 @@ const historicalData = [
     "sales_ittihad": 213,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 27,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 27
   },
   {
     "sheet_date": "2026-08-01",
@@ -3613,13 +2341,7 @@ const historicalData = [
     "sales_ittihad": 475,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 86,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 86
   },
   {
     "sheet_date": "2026-08-02",
@@ -3630,13 +2352,7 @@ const historicalData = [
     "sales_ittihad": 84,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 27,
-    "deposit_personal": 327,
-    "deposit_business": 63,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-02",
-    "deposit_business_date": "2026-08-02",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 27
   },
   {
     "sheet_date": "2026-08-03",
@@ -3647,13 +2363,7 @@ const historicalData = [
     "sales_ittihad": 227,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 27,
-    "deposit_personal": 236,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-03",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 27
   },
   {
     "sheet_date": "2026-08-04",
@@ -3664,13 +2374,7 @@ const historicalData = [
     "sales_ittihad": 132,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 22,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 22
   },
   {
     "sheet_date": "2026-08-05",
@@ -3681,13 +2385,7 @@ const historicalData = [
     "sales_ittihad": 363,
     "sales_ittihad_qr": 0,
     "sales_cliq": 10,
-    "sales_items_count": 63,
-    "deposit_personal": 58,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-05",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 63
   },
   {
     "sheet_date": "2026-08-06",
@@ -3698,13 +2396,7 @@ const historicalData = [
     "sales_ittihad": 70,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 25,
-    "deposit_personal": 86.9,
-    "deposit_business": 31,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-06",
-    "deposit_business_date": "2026-08-06",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 25
   },
   {
     "sheet_date": "2026-08-07",
@@ -3715,13 +2407,7 @@ const historicalData = [
     "sales_ittihad": 401,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 49,
-    "deposit_personal": 465.5,
-    "deposit_business": 2,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-07",
-    "deposit_business_date": "2026-08-07",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 49
   },
   {
     "sheet_date": "2026-08-08",
@@ -3732,13 +2418,7 @@ const historicalData = [
     "sales_ittihad": 307,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 75,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 75
   },
   {
     "sheet_date": "2026-08-09",
@@ -3749,13 +2429,7 @@ const historicalData = [
     "sales_ittihad": 50,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 22,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 22
   },
   {
     "sheet_date": "2026-08-10",
@@ -3766,13 +2440,7 @@ const historicalData = [
     "sales_ittihad": 150,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 23,
-    "deposit_personal": 172,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-10",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 23
   },
   {
     "sheet_date": "2026-08-11",
@@ -3783,13 +2451,7 @@ const historicalData = [
     "sales_ittihad": 158,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 57,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 57
   },
   {
     "sheet_date": "2026-08-12",
@@ -3800,13 +2462,7 @@ const historicalData = [
     "sales_ittihad": 162,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 24,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 24
   },
   {
     "sheet_date": "2026-08-13",
@@ -3817,13 +2473,7 @@ const historicalData = [
     "sales_ittihad": 19,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 24,
-    "deposit_personal": 97,
-    "deposit_business": 17,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-13",
-    "deposit_business_date": "2026-08-13",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 24
   },
   {
     "sheet_date": "2026-08-14",
@@ -3834,13 +2484,7 @@ const historicalData = [
     "sales_ittihad": 283,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 37,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 37
   },
   {
     "sheet_date": "2026-08-15",
@@ -3851,13 +2495,7 @@ const historicalData = [
     "sales_ittihad": 89,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 29,
-    "deposit_personal": 362,
-    "deposit_business": 0,
-    "deposit_owner_hand": 362,
-    "deposit_personal_date": "2026-08-15",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-08-15"
+    "sales_items_count": 29
   },
   {
     "sheet_date": "2026-08-16",
@@ -3868,13 +2506,7 @@ const historicalData = [
     "sales_ittihad": 154,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 50,
-    "deposit_personal": 160,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-16",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 50
   },
   {
     "sheet_date": "2026-08-17",
@@ -3885,13 +2517,7 @@ const historicalData = [
     "sales_ittihad": 131,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 20,
-    "deposit_personal": 140,
-    "deposit_business": 0,
-    "deposit_owner_hand": 140,
-    "deposit_personal_date": "2026-08-17",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-08-17"
+    "sales_items_count": 20
   },
   {
     "sheet_date": "2026-08-18",
@@ -3902,13 +2528,7 @@ const historicalData = [
     "sales_ittihad": 65,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 28,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 28
   },
   {
     "sheet_date": "2026-08-19",
@@ -3919,13 +2539,7 @@ const historicalData = [
     "sales_ittihad": 122,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 43,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 43
   },
   {
     "sheet_date": "2026-08-20",
@@ -3936,13 +2550,7 @@ const historicalData = [
     "sales_ittihad": 200,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 38,
-    "deposit_personal": 46,
-    "deposit_business": 0,
-    "deposit_owner_hand": 46,
-    "deposit_personal_date": "2026-08-20",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-08-20"
+    "sales_items_count": 38
   },
   {
     "sheet_date": "2026-08-21",
@@ -3953,13 +2561,7 @@ const historicalData = [
     "sales_ittihad": 316,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 38,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 38
   },
   {
     "sheet_date": "2026-08-22",
@@ -3970,13 +2572,7 @@ const historicalData = [
     "sales_ittihad": 122,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 28,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 28
   },
   {
     "sheet_date": "2026-08-23",
@@ -3987,13 +2583,7 @@ const historicalData = [
     "sales_ittihad": 182,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 61,
-    "deposit_personal": 81,
-    "deposit_business": 14,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-23",
-    "deposit_business_date": "2026-08-23",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 61
   },
   {
     "sheet_date": "2026-08-24",
@@ -4004,13 +2594,7 @@ const historicalData = [
     "sales_ittihad": 258,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 34,
-    "deposit_personal": 280.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-24",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 34
   },
   {
     "sheet_date": "2026-08-25",
@@ -4021,13 +2605,7 @@ const historicalData = [
     "sales_ittihad": 83,
     "sales_ittihad_qr": 0,
     "sales_cliq": 27,
-    "sales_items_count": 37,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 37
   },
   {
     "sheet_date": "2026-08-26",
@@ -4038,13 +2616,7 @@ const historicalData = [
     "sales_ittihad": 114,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 33,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 33
   },
   {
     "sheet_date": "2026-08-27",
@@ -4055,13 +2627,7 @@ const historicalData = [
     "sales_ittihad": 405,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 53,
-    "deposit_personal": 188.9,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-27",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 53
   },
   {
     "sheet_date": "2026-08-28",
@@ -4072,13 +2638,7 @@ const historicalData = [
     "sales_ittihad": 135,
     "sales_ittihad_qr": 0,
     "sales_cliq": 27,
-    "sales_items_count": 24,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 24
   },
   {
     "sheet_date": "2026-08-29",
@@ -4089,13 +2649,7 @@ const historicalData = [
     "sales_ittihad": 198,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 33,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 33
   },
   {
     "sheet_date": "2026-08-30",
@@ -4106,13 +2660,7 @@ const historicalData = [
     "sales_ittihad": 157,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 17,
-    "deposit_personal": 307.75,
-    "deposit_business": 10,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-30",
-    "deposit_business_date": "2026-08-30",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 17
   },
   {
     "sheet_date": "2026-08-31",
@@ -4123,13 +2671,7 @@ const historicalData = [
     "sales_ittihad": 123,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 33,
-    "deposit_personal": 36,
-    "deposit_business": 13,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-08-31",
-    "deposit_business_date": "2026-08-31",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 33
   },
   {
     "sheet_date": "2026-09-01",
@@ -4140,13 +2682,7 @@ const historicalData = [
     "sales_ittihad": 25,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 16,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 16
   },
   {
     "sheet_date": "2026-09-02",
@@ -4157,13 +2693,7 @@ const historicalData = [
     "sales_ittihad": 249.5,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 59,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 59
   },
   {
     "sheet_date": "2026-09-03",
@@ -4174,13 +2704,7 @@ const historicalData = [
     "sales_ittihad": 155,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 28,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 28
   },
   {
     "sheet_date": "2026-09-04",
@@ -4191,13 +2715,7 @@ const historicalData = [
     "sales_ittihad": 466,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 54,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 54
   },
   {
     "sheet_date": "2026-09-05",
@@ -4208,13 +2726,7 @@ const historicalData = [
     "sales_ittihad": 5,
     "sales_ittihad_qr": 0,
     "sales_cliq": 5,
-    "sales_items_count": 30,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 30
   },
   {
     "sheet_date": "2026-09-06",
@@ -4225,13 +2737,7 @@ const historicalData = [
     "sales_ittihad": 140,
     "sales_ittihad_qr": 0,
     "sales_cliq": 28,
-    "sales_items_count": 24,
-    "deposit_personal": 437,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-09-06",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 24
   },
   {
     "sheet_date": "2026-09-07",
@@ -4242,13 +2748,7 @@ const historicalData = [
     "sales_ittihad": 107,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 41,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 41
   },
   {
     "sheet_date": "2026-09-08",
@@ -4259,13 +2759,7 @@ const historicalData = [
     "sales_ittihad": 312,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 49,
-    "deposit_personal": 59.4,
-    "deposit_business": 18,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-09-08",
-    "deposit_business_date": "2026-09-08",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 49
   },
   {
     "sheet_date": "2026-09-09",
@@ -4276,13 +2770,7 @@ const historicalData = [
     "sales_ittihad": 199.5,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 144,
-    "deposit_business": 50,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-09-09",
-    "deposit_business_date": "2026-09-09",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-09-10",
@@ -4293,13 +2781,7 @@ const historicalData = [
     "sales_ittihad": 43,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 23,
-    "deposit_personal": 60.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-09-10",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 23
   },
   {
     "sheet_date": "2026-09-11",
@@ -4310,13 +2792,7 @@ const historicalData = [
     "sales_ittihad": 299,
     "sales_ittihad_qr": 0,
     "sales_cliq": 34,
-    "sales_items_count": 37,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 37
   },
   {
     "sheet_date": "2026-09-12",
@@ -4327,13 +2803,7 @@ const historicalData = [
     "sales_ittihad": 263,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 48,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 48
   },
   {
     "sheet_date": "2026-09-13",
@@ -4344,13 +2814,7 @@ const historicalData = [
     "sales_ittihad": 296,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 30,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 30
   },
   {
     "sheet_date": "2026-09-14",
@@ -4361,13 +2825,7 @@ const historicalData = [
     "sales_ittihad": 146,
     "sales_ittihad_qr": 0,
     "sales_cliq": 140,
-    "sales_items_count": 38,
-    "deposit_personal": 82,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-09-14",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 38
   },
   {
     "sheet_date": "2026-09-15",
@@ -4378,13 +2836,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 20,
-    "deposit_personal": 0,
-    "deposit_business": 35,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "2026-09-15",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 20
   },
   {
     "sheet_date": "2026-09-16",
@@ -4395,13 +2847,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 24,
-    "sales_items_count": 36,
-    "deposit_personal": 0,
-    "deposit_business": 64.4,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "2026-09-16",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-09-17",
@@ -4412,13 +2858,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 123,
-    "sales_items_count": 37,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 37
   },
   {
     "sheet_date": "2026-09-18",
@@ -4429,13 +2869,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 108,
-    "sales_items_count": 54,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 54
   },
   {
     "sheet_date": "2026-09-19",
@@ -4446,13 +2880,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 72,
-    "sales_items_count": 28,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 28
   },
   {
     "sheet_date": "2026-09-20",
@@ -4463,13 +2891,7 @@ const historicalData = [
     "sales_ittihad": 30,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 16,
-    "deposit_personal": 376.9,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-09-20",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 16
   },
   {
     "sheet_date": "2026-09-21",
@@ -4480,13 +2902,7 @@ const historicalData = [
     "sales_ittihad": 37,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 22,
-    "deposit_personal": 96,
-    "deposit_business": 0,
-    "deposit_owner_hand": 96,
-    "deposit_personal_date": "2026-09-21",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-09-21"
+    "sales_items_count": 22
   },
   {
     "sheet_date": "2026-09-22",
@@ -4497,13 +2913,7 @@ const historicalData = [
     "sales_ittihad": 258,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 41,
-    "deposit_personal": 44.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-09-22",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 41
   },
   {
     "sheet_date": "2026-09-23",
@@ -4514,13 +2924,7 @@ const historicalData = [
     "sales_ittihad": 175,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 27,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 27
   },
   {
     "sheet_date": "2026-09-24",
@@ -4531,13 +2935,7 @@ const historicalData = [
     "sales_ittihad": 78,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 48,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 48
   },
   {
     "sheet_date": "2026-09-25",
@@ -4548,13 +2946,7 @@ const historicalData = [
     "sales_ittihad": 235,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 46,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 46
   },
   {
     "sheet_date": "2026-09-26",
@@ -4565,13 +2957,7 @@ const historicalData = [
     "sales_ittihad": 145,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-09-27",
@@ -4582,13 +2968,7 @@ const historicalData = [
     "sales_ittihad": 148,
     "sales_ittihad_qr": 0,
     "sales_cliq": 12,
-    "sales_items_count": 44,
-    "deposit_personal": 264.7,
-    "deposit_business": 12,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-09-27",
-    "deposit_business_date": "2026-09-27",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 44
   },
   {
     "sheet_date": "2026-09-28",
@@ -4599,13 +2979,7 @@ const historicalData = [
     "sales_ittihad": 169,
     "sales_ittihad_qr": 0,
     "sales_cliq": 33,
-    "sales_items_count": 34,
-    "deposit_personal": 245,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-09-28",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 34
   },
   {
     "sheet_date": "2026-09-29",
@@ -4616,13 +2990,7 @@ const historicalData = [
     "sales_ittihad": 47,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 25,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 25
   },
   {
     "sheet_date": "2026-09-30",
@@ -4633,13 +3001,7 @@ const historicalData = [
     "sales_ittihad": 137,
     "sales_ittihad_qr": 0,
     "sales_cliq": 15,
-    "sales_items_count": 28,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 28
   },
   {
     "sheet_date": "2026-10-01",
@@ -4650,13 +3012,7 @@ const historicalData = [
     "sales_ittihad": 322,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 40,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 40
   },
   {
     "sheet_date": "2026-10-02",
@@ -4667,13 +3023,7 @@ const historicalData = [
     "sales_ittihad": 420,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 33,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 33
   },
   {
     "sheet_date": "2026-10-03",
@@ -4684,13 +3034,7 @@ const historicalData = [
     "sales_ittihad": 687,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 71,
-    "deposit_personal": 170,
-    "deposit_business": 0,
-    "deposit_owner_hand": 170,
-    "deposit_personal_date": "2026-10-03",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": "2026-10-03"
+    "sales_items_count": 71
   },
   {
     "sheet_date": "2026-10-04",
@@ -4701,13 +3045,7 @@ const historicalData = [
     "sales_ittihad": 141,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 23,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 23
   },
   {
     "sheet_date": "2026-10-05",
@@ -4718,13 +3056,7 @@ const historicalData = [
     "sales_ittihad": 217,
     "sales_ittihad_qr": 0,
     "sales_cliq": 43,
-    "sales_items_count": 35,
-    "deposit_personal": 202.2,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-05",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 35
   },
   {
     "sheet_date": "2026-10-06",
@@ -4735,13 +3067,7 @@ const historicalData = [
     "sales_ittihad": 234,
     "sales_ittihad_qr": 0,
     "sales_cliq": 150,
-    "sales_items_count": 54,
-    "deposit_personal": 207,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-06",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 54
   },
   {
     "sheet_date": "2026-10-07",
@@ -4752,13 +3078,7 @@ const historicalData = [
     "sales_ittihad": 37,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 10,
-    "deposit_personal": 218.5,
-    "deposit_business": 38,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-07",
-    "deposit_business_date": "2026-10-07",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 10
   },
   {
     "sheet_date": "2026-10-08",
@@ -4769,13 +3089,7 @@ const historicalData = [
     "sales_ittihad": 273,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 31,
-    "deposit_personal": 133.4,
-    "deposit_business": 9,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-08",
-    "deposit_business_date": "2026-10-08",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-10-09",
@@ -4786,13 +3100,7 @@ const historicalData = [
     "sales_ittihad": 447,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 58,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 58
   },
   {
     "sheet_date": "2026-10-10",
@@ -4803,13 +3111,7 @@ const historicalData = [
     "sales_ittihad": 369,
     "sales_ittihad_qr": 0,
     "sales_cliq": 55,
-    "sales_items_count": 74,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 74
   },
   {
     "sheet_date": "2026-10-11",
@@ -4820,13 +3122,7 @@ const historicalData = [
     "sales_ittihad": 74,
     "sales_ittihad_qr": 0,
     "sales_cliq": 14,
-    "sales_items_count": 33,
-    "deposit_personal": 772.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-11",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 33
   },
   {
     "sheet_date": "2026-10-12",
@@ -4837,13 +3133,7 @@ const historicalData = [
     "sales_ittihad": 130,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 32,
-    "deposit_personal": 304,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-12",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 32
   },
   {
     "sheet_date": "2026-10-13",
@@ -4854,13 +3144,7 @@ const historicalData = [
     "sales_ittihad": 176,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 44,
-    "deposit_personal": 155,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-13",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 44
   },
   {
     "sheet_date": "2026-10-14",
@@ -4871,13 +3155,7 @@ const historicalData = [
     "sales_ittihad": 340,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 32,
-    "deposit_personal": 75.55,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-14",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 32
   },
   {
     "sheet_date": "2026-10-15",
@@ -4888,13 +3166,7 @@ const historicalData = [
     "sales_ittihad": 167,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 46,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 46
   },
   {
     "sheet_date": "2026-10-16",
@@ -4905,13 +3177,7 @@ const historicalData = [
     "sales_ittihad": 573,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 56,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 56
   },
   {
     "sheet_date": "2026-10-17",
@@ -4922,13 +3188,7 @@ const historicalData = [
     "sales_ittihad": 215,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 36,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-10-18",
@@ -4939,13 +3199,7 @@ const historicalData = [
     "sales_ittihad": 115,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 17,
-    "deposit_personal": 698.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-18",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 17
   },
   {
     "sheet_date": "2026-10-19",
@@ -4956,13 +3210,7 @@ const historicalData = [
     "sales_ittihad": 111,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 25,
-    "deposit_personal": 125,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-19",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 25
   },
   {
     "sheet_date": "2026-10-20",
@@ -4973,13 +3221,7 @@ const historicalData = [
     "sales_ittihad": 225,
     "sales_ittihad_qr": 0,
     "sales_cliq": 27,
-    "sales_items_count": 44,
-    "deposit_personal": 92.25,
-    "deposit_business": 70,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-20",
-    "deposit_business_date": "2026-10-20",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 44
   },
   {
     "sheet_date": "2026-10-21",
@@ -4990,13 +3232,7 @@ const historicalData = [
     "sales_ittihad": 137,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 42,
-    "deposit_personal": 330.25,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-21",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 42
   },
   {
     "sheet_date": "2026-10-22",
@@ -5007,13 +3243,7 @@ const historicalData = [
     "sales_ittihad": 241,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 46,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 46
   },
   {
     "sheet_date": "2026-10-23",
@@ -5024,13 +3254,7 @@ const historicalData = [
     "sales_ittihad": 383,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 28,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 28
   },
   {
     "sheet_date": "2026-10-24",
@@ -5041,13 +3265,7 @@ const historicalData = [
     "sales_ittihad": 265,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 31,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-10-25",
@@ -5058,13 +3276,7 @@ const historicalData = [
     "sales_ittihad": 269,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 31,
-    "deposit_personal": 480,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-25",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-10-26",
@@ -5075,13 +3287,7 @@ const historicalData = [
     "sales_ittihad": 231,
     "sales_ittihad_qr": 0,
     "sales_cliq": 60,
-    "sales_items_count": 35,
-    "deposit_personal": 166,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-26",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 35
   },
   {
     "sheet_date": "2026-10-27",
@@ -5092,13 +3298,7 @@ const historicalData = [
     "sales_ittihad": 274,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 31,
-    "deposit_personal": 245,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-27",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 31
   },
   {
     "sheet_date": "2026-10-28",
@@ -5109,13 +3309,7 @@ const historicalData = [
     "sales_ittihad": 339,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 35,
-    "deposit_personal": 76.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-28",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 35
   },
   {
     "sheet_date": "2026-10-29",
@@ -5126,13 +3320,7 @@ const historicalData = [
     "sales_ittihad": 283,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 38,
-    "deposit_personal": 111,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-10-29",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 38
   },
   {
     "sheet_date": "2026-10-30",
@@ -5143,13 +3331,7 @@ const historicalData = [
     "sales_ittihad": 372,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 42,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 42
   },
   {
     "sheet_date": "2026-10-31",
@@ -5160,13 +3342,7 @@ const historicalData = [
     "sales_ittihad": 504,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 89,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 89
   },
   {
     "sheet_date": "2026-11-01",
@@ -5177,13 +3353,7 @@ const historicalData = [
     "sales_ittihad": 75,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 18,
-    "deposit_personal": 957,
-    "deposit_business": 12,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-01",
-    "deposit_business_date": "2026-11-01",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 18
   },
   {
     "sheet_date": "2026-11-02",
@@ -5194,13 +3364,7 @@ const historicalData = [
     "sales_ittihad": 9,
     "sales_ittihad_qr": 0,
     "sales_cliq": 141,
-    "sales_items_count": 18,
-    "deposit_personal": 101,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-02",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 18
   },
   {
     "sheet_date": "2026-11-03",
@@ -5211,13 +3375,7 @@ const historicalData = [
     "sales_ittihad": 296,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 47,
-    "deposit_personal": 96.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-03",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 47
   },
   {
     "sheet_date": "2026-11-04",
@@ -5228,13 +3386,7 @@ const historicalData = [
     "sales_ittihad": 135,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 21,
-    "deposit_personal": 411,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-04",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 21
   },
   {
     "sheet_date": "2026-11-05",
@@ -5245,13 +3397,7 @@ const historicalData = [
     "sales_ittihad": 66,
     "sales_ittihad_qr": 0,
     "sales_cliq": 12,
-    "sales_items_count": 36,
-    "deposit_personal": 172.75,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-05",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 36
   },
   {
     "sheet_date": "2026-11-06",
@@ -5262,13 +3408,7 @@ const historicalData = [
     "sales_ittihad": 864.5,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 69,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 69
   },
   {
     "sheet_date": "2026-11-07",
@@ -5279,13 +3419,7 @@ const historicalData = [
     "sales_ittihad": 690,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 65,
-    "deposit_personal": 858.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-07",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 65
   },
   {
     "sheet_date": "2026-11-08",
@@ -5296,13 +3430,7 @@ const historicalData = [
     "sales_ittihad": 449,
     "sales_ittihad_qr": 0,
     "sales_cliq": 106,
-    "sales_items_count": 43,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 43
   },
   {
     "sheet_date": "2026-11-09",
@@ -5313,13 +3441,7 @@ const historicalData = [
     "sales_ittihad": 603,
     "sales_ittihad_qr": 0,
     "sales_cliq": 8,
-    "sales_items_count": 47,
-    "deposit_personal": 107,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-09",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 47
   },
   {
     "sheet_date": "2026-11-10",
@@ -5330,13 +3452,7 @@ const historicalData = [
     "sales_ittihad": 225,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 45,
-    "deposit_personal": 43.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-10",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 45
   },
   {
     "sheet_date": "2026-11-11",
@@ -5347,13 +3463,7 @@ const historicalData = [
     "sales_ittihad": 333,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 41,
-    "deposit_personal": 282.4,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-11",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 41
   },
   {
     "sheet_date": "2026-11-12",
@@ -5364,13 +3474,7 @@ const historicalData = [
     "sales_ittihad": 563,
     "sales_ittihad_qr": 0,
     "sales_cliq": 100,
-    "sales_items_count": 79,
-    "deposit_personal": 194.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-12",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 79
   },
   {
     "sheet_date": "2026-11-13",
@@ -5381,13 +3485,7 @@ const historicalData = [
     "sales_ittihad": 321,
     "sales_ittihad_qr": 0,
     "sales_cliq": 89,
-    "sales_items_count": 51,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 51
   },
   {
     "sheet_date": "2026-11-14",
@@ -5398,13 +3496,7 @@ const historicalData = [
     "sales_ittihad": 272,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 26,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 26
   },
   {
     "sheet_date": "2026-11-15",
@@ -5415,13 +3507,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 10,
-    "deposit_personal": 842,
-    "deposit_business": 56,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-15",
-    "deposit_business_date": "2026-11-15",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 10
   },
   {
     "sheet_date": "2026-11-16",
@@ -5432,13 +3518,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 16,
-    "deposit_personal": 60.5,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-16",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 16
   },
   {
     "sheet_date": "2026-11-17",
@@ -5449,13 +3529,7 @@ const historicalData = [
     "sales_ittihad": 265,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 19,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 19
   },
   {
     "sheet_date": "2026-11-18",
@@ -5466,13 +3540,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 202,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "2026-11-18",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-19",
@@ -5483,13 +3551,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-20",
@@ -5500,13 +3562,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-21",
@@ -5517,13 +3573,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-22",
@@ -5534,13 +3584,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-23",
@@ -5551,13 +3595,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-24",
@@ -5568,13 +3606,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-25",
@@ -5585,13 +3617,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-26",
@@ -5602,13 +3628,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-27",
@@ -5619,13 +3639,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-28",
@@ -5636,13 +3650,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-29",
@@ -5653,13 +3661,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-30",
@@ -5670,13 +3672,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-01",
@@ -5687,13 +3683,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-02",
@@ -5704,13 +3694,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-03",
@@ -5721,13 +3705,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-04",
@@ -5738,13 +3716,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-05",
@@ -5755,13 +3727,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-06",
@@ -5772,13 +3738,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-07",
@@ -5789,13 +3749,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-08",
@@ -5806,13 +3760,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-09",
@@ -5823,13 +3771,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-10",
@@ -5840,13 +3782,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-11",
@@ -5857,13 +3793,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-12",
@@ -5874,13 +3804,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-13",
@@ -5891,13 +3815,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-14",
@@ -5908,13 +3826,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-15",
@@ -5925,13 +3837,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-16",
@@ -5942,13 +3848,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-17",
@@ -5959,13 +3859,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-18",
@@ -5976,13 +3870,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-19",
@@ -5993,13 +3881,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-20",
@@ -6010,13 +3892,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-21",
@@ -6027,13 +3903,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-22",
@@ -6044,13 +3914,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-23",
@@ -6061,13 +3925,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-24",
@@ -6078,13 +3936,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-25",
@@ -6095,13 +3947,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-26",
@@ -6112,13 +3958,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-27",
@@ -6129,13 +3969,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-28",
@@ -6146,13 +3980,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-29",
@@ -6163,13 +3991,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-30",
@@ -6180,13 +4002,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-12-31",
@@ -6197,13 +4013,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
-    "sales_items_count": 0,
-    "deposit_personal": 0,
-    "deposit_business": 0,
-    "deposit_owner_hand": 0,
-    "deposit_personal_date": "",
-    "deposit_business_date": "",
-    "deposit_owner_hand_date": ""
+    "sales_items_count": 0
   }
 ];
 

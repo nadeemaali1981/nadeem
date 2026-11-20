@@ -515,10 +515,9 @@ async function seedHistoricalSales(force = false) {
           INSERT INTO daily_sheets (
             sheet_date, day_name, sales_cash, sales_delivery, sales_visa,
             sales_ittihad, sales_ittihad_qr, sales_cliq, sales_items_count,
-            deposit_personal, deposit_business, deposit_owner_hand,
-            deposit_personal_date, deposit_business_date, deposit_owner_hand_date,
+            deposit_personal, deposit_business, deposit_personal_date, deposit_business_date,
             notes, perfume_desc, perfume_debit, perfume_credit
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', '', 0, 0)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, '', '', '', '', 0, 0)
           ON CONFLICT (sheet_date) DO UPDATE SET
             sales_cash = EXCLUDED.sales_cash,
             sales_delivery = EXCLUDED.sales_delivery,
@@ -526,13 +525,7 @@ async function seedHistoricalSales(force = false) {
             sales_ittihad = EXCLUDED.sales_ittihad,
             sales_ittihad_qr = EXCLUDED.sales_ittihad_qr,
             sales_cliq = EXCLUDED.sales_cliq,
-            sales_items_count = EXCLUDED.sales_items_count,
-            deposit_personal = EXCLUDED.deposit_personal,
-            deposit_business = EXCLUDED.deposit_business,
-            deposit_owner_hand = EXCLUDED.deposit_owner_hand,
-            deposit_personal_date = EXCLUDED.deposit_personal_date,
-            deposit_business_date = EXCLUDED.deposit_business_date,
-            deposit_owner_hand_date = EXCLUDED.deposit_owner_hand_date
+            sales_items_count = EXCLUDED.sales_items_count
         `, [
           r.sheet_date,
           r.day_name,
@@ -542,13 +535,7 @@ async function seedHistoricalSales(force = false) {
           r.sales_ittihad,
           r.sales_ittihad_qr,
           r.sales_cliq,
-          Number(r.sales_items_count || 0),
-          Number(r.deposit_personal || 0),
-          Number(r.deposit_business || 0),
-          Number(r.deposit_owner_hand || 0),
-          r.deposit_personal_date || '',
-          r.deposit_business_date || '',
-          r.deposit_owner_hand_date || ''
+          Number(r.sales_items_count || 0)
         ]);
       }
     });
