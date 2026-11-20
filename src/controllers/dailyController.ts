@@ -70,8 +70,10 @@ let state = {
   deposits: {
     personal: 0,
     business: 0,
+    owner_hand: 0,
     personal_date: '',
-    business_date: ''
+    business_date: '',
+    owner_hand_date: ''
   },
   perfume: {
     desc: '',
@@ -188,6 +190,8 @@ function setupEventListeners() {
         state.deposits.personal_date = e.target.value;
       } else if (field === 'deposit_business_date') {
         state.deposits.business_date = e.target.value;
+      } else if (field === 'deposit_owner_hand_date') {
+        state.deposits.owner_hand_date = e.target.value;
       }
       markUnsaved();
     });
@@ -396,8 +400,10 @@ async function loadSheet(dateStr) {
     state.deposits = {
       personal: data.deposit_personal || 0,
       business: data.deposit_business || 0,
+      owner_hand: data.deposit_owner_hand || 0,
       personal_date: data.deposit_personal_date || state.sheet_date || '',
-      business_date: data.deposit_business_date || state.sheet_date || ''
+      business_date: data.deposit_business_date || state.sheet_date || '',
+      owner_hand_date: data.deposit_owner_hand_date || state.sheet_date || ''
     };
 
     state.notes = data.notes || '';
@@ -459,6 +465,7 @@ async function loadSheet(dateStr) {
       (Number(data.sales_items_count || 0) > 0) ||
       (Number(data.deposit_personal || 0) > 0) ||
       (Number(data.deposit_business || 0) > 0) ||
+      (Number(data.deposit_owner_hand || 0) > 0) ||
       (data.notes && data.notes.trim() !== '') ||
       (data.items && Object.values(data.items).some(arr => Array.isArray(arr) && arr.length > 0))
     );
@@ -532,6 +539,11 @@ function renderUI() {
   if (depBiz) depBiz.value = state.deposits.business > 0 ? formatMoney(state.deposits.business) : '';
   const depBizDate = document.getElementById('input_deposit_business_date');
   if (depBizDate) depBizDate.value = state.deposits.business_date || state.sheet_date || '';
+
+  const depOwner = document.getElementById('input_deposit_owner_hand');
+  if (depOwner) depOwner.value = state.deposits.owner_hand > 0 ? formatMoney(state.deposits.owner_hand) : '';
+  const depOwnerDate = document.getElementById('input_deposit_owner_hand_date');
+  if (depOwnerDate) depOwnerDate.value = state.deposits.owner_hand_date || state.sheet_date || '';
 
   // Notes
   const notesEl = document.getElementById('notesTextarea');
@@ -965,7 +977,7 @@ function recalculateAll() {
   }
 
   // 2. Deposits Total
-  const totalDeposits = (state.deposits.personal || 0) + (state.deposits.business || 0);
+  const totalDeposits = (state.deposits.personal || 0) + (state.deposits.business || 0) + (state.deposits.owner_hand || 0);
   setText('totalDepositsVal', formatMoney(totalDeposits));
   setText('kpiTotalDeposits', formatMoney(totalDeposits));
 
@@ -1165,8 +1177,10 @@ async function saveSheet(isManual = true) {
       sales_items_count: parsedCount,
       deposit_personal: state.deposits.personal,
       deposit_business: state.deposits.business,
+      deposit_owner_hand: state.deposits.owner_hand || 0,
       deposit_personal_date: state.deposits.personal_date || '',
       deposit_business_date: state.deposits.business_date || '',
+      deposit_owner_hand_date: state.deposits.owner_hand_date || '',
       notes: notesSummary || state.notes || '',
       perfume_desc: state.perfume.desc,
       perfume_debit: state.perfume.debit,
@@ -1248,7 +1262,7 @@ function clearCurrentSheetFields() {
   if (!confirmed) return;
 
   state.sales = { cash: 0, delivery: 0, visa: 0, ittihad: 0, ittihad_qr: 0, cliq: 0, items_count: '' };
-  state.deposits = { personal: 0, business: 0, personal_date: '', business_date: '' };
+  state.deposits = { personal: 0, business: 0, owner_hand: 0, personal_date: '', business_date: '', owner_hand_date: '' };
   state.notes = '';
   state.perfume = { desc: '', debit: 0, credit: 0 };
   state.items = {
