@@ -1091,7 +1091,7 @@ async function saveSheet(isManual = true) {
     const allCategories = [
       'internal_expenses', 'employee_advances', 'supplier_payments',
       'cash_purchases', 'perfume_sales', 'merchant_dispatches',
-      'employee_sales', 'extra_revenues', 'daily_notes'
+      'employee_sales', 'extra_revenues', 'revenue_expenses', 'daily_obligations', 'daily_notes'
     ];
     const cleanedItems = {};
     for (const cat of allCategories) {
