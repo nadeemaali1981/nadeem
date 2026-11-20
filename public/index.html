@@ -645,8 +645,13 @@
             </svg>
             سند اخراج بضاعة/فروع
           </span>
-          <button type="button" class="btn btn-primary btn-sm" onclick="addRow('merchant_dispatches')">+ إضافة صنف /
-            سطر</button>
+          <div style="display: flex; gap: 0.45rem; align-items: center;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.ERPImageEngine && window.ERPImageEngine.openGalleryModal({ entity_type: 'product' })" title="رفع وأرشفة صور الموديلات بضغط ذكي WebP دون فقدان الجودة">
+              📷 صور الموديلات
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="addRow('merchant_dispatches')">+ إضافة صنف /
+              سطر</button>
+          </div>
         </div>
         <div class="table-responsive">
           <table class="custom-table table-dispatches">
@@ -2516,6 +2521,7 @@
 
   <script src="js/daily.js"></script>
   <script src="js/modules.js"></script>
+  <script src="js/image-compressor.js"></script>
   <script>
     // Tab Switching Logic
     const tabs = document.querySelectorAll('.nav-tab');
