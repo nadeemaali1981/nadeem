@@ -6,7 +6,7 @@ const { execFile } = require('child_process');
 
 const ROOT = __dirname;
 const DEBOUNCE_MS = 10000; // wait 10s after the last change, so a burst of edits becomes one commit
-const IGNORE = /(^|[\\/])(node_modules|\.git|bin|dist)([\\/]|$)|\.(log|db|db-journal|db-wal|db-shm)$|(^|[\\/])\.env$|tunnel_url\.txt$/i;
+const IGNORE = /(^|[\\/])(node_modules|\.git|\.next|out|bin|dist)([\\/]|$)|\.(log|db|db-journal|db-wal|db-shm)$|(^|[\\/])\.env$|tunnel_url\.txt$|next-env\.d\.ts$/i;
 
 let timer = null;
 let running = false;

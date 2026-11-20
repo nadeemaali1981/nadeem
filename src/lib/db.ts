@@ -1,20 +1,15 @@
 // @ts-nocheck
 import historicalData from "./historicalData";
-/**
- * db-pg.js - المحرك السحابي لقاعدة بيانات Supabase (PostgreSQL)
- * يوفر استدامة كاملة وحفظاً دائماً لبيانات المحاسبة ودفتر اليومية بدون أي فقدان.
- */
-
-const { Pool } = require('pg');
-const fs = require('node:fs');
-const path = require('node:path');
+import { Pool } from 'pg';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // Load .env file if present
 try {
   if (typeof process.loadEnvFile === 'function') {
     process.loadEnvFile();
   } else {
-    const envPath = path.join(__dirname, '.env');
+    const envPath = path.join(process.cwd(), '.env');
     if (fs.existsSync(envPath)) {
       const lines = fs.readFileSync(envPath, 'utf8').split('\n');
       for (const line of lines) {
@@ -2017,7 +2012,7 @@ initSchema().catch(err => {
   console.error('Initial Supabase schema setup warning:', err.message);
 });
 
-module.exports = {
+const db = {
   pool,
   getAccounts,
   createAccount,
@@ -2071,3 +2066,5 @@ module.exports = {
   deleteMediaAsset,
   getMediaStorageStats
 };
+
+export default db;
