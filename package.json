@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "hono": "^4.13.19",
-    "pg": "^8.23.1"
+    "pg": "^8.23.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "engines": {
     "node": ">=22.5.0"
@@ -20,5 +22,9 @@
     "daily-sheet"
   ],
   "author": "Nadeem",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.3.0",
+    "vite": "^8.3.8"
+  }
 }
