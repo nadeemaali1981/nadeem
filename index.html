@@ -2561,7 +2561,41 @@
     };
 
     document.getElementById('btnRefreshAccounts')?.addEventListener('click', window.loadAccountsTab);
+
+    // Hide/remove any injected "Powered by Netlify" floating badge
+    (function hideNetlifyBadge() {
+      function clean() {
+        document.querySelectorAll('a[href*="netlify.com"], [data-netlify-badge], netlify-badge, iframe[src*="netlify"]').forEach(el => {
+          const fixedParent = el.closest('[style*="fixed"]') || el;
+          fixedParent.style.setProperty('display', 'none', 'important');
+          fixedParent.remove();
+        });
+        document.querySelectorAll('body > div, body > a, body > aside').forEach(el => {
+          if (el.id === 'app' || el.classList.contains('app-container') || el.classList.contains('modal-overlay') || el.id === 'statusToast') return;
+          const txt = (el.textContent || '').trim();
+          const st = window.getComputedStyle(el);
+          if ((st.position === 'fixed' || st.position === 'sticky') && /Powered by Netlify/i.test(txt) && txt.length < 100) {
+            el.style.setProperty('display', 'none', 'important');
+            el.remove();
+          }
+        });
+      }
+      clean();
+      const obs = new MutationObserver(clean);
+      obs.observe(document.documentElement, { childList: true, subtree: true });
+    })();
   </script>
+  <style>
+    a[href*="netlify.com"],
+    [data-netlify-badge],
+    netlify-badge,
+    iframe[src*="netlify"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  </style>
 </body>
 
 </html>
