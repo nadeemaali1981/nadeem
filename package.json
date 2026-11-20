@@ -8,6 +8,7 @@
     "build": "node -e \"console.log('No build step needed')\""
   },
   "dependencies": {
+    "hono": "^4.13.19",
     "pg": "^8.23.1"
   },
   "engines": {
