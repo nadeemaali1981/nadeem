@@ -119,16 +119,8 @@ window.applySalesFilters = function() {
     }
   });
 
-  // حساب عدد الأيام لغاية اليوم الحالي من بداية أول يوم بالسنة الحالية
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const startOfYear = new Date(currentYear, 0, 1, 0, 0, 0);
-  const todayMidnight = new Date(currentYear, now.getMonth(), now.getDate(), 0, 0, 0);
-  const msPerDay = 1000 * 60 * 60 * 24;
-  const daysSoFarInYear = Math.max(1, Math.floor((todayMidnight.getTime() - startOfYear.getTime()) / msPerDay) + 1);
-
-  // حساب متوسط البيع اليومي = إجمالي المبيعات ÷ عدد الأيام لغاية اليوم الحالي من بداية أول يوم بالسنة الحالية
-  const avgDailySales = sumGrandTotal / daysSoFarInYear;
+  // حساب متوسط البيع اليومي = إجمالي المبيعات ÷ عدد أيام البيع
+  const avgDailySales = salesDaysCount > 0 ? sumGrandTotal / salesDaysCount : 0;
 
   // تحديث كروت الـ KPI بناءً على الفلتر
   const setKpi = (id, val) => {
