@@ -269,6 +269,10 @@ async function initSchema() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE INDEX IF NOT EXISTS idx_pg_daily_sheets_sheet_date ON daily_sheets(sheet_date);
+      CREATE INDEX IF NOT EXISTS idx_pg_daily_sheet_items_sheet_id ON daily_sheet_items(sheet_id);
+      CREATE INDEX IF NOT EXISTS idx_pg_daily_sheet_items_category ON daily_sheet_items(category);
+
       CREATE TABLE IF NOT EXISTS checks (
         id SERIAL PRIMARY KEY,
         check_number TEXT UNIQUE NOT NULL,
@@ -1172,92 +1176,83 @@ async function getDashboardSummary() {
 // ----------------------------------------------------
 async function getPriorPerfumeSales(sheetDate) {
   await initSchema();
-  const sheets = await all('SELECT perfume_credit, perfume_debit FROM daily_sheets WHERE sheet_date < ?', [sheetDate]);
-  let credit = 0;
-  let debit = 0;
-  for (const s of sheets) {
-    credit += Number(s.perfume_credit || 0);
-    debit += Number(s.perfume_debit || 0);
-  }
-
-  const items = await all(`
-    SELECT i.category, i.amount1, i.amount2
-    FROM daily_sheet_items i
-    JOIN daily_sheets s ON s.id = i.sheet_id
-    WHERE s.sheet_date < ? AND i.category IN ('perfume_sale', 'perfume_sales')
+  const row = await get(`
+    SELECT 
+      COALESCE(SUM(
+        CASE 
+          WHEN items.has_items = 1 THEN (items.credit_sum - items.debit_sum)
+          ELSE (COALESCE(s.perfume_credit, 0) - COALESCE(s.perfume_debit, 0))
+        END
+      ), 0) as total
+    FROM daily_sheets s
+    LEFT JOIN (
+      SELECT 
+        sheet_id, 
+        1 as has_items,
+        COALESCE(SUM(amount2), 0) as credit_sum,
+        COALESCE(SUM(amount1), 0) as debit_sum
+      FROM daily_sheet_items
+      WHERE category IN ('perfume_sale', 'perfume_sales')
+      GROUP BY sheet_id
+    ) items ON items.sheet_id = s.id
+    WHERE s.sheet_date < ?
   `, [sheetDate]);
 
-  for (const it of items) {
-    credit += Number(it.amount2 || 0);
-    debit += Number(it.amount1 || 0);
-  }
-
-  return {
-    credit: Math.round(credit * 100) / 100,
-    debit: Math.round(debit * 100) / 100,
-    net: Math.round((credit - debit) * 100) / 100
-  };
+  return Math.round(Number(row?.total || 0) * 100) / 100;
 }
 
 async function getPriorUndepositedCash(sheetDate) {
   await initSchema();
-  const sheets = await all('SELECT * FROM daily_sheets WHERE sheet_date < ? ORDER BY sheet_date ASC', [sheetDate]);
-  let totalNetCashBefore = 0;
-
-  for (const s of sheets) {
-    const cashSales = Number(s.sales_cash || 0);
-    const expRow = await get(`
+  const row = await get(`
+    SELECT 
+      COALESCE(SUM(
+        (COALESCE(s.sales_cash, 0) + COALESCE(s.sales_delivery, 0) + COALESCE(item_agg.extra_rev, 0))
+        - (COALESCE(item_agg.total_expenses, 0) + CASE WHEN item_agg.perfume_credit > 0 THEN item_agg.perfume_credit ELSE COALESCE(s.perfume_credit, 0) END)
+        - (COALESCE(s.deposit_personal, 0) + COALESCE(s.deposit_business, 0))
+      ), 0) as total_undeposited
+    FROM daily_sheets s
+    LEFT JOIN (
       SELECT 
+        sheet_id,
         COALESCE(SUM(CASE WHEN category IN ('internal_expense', 'internal_expenses', 'employee_advance', 'employee_advances', 'supplier_payment', 'supplier_payments', 'cash_purchase', 'cash_purchases') THEN amount1 ELSE 0 END), 0) as total_expenses,
-        COALESCE(SUM(CASE WHEN category IN ('extra_revenue', 'extra_revenues') THEN amount1 ELSE 0 END), 0) as extra_rev
-      FROM daily_sheet_items WHERE sheet_id = ?
-    `, [s.id]);
+        COALESCE(SUM(CASE WHEN category IN ('extra_revenue', 'extra_revenues') THEN amount1 ELSE 0 END), 0) as extra_rev,
+        COALESCE(SUM(CASE WHEN category IN ('perfume_sale', 'perfume_sales') THEN amount2 ELSE 0 END), 0) as perfume_credit
+      FROM daily_sheet_items
+      GROUP BY sheet_id
+    ) item_agg ON item_agg.sheet_id = s.id
+    WHERE s.sheet_date < ?
+  `, [sheetDate]);
 
-    const totalOut = Number(expRow?.total_expenses || 0);
-    const extraRev = Number(expRow?.extra_rev || 0);
-    const dayNet = cashSales + extraRev - totalOut;
-
-    const pDep = Number(s.deposit_personal || 0);
-    const bDep = Number(s.deposit_business || 0);
-    const dayDeposits = pDep + bDep;
-
-    totalNetCashBefore += (dayNet - dayDeposits);
-  }
-
-  return Math.round(totalNetCashBefore * 100) / 100;
+  return Math.round(Number(row?.total_undeposited || 0) * 100) / 100;
 }
 
 async function getCumulativeStats(sheetDate) {
   await initSchema();
   const row = await get(`
     SELECT
-      COALESCE(SUM(sales_cash + sales_delivery + sales_visa + sales_ittihad + sales_ittihad_qr + sales_cliq), 0) as cum_sales,
-      COALESCE(SUM(sales_items_count), 0) as cum_items
-    FROM daily_sheets
-    WHERE sheet_date <= ?
-  `, [sheetDate]);
-
-  const yearRow = await get(`
-    SELECT
+      COALESCE(SUM(CASE WHEN sheet_date <= ? THEN (sales_cash + sales_delivery + sales_visa + sales_ittihad + sales_ittihad_qr + sales_cliq) ELSE 0 END), 0) as cum_sales,
+      COALESCE(SUM(CASE WHEN sheet_date <= ? THEN sales_items_count ELSE 0 END), 0) as cum_items,
       COALESCE(SUM(sales_cash + sales_delivery + sales_visa + sales_ittihad + sales_ittihad_qr + sales_cliq), 0) as year_sales,
       COALESCE(SUM(sales_items_count), 0) as year_items
     FROM daily_sheets
-  `);
+  `, [sheetDate, sheetDate]);
 
   return {
     cum_sales: Math.round(Number(row?.cum_sales || 0) * 100) / 100,
     cum_items: Number(row?.cum_items || 0),
-    year_sales: Math.round(Number(yearRow?.year_sales || 0) * 100) / 100,
-    year_items: Number(yearRow?.year_items || 0)
+    year_sales: Math.round(Number(row?.year_sales || 0) * 100) / 100,
+    year_items: Number(row?.year_items || 0)
   };
 }
 
 async function getDailySheet(sheetDate) {
   await initSchema();
-  let sheet = await get('SELECT * FROM daily_sheets WHERE sheet_date = ?', [sheetDate]);
-  const priorUndeposited = await getPriorUndepositedCash(sheetDate);
-  const priorPerfume = await getPriorPerfumeSales(sheetDate);
-  const cumStats = await getCumulativeStats(sheetDate);
+  const [sheet, priorUndeposited, priorPerfume, cumStats] = await Promise.all([
+    get('SELECT * FROM daily_sheets WHERE sheet_date = ?', [sheetDate]),
+    getPriorUndepositedCash(sheetDate),
+    getPriorPerfumeSales(sheetDate),
+    getCumulativeStats(sheetDate)
+  ]);
 
   if (!sheet) {
     const dateObj = new Date(sheetDate + 'T00:00:00');

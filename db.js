@@ -195,6 +195,10 @@ function initSchema() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE INDEX IF NOT EXISTS idx_daily_sheets_sheet_date ON daily_sheets(sheet_date);
+    CREATE INDEX IF NOT EXISTS idx_daily_sheet_items_sheet_id ON daily_sheet_items(sheet_id);
+    CREATE INDEX IF NOT EXISTS idx_daily_sheet_items_category ON daily_sheet_items(category);
+
     CREATE TABLE IF NOT EXISTS checks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       check_number TEXT UNIQUE NOT NULL,
@@ -1067,97 +1071,70 @@ function getDashboardSummary() {
 
 // Daily Sheet Functions
 function getPriorPerfumeSales(sheetDate) {
-  const sheets = db.prepare(`
-    SELECT id, sheet_date,
-           COALESCE(perfume_credit, 0) as perfume_credit,
-           COALESCE(perfume_debit, 0) as perfume_debit
-    FROM daily_sheets
-    WHERE sheet_date < ?
-    ORDER BY sheet_date ASC
-  `).all(sheetDate);
-
-  let total = 0;
-  for (const s of sheets) {
-    const itemRow = db.prepare(`
-      SELECT
+  const row = db.prepare(`
+    SELECT 
+      COALESCE(SUM(
+        CASE 
+          WHEN items.has_items = 1 THEN (items.credit_sum - items.debit_sum)
+          ELSE (COALESCE(s.perfume_credit, 0) - COALESCE(s.perfume_debit, 0))
+        END
+      ), 0) as total
+    FROM daily_sheets s
+    LEFT JOIN (
+      SELECT 
+        sheet_id, 
+        1 as has_items,
         COALESCE(SUM(amount2), 0) as credit_sum,
         COALESCE(SUM(amount1), 0) as debit_sum
       FROM daily_sheet_items
-      WHERE sheet_id = ? AND category = 'perfume_sale'
-    `).get(s.id);
+      WHERE category IN ('perfume_sale', 'perfume_sales')
+      GROUP BY sheet_id
+    ) items ON items.sheet_id = s.id
+    WHERE s.sheet_date < ?
+  `).get(sheetDate);
 
-    let dayPerfume = 0;
-    if (itemRow && (itemRow.credit_sum !== 0 || itemRow.debit_sum !== 0)) {
-      dayPerfume = (itemRow.credit_sum || 0) - (itemRow.debit_sum || 0);
-    } else {
-      dayPerfume = (s.perfume_credit || 0) - (s.perfume_debit || 0);
-    }
-
-    total += dayPerfume;
-  }
-
-  return Math.round(total * 100) / 100;
+  return Math.round(Number(row?.total || 0) * 100) / 100;
 }
 
 function getPriorUndepositedCash(sheetDate) {
-  const sheets = db.prepare(`
-    SELECT id, sheet_date,
-           COALESCE(sales_cash, 0) as sales_cash,
-           COALESCE(sales_delivery, 0) as sales_delivery,
-           COALESCE(deposit_personal, 0) as deposit_personal,
-           COALESCE(deposit_business, 0) as deposit_business,
-           COALESCE(perfume_credit, 0) as perfume_credit
-    FROM daily_sheets
-    WHERE sheet_date < ?
-    ORDER BY sheet_date ASC
-  `).all(sheetDate);
-
-  let cumulative = 0;
-
-  for (const s of sheets) {
-    const expRow = db.prepare(`
-      SELECT
-        COALESCE(SUM(CASE WHEN category IN ('internal_expense', 'employee_advance', 'supplier_payment', 'cash_purchase') THEN amount1 ELSE 0 END), 0) as total_expenses,
-        COALESCE(SUM(CASE WHEN category = 'extra_revenue' THEN amount1 ELSE 0 END), 0) as total_extra_revenues,
-        COALESCE(SUM(CASE WHEN category = 'perfume_sale' THEN amount2 ELSE 0 END), 0) as perfume_sale_credit
+  const row = db.prepare(`
+    SELECT 
+      COALESCE(SUM(
+        (COALESCE(s.sales_cash, 0) + COALESCE(s.sales_delivery, 0) + COALESCE(item_agg.extra_rev, 0))
+        - (COALESCE(item_agg.total_expenses, 0) + CASE WHEN item_agg.perfume_credit > 0 THEN item_agg.perfume_credit ELSE COALESCE(s.perfume_credit, 0) END)
+        - (COALESCE(s.deposit_personal, 0) + COALESCE(s.deposit_business, 0))
+      ), 0) as total_undeposited
+    FROM daily_sheets s
+    LEFT JOIN (
+      SELECT 
+        sheet_id,
+        COALESCE(SUM(CASE WHEN category IN ('internal_expense', 'internal_expenses', 'employee_advance', 'employee_advances', 'supplier_payment', 'supplier_payments', 'cash_purchase', 'cash_purchases') THEN amount1 ELSE 0 END), 0) as total_expenses,
+        COALESCE(SUM(CASE WHEN category IN ('extra_revenue', 'extra_revenues') THEN amount1 ELSE 0 END), 0) as extra_rev,
+        COALESCE(SUM(CASE WHEN category IN ('perfume_sale', 'perfume_sales') THEN amount2 ELSE 0 END), 0) as perfume_credit
       FROM daily_sheet_items
-      WHERE sheet_id = ?
-    `).get(s.id);
+      GROUP BY sheet_id
+    ) item_agg ON item_agg.sheet_id = s.id
+    WHERE s.sheet_date < ?
+  `).get(sheetDate);
 
-    const perfumeCredit = (expRow && expRow.perfume_sale_credit > 0) ? expRow.perfume_sale_credit : s.perfume_credit;
-    const totalExpenses = (expRow ? expRow.total_expenses : 0) + perfumeCredit;
-    const extraRev = expRow ? expRow.total_extra_revenues : 0;
-
-    const netCash = (s.sales_cash + s.sales_delivery + extraRev) - totalExpenses;
-    const deposits = s.deposit_personal + s.deposit_business;
-
-    cumulative += (netCash - deposits);
-  }
-
-  return Math.round(cumulative * 100) / 100;
+  return Math.round(Number(row?.total_undeposited || 0) * 100) / 100;
 }
 
 function getCumulativeStats(sheetDate) {
   const row = db.prepare(`
     SELECT
-      COALESCE(SUM(sales_cash + sales_delivery + sales_visa + sales_ittihad + sales_ittihad_qr + sales_cliq), 0) as cum_sales,
-      COALESCE(SUM(sales_items_count), 0) as cum_items
-    FROM daily_sheets
-    WHERE sheet_date <= ?
-  `).get(sheetDate);
-
-  const yearRow = db.prepare(`
-    SELECT
+      COALESCE(SUM(CASE WHEN sheet_date <= ? THEN (sales_cash + sales_delivery + sales_visa + sales_ittihad + sales_ittihad_qr + sales_cliq) ELSE 0 END), 0) as cum_sales,
+      COALESCE(SUM(CASE WHEN sheet_date <= ? THEN sales_items_count ELSE 0 END), 0) as cum_items,
       COALESCE(SUM(sales_cash + sales_delivery + sales_visa + sales_ittihad + sales_ittihad_qr + sales_cliq), 0) as year_sales,
       COALESCE(SUM(sales_items_count), 0) as year_items
     FROM daily_sheets
-  `).get();
+  `).get(sheetDate, sheetDate);
 
   return {
-    cum_sales: Math.round((row?.cum_sales || 0) * 100) / 100,
-    cum_items: row?.cum_items || 0,
-    year_sales: Math.round((yearRow?.year_sales || 0) * 100) / 100,
-    year_items: yearRow?.year_items || 0
+    cum_sales: Math.round(Number(row?.cum_sales || 0) * 100) / 100,
+    cum_items: Number(row?.cum_items || 0),
+    year_sales: Math.round(Number(row?.year_sales || 0) * 100) / 100,
+    year_items: Number(row?.year_items || 0)
   };
 }
 
