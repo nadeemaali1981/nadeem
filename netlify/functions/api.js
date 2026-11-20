@@ -1,55 +1,65 @@
-// Netlify Function: runs the same API routes as server.js (all /api/* requests)
-// The database schema already exists in Supabase, so skip re-initialising it on each cold start.
+/**
+ * netlify/functions/api.js - Native Hono Serverless Function Adapter for Netlify
+ * Dispatches incoming Netlify Lambda events directly into Hono's Web Standard `app.fetch()`.
+ */
 process.env.SKIP_SCHEMA_INIT = '1';
 
-const { Writable, Readable } = require('stream');
-const { handler: appHandler } = require('../../server.js');
-
-class FakeRes extends Writable {
-  constructor(done) {
-    super();
-    this.statusCode = 200;
-    this.headers = {};
-    this.chunks = [];
-    this.done = done;
-    this.on('finish', () => {
-      this.done({
-        statusCode: this.statusCode,
-        headers: this.headers,
-        body: Buffer.concat(this.chunks).toString('utf8')
-      });
-    });
-  }
-  setHeader(k, v) { this.headers[k] = v; }
-  getHeader(k) { return this.headers[k]; }
-  writeHead(code, headers) { this.statusCode = code; Object.assign(this.headers, headers || {}); return this; }
-  _write(chunk, _enc, cb) { this.chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)); cb(); }
-}
+const { app } = require('../../server.js');
 
 exports.handler = async (event) => {
-  let urlPath;
   try {
-    const u = new URL(event.rawUrl);
-    urlPath = u.pathname + u.search;
-  } catch (e) {
-    urlPath = event.path + (event.rawQuery ? '?' + event.rawQuery : '');
-  }
-  urlPath = urlPath.replace('/.netlify/functions/api', '/api');
-  if (!urlPath.startsWith('/api')) urlPath = '/api' + urlPath;
+    let urlPath;
+    try {
+      const u = new URL(event.rawUrl);
+      urlPath = u.pathname + u.search;
+    } catch (e) {
+      urlPath = event.path + (event.rawQuery ? '?' + event.rawQuery : '');
+    }
+    urlPath = urlPath.replace('/.netlify/functions/api', '/api');
+    if (!urlPath.startsWith('/api')) urlPath = '/api' + urlPath;
 
-  const bodyBuf = event.body
-    ? Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8')
-    : null;
-  const req = Readable.from(bodyBuf ? [bodyBuf] : []);
-  req.url = urlPath;
-  req.method = event.httpMethod;
-  req.headers = event.headers || {};
+    const fullUrl = `https://netlify.local${urlPath}`;
+    const method = (event.httpMethod || 'GET').toUpperCase();
+    const hasBody = !['GET', 'HEAD'].includes(method) && event.body;
 
-  return new Promise((resolve) => {
-    const res = new FakeRes(resolve);
-    Promise.resolve(appHandler(req, res)).catch((err) => {
-      console.error('Function error:', err);
-      resolve({ statusCode: 500, body: JSON.stringify({ error: err.message || 'Server error' }) });
+    const bodyBuffer = hasBody
+      ? Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8')
+      : undefined;
+
+    const webReq = new Request(fullUrl, {
+      method,
+      headers: event.headers || {},
+      body: bodyBuffer
     });
-  });
+
+    const webRes = await app.fetch(webReq);
+    const headersObj = {};
+    webRes.headers.forEach((v, k) => { headersObj[k] = v; });
+
+    const contentType = (headersObj['content-type'] || '').toLowerCase();
+    const arrayBuf = await webRes.arrayBuffer();
+    const buf = Buffer.from(arrayBuf);
+
+    if (contentType.startsWith('image/') || contentType.startsWith('application/octet-stream')) {
+      return {
+        statusCode: webRes.status,
+        headers: headersObj,
+        body: buf.toString('base64'),
+        isBase64Encoded: true
+      };
+    }
+
+    return {
+      statusCode: webRes.status,
+      headers: headersObj,
+      body: buf.toString('utf8')
+    };
+  } catch (err) {
+    console.error('[Netlify Hono Function Error]:', err);
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ error: err.message || 'Server error' })
+    };
+  }
 };
