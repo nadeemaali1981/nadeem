@@ -1873,6 +1873,143 @@ async function getProfitLossStatement() {
   };
 }
 
+// ============================================================================
+// High-Performance Compressed Media Assets Engine (Clothes Store ERP)
+// ============================================================================
+let mediaTableReady = false;
+async function ensureMediaTable() {
+  if (mediaTableReady) return;
+  await exec(`
+    CREATE TABLE IF NOT EXISTS media_assets (
+      id SERIAL PRIMARY KEY,
+      entity_type TEXT NOT NULL DEFAULT 'product',
+      entity_id TEXT DEFAULT '',
+      title TEXT DEFAULT '',
+      mime_type TEXT DEFAULT 'image/webp',
+      original_size INTEGER DEFAULT 0,
+      compressed_size INTEGER DEFAULT 0,
+      compression_ratio REAL DEFAULT 0,
+      width INTEGER DEFAULT 0,
+      height INTEGER DEFAULT 0,
+      thumb_data TEXT DEFAULT '',
+      image_data TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_media_entity ON media_assets (entity_type, entity_id);
+  `);
+  mediaTableReady = true;
+}
+
+async function saveMediaAsset(data) {
+  await ensureMediaTable();
+  const imageData = String(data.image_data || '');
+  if (!imageData.startsWith('data:image/')) {
+    throw new Error('صيغة الصورة غير صالحة؛ يجب أن تكون مضغوطة بصيغة WebP/JPEG');
+  }
+
+  // Approximate byte size from base64 payload
+  const base64Part = imageData.split(',')[1] || '';
+  const actualBytes = Math.round((base64Part.length * 3) / 4);
+  if (actualBytes > 450 * 1024) {
+    throw new Error('حجم الصورة يتجاوز الحد المسموح بعد الضغط (450KB). يرجى استخدام محرك الضغط المدمج.');
+  }
+
+  const origSize = Number(data.original_size || actualBytes);
+  const compSize = Number(data.compressed_size || actualBytes);
+  const ratio = origSize > 0 ? Math.round((1 - compSize / origSize) * 1000) / 10 : 0;
+
+  const info = await run(`
+    INSERT INTO media_assets (
+      entity_type, entity_id, title, mime_type,
+      original_size, compressed_size, compression_ratio,
+      width, height, thumb_data, image_data
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `, [
+    String(data.entity_type || 'product'),
+    String(data.entity_id || ''),
+    String(data.title || ''),
+    String(data.mime_type || 'image/webp'),
+    origSize,
+    compSize,
+    ratio,
+    Number(data.width || 0),
+    Number(data.height || 0),
+    String(data.thumb_data || ''),
+    imageData
+  ]);
+
+  return {
+    id: info.lastInsertRowid,
+    entity_type: data.entity_type || 'product',
+    entity_id: data.entity_id || '',
+    title: data.title || '',
+    mime_type: data.mime_type || 'image/webp',
+    original_size: origSize,
+    compressed_size: compSize,
+    compression_ratio: ratio,
+    width: Number(data.width || 0),
+    height: Number(data.height || 0),
+    thumb_data: data.thumb_data || ''
+  };
+}
+
+// Fast list query: omits full `image_data` column to keep bandwidth & RAM minimal
+async function getMediaAssetsList({ entity_type, entity_id, limit = 100 } = {}) {
+  await ensureMediaTable();
+  const clauses = [];
+  const params = [];
+  if (entity_type) {
+    clauses.push('entity_type = ?');
+    params.push(String(entity_type));
+  }
+  if (entity_id !== undefined && entity_id !== null && entity_id !== '') {
+    clauses.push('entity_id = ?');
+    params.push(String(entity_id));
+  }
+  const whereSql = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+  params.push(Math.min(Number(limit) || 100, 500));
+
+  return await all(`
+    SELECT
+      id, entity_type, entity_id, title, mime_type,
+      original_size, compressed_size, compression_ratio,
+      width, height, thumb_data, created_at
+    FROM media_assets
+    ${whereSql}
+    ORDER BY id DESC
+    LIMIT ?
+  `, params);
+}
+
+async function getMediaAssetById(id) {
+  await ensureMediaTable();
+  return await get('SELECT * FROM media_assets WHERE id = ?', [Number(id)]);
+}
+
+async function deleteMediaAsset(id) {
+  await ensureMediaTable();
+  await run('DELETE FROM media_assets WHERE id = ?', [Number(id)]);
+  return { deleted: true, id: Number(id) };
+}
+
+async function getMediaStorageStats() {
+  await ensureMediaTable();
+  const row = await get(`
+    SELECT
+      COUNT(*) as total_images,
+      COALESCE(SUM(original_size), 0) as total_original_bytes,
+      COALESCE(SUM(compressed_size), 0) as total_compressed_bytes,
+      COALESCE(AVG(compression_ratio), 0) as avg_saving_percent
+    FROM media_assets
+  `);
+  return {
+    total_images: Number(row?.total_images || 0),
+    total_original_bytes: Number(row?.total_original_bytes || 0),
+    total_compressed_bytes: Number(row?.total_compressed_bytes || 0),
+    avg_saving_percent: Math.round(Number(row?.avg_saving_percent || 0) * 10) / 10
+  };
+}
+
 // Auto Initialize Schema immediately
 initSchema().catch(err => {
   console.error('Initial Supabase schema setup warning:', err.message);
@@ -1925,5 +2062,10 @@ module.exports = {
   createImport,
   deleteImport,
   getProfitLossStatement,
-  seedHistoricalSales
+  seedHistoricalSales,
+  saveMediaAsset,
+  getMediaAssetsList,
+  getMediaAssetById,
+  deleteMediaAsset,
+  getMediaStorageStats
 };
