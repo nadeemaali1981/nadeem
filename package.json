@@ -4,7 +4,8 @@
   "description": "برنامج نديم للحسابات - دفتر اليومية وإدارة الحسابات",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "node -e \"console.log('No build step needed')\""
   },
   "dependencies": {
     "pg": "^8.23.1"
