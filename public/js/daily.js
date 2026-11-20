@@ -92,11 +92,21 @@ let state = {
 
 let autoSaveTimer = null;
 
-// Initialize on Load
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize on Load (supports both React useEffect mount and standard DOMContentLoaded)
+function initDailyJournal() {
+  if (!document.getElementById('sheetDateInput')) return;
+  if (window.__dailyJournalMounted) return;
+  window.__dailyJournalMounted = true;
   setupEventListeners();
   loadSheet(state.date);
-});
+}
+window.initDailyJournal = initDailyJournal;
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDailyJournal);
+} else {
+  initDailyJournal();
+}
 
 function setupEventListeners() {
   const dateInput = document.getElementById('sheetDateInput');
