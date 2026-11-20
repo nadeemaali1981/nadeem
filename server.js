@@ -11,6 +11,7 @@ const path = require('node:path');
 const db = require('./db.js');
 
 const PORT = process.env.PORT || 3000;
+const DIST_DIR = path.join(__dirname, 'dist');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 const app = new Hono();
@@ -264,15 +265,17 @@ const requestHandler = async (req, res) => {
       return;
     }
 
-    // Static File Serving from public/
+    // Static File Serving from React dist/ build (with fallback to public/)
     const pathname = rawUrl.split('?')[0];
     let safePath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
     if (safePath === '/' || safePath === '\\') safePath = '/index.html';
 
-    const candidate = path.join(PUBLIC_DIR, safePath);
-    const foundFile = (fs.existsSync(candidate) && fs.statSync(candidate).isFile())
-      ? candidate
-      : path.join(PUBLIC_DIR, 'index.html');
+    const candidates = [
+      path.join(DIST_DIR, safePath),
+      path.join(PUBLIC_DIR, safePath),
+      path.join(DIST_DIR, 'index.html')
+    ];
+    const foundFile = candidates.find(p => fs.existsSync(p) && fs.statSync(p).isFile());
 
     if (fs.existsSync(foundFile)) {
       const ext = path.extname(foundFile).toLowerCase();
