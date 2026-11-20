@@ -177,6 +177,23 @@ function setupEventListeners() {
     });
   });
 
+  // Click anywhere on inputs/tables while locked to prompt for edit
+  document.addEventListener('click', (e) => {
+    if (state.isLocked) {
+      const target = e.target;
+      if (
+        target.classList.contains('sales-binding') ||
+        target.classList.contains('table-input') ||
+        target.classList.contains('deposit-date-binding') ||
+        target.closest('.sales-row-item') ||
+        target.closest('.sales-box') ||
+        target.closest('.tables-subgrid')
+      ) {
+        requestEditSheet();
+      }
+    }
+  });
+
   // Notes
   const notesEl = document.getElementById('notesTextarea');
   if (notesEl) {
@@ -219,18 +236,28 @@ function setSheetLockedState(locked) {
 
   // الحقول التي يتم تفعيلها أو إيقافها
   const inputsToToggle = document.querySelectorAll(
-    '.sales-binding, .table-input, #notesTextarea, .deposit-date-binding, .btn-del-row, #perfume_desc, #perfume_debit, #perfume_credit'
+    '.sales-binding, .table-input, #notesTextarea, .deposit-date-binding, #perfume_desc, #perfume_debit, #perfume_credit'
   );
   inputsToToggle.forEach(input => {
     if (locked) {
-      input.setAttribute('disabled', 'disabled');
+      input.setAttribute('readonly', 'readonly');
+      input.removeAttribute('disabled');
       input.style.backgroundColor = '#f8fafc';
-      input.style.cursor = 'not-allowed';
+      input.style.cursor = 'pointer';
+      input.title = 'الدفتر مقفل للحماية - انقر هنا أو على [✏️ تعديل الدفتر] لتعديل الأرقام';
     } else {
+      input.removeAttribute('readonly');
       input.removeAttribute('disabled');
       input.style.backgroundColor = '';
       input.style.cursor = '';
+      input.title = '';
     }
+  });
+
+  document.querySelectorAll('.btn-del-row').forEach(btn => {
+    btn.disabled = locked;
+    btn.style.opacity = locked ? '0.4' : '1';
+    btn.style.cursor = locked ? 'not-allowed' : 'pointer';
   });
 
   // إيقاف نقرات إضافة السطور في الجداول إذا كان مقفولاً
@@ -245,6 +272,7 @@ function setSheetLockedState(locked) {
   });
 
   const btnEditSheet = document.getElementById('btnEditSheet');
+  const btnBannerEdit = document.getElementById('btnBannerEditSheet');
   const btnSaveManual = document.getElementById('btnSaveManual');
   const btnSaveManualText = document.getElementById('btnSaveManualText');
   const btnClear = document.getElementById('btnClearSheetFields');
@@ -260,6 +288,7 @@ function setSheetLockedState(locked) {
 
   if (locked) {
     if (btnEditSheet) btnEditSheet.style.display = 'inline-flex';
+    if (btnBannerEdit) btnBannerEdit.style.display = 'inline-flex';
     if (btnSaveManual) btnSaveManual.style.display = 'none';
 
     if (banner) {
@@ -268,7 +297,7 @@ function setSheetLockedState(locked) {
       banner.style.color = '#92400e';
       banner.style.border = '1px solid #fde68a';
       if (bannerText) {
-        bannerText.innerHTML = '🔒 <b>الدفتر مقفل للعرض والحماية من التعديل غير المقصود</b>. لتعديل أي أرقام انقر على زر <span style="text-decoration: underline;">[✏️ تعديل الدفتر]</span> بالأعلى.';
+        bannerText.innerHTML = '🔒 <b>الدفتر مقفل للعرض والحماية</b>. لتعديل أي أرقام انقر على الخانة أو زر <b>[✏️ تعديل الأرقام الآن]</b>:';
       }
       if (bannerDate) {
         const dtStr = state.updatedAt ? formatDisplayDateTime(state.updatedAt) : '';
@@ -277,6 +306,7 @@ function setSheetLockedState(locked) {
     }
   } else {
     if (btnEditSheet) btnEditSheet.style.display = 'none';
+    if (btnBannerEdit) btnBannerEdit.style.display = 'none';
     if (btnSaveManual) btnSaveManual.style.display = 'inline-flex';
     if (btnSaveManualText) {
       btnSaveManualText.textContent = state.hasSavedData ? 'حفظ التعديلات' : 'حفظ اليومية';
@@ -361,6 +391,7 @@ async function loadSheet(dateStr) {
       employee_sales: (data.items && data.items.employee_sales) || [],
       extra_revenues: (data.items && data.items.extra_revenues) || [],
       revenue_expenses: (data.items && data.items.revenue_expenses) || [],
+      daily_obligations: (data.items && data.items.daily_obligations) || [],
       daily_notes: (data.items && data.items.daily_notes) || []
     };
 
@@ -388,17 +419,18 @@ async function loadSheet(dateStr) {
     renderUI();
     recalculateAll();
 
-    // التحقق مما إذا كان الدفتر محفوظاً مسبقاً في قاعدة البيانات
+    // التحقق مما إذا كان الدفتر يحتوي على أرقام أو بيانات مسجلة فعلياً
     const hasExistingRecord = Boolean(
-      data.id ||
       (Number(data.sales_cash || 0) > 0) ||
       (Number(data.sales_delivery || 0) > 0) ||
       (Number(data.sales_visa || 0) > 0) ||
       (Number(data.sales_ittihad || 0) > 0) ||
+      (Number(data.sales_ittihad_qr || 0) > 0) ||
       (Number(data.sales_cliq || 0) > 0) ||
       (Number(data.sales_items_count || 0) > 0) ||
       (Number(data.deposit_personal || 0) > 0) ||
       (Number(data.deposit_business || 0) > 0) ||
+      (data.notes && data.notes.trim() !== '') ||
       (data.items && Object.values(data.items).some(arr => Array.isArray(arr) && arr.length > 0))
     );
 
@@ -414,16 +446,13 @@ async function loadSheet(dateStr) {
     showToast('حدث خطأ أثناء تحميل اليومية');
   }
 }
-    showToast('حدث خطأ أثناء تحميل اليومية');
-  }
-}
 
 // Clean up all empty rows across all dynamic tables
 function filterEmptyRows() {
   const allCategories = [
     'internal_expenses', 'employee_advances', 'supplier_payments',
     'cash_purchases', 'perfume_sales', 'merchant_dispatches',
-    'employee_sales', 'extra_revenues', 'revenue_expenses', 'daily_notes'
+    'employee_sales', 'extra_revenues', 'revenue_expenses', 'daily_obligations', 'daily_notes'
   ];
 
   for (const cat of allCategories) {
@@ -474,6 +503,23 @@ function renderUI() {
   if (depBiz) depBiz.value = state.deposits.business > 0 ? formatMoney(state.deposits.business) : '';
   const depBizDate = document.getElementById('input_deposit_business_date');
   if (depBizDate) depBizDate.value = state.deposits.business_date || state.sheet_date || '';
+
+  // Click anywhere on inputs/tables while locked to prompt for edit
+  document.addEventListener('click', (e) => {
+    if (state.isLocked) {
+      const target = e.target;
+      if (
+        target.classList.contains('sales-binding') ||
+        target.classList.contains('table-input') ||
+        target.classList.contains('deposit-date-binding') ||
+        target.closest('.sales-row-item') ||
+        target.closest('.sales-box') ||
+        target.closest('.tables-subgrid')
+      ) {
+        requestEditSheet();
+      }
+    }
+  });
 
   // Notes
   const notesEl = document.getElementById('notesTextarea');

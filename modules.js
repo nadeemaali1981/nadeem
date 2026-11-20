@@ -82,6 +82,7 @@ window.applySalesFilters = function() {
   let sumIttihadQr = 0;
   let sumCliq = 0;
   let sumGrandTotal = 0;
+  let sumItemsCount = 0;
   let salesDaysCount = 0;
 
   // ترتيب التواريخ من الأقدم إلى الأحدث (من بداية السنة أو أقدم يومية إلى أحدثها)
@@ -94,6 +95,7 @@ window.applySalesFilters = function() {
     const cIttihad = parseFloat(r.sales_ittihad) || 0;
     const cIttihadQr = parseFloat(r.sales_ittihad_qr) || 0;
     const cCliq = parseFloat(r.sales_cliq) || 0;
+    const cItems = parseInt(r.sales_items_count, 10) || 0;
     const cTotal = parseFloat(r.day_total) || (cCash + cDelivery + cVisa + cIttihad + cIttihadQr + cCliq);
 
     sumCash += cCash;
@@ -102,6 +104,7 @@ window.applySalesFilters = function() {
     sumIttihad += cIttihad;
     sumIttihadQr += cIttihadQr;
     sumCliq += cCliq;
+    sumItemsCount += cItems;
     sumGrandTotal += cTotal;
 
     // احتساب أيام البيع (التي فيها مبيعات أكبر من 0)
@@ -128,6 +131,7 @@ window.applySalesFilters = function() {
   };
 
   setKpi('salesKpiGrandTotal', formatCurrency(sumGrandTotal));
+  setKpi('salesKpiItemsCount', sumItemsCount.toLocaleString());
   setKpi('salesKpiAverage', formatCurrency(avgDailySales));
   setKpi('salesKpiDaysCount', salesDaysCount);
   setKpi('salesKpiCash', formatCurrency(sumCash));
@@ -138,7 +142,7 @@ window.applySalesFilters = function() {
   setKpi('salesKpiCliq', formatCurrency(sumCliq));
 
   // رسم جدول المبيعات مطابق تماماً لترتيب الأعمدة في الصورة:
-  // اليوم | التاريخ | صندوق | توصيل | فيزا / NETWORK | فيزا / الاتحاد | الاتحاد / QR | كليك | الإجمالي | ملاحظات
+  // اليوم | التاريخ | صندوق | توصيل | فيزا / NETWORK | فيزا / الاتحاد | الاتحاد / QR | كليك | الإجمالي | عدد القطع | ملاحظات
   const tbody = document.getElementById('salesHistoryBody');
   const tfoot = document.getElementById('salesHistoryFoot');
   if (!tbody) return;
@@ -146,7 +150,7 @@ window.applySalesFilters = function() {
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="10" style="text-align: center; padding: 2rem; color: #64748b;">
+        <td colspan="11" style="text-align: center; padding: 2rem; color: #64748b;">
           لا توجد سجلات مبيعات تطابق الفلاتر المحددة
         </td>
       </tr>
@@ -163,6 +167,7 @@ window.applySalesFilters = function() {
     const cIttihad = parseFloat(r.sales_ittihad) || 0;
     const cIttihadQr = parseFloat(r.sales_ittihad_qr) || 0;
     const cCliq = parseFloat(r.sales_cliq) || 0;
+    const cItems = parseInt(r.sales_items_count, 10) || 0;
     const cTotal = parseFloat(r.day_total) || (cCash + cDelivery + cVisa + cIttihad + cIttihadQr + cCliq);
 
     rowsHtml += `
@@ -180,6 +185,7 @@ window.applySalesFilters = function() {
         <td style="text-align: center; ${cIttihadQr > 0 ? 'font-weight:600;' : 'color:#94a3b8;'}">${formatCurrency(cIttihadQr)}</td>
         <td style="text-align: center; ${cCliq > 0 ? 'font-weight:600;' : 'color:#94a3b8;'}">${formatCurrency(cCliq)}</td>
         <td style="text-align: center; font-weight: 800; color: #1e40af; background: #f0f7ff;">${formatCurrency(cTotal)}</td>
+        <td style="text-align: center; font-weight: 700; color: #be185d; background: #fdf2f8;">${cItems.toLocaleString()}</td>
         <td style="text-align: center; font-size: 0.8rem; color: #475569; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${r.notes || ''}">
           ${r.notes || '-'}
         </td>
@@ -193,6 +199,7 @@ window.applySalesFilters = function() {
     for (let i = filtered.length; i < minRows; i++) {
       rowsHtml += `
         <tr class="empty-sheet-row">
+          <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
@@ -225,6 +232,9 @@ window.applySalesFilters = function() {
         <td style="text-align: center; font-weight: 800;">${formatCurrency(sumCliq)}</td>
         <td style="text-align: center; font-weight: 800; color: #1e40af; background: #e0f2fe; font-size: 0.95rem;">
           ${formatCurrency(sumGrandTotal)}
+        </td>
+        <td style="text-align: center; font-weight: 800; color: #be185d; background: #fce7f3; font-size: 0.95rem;">
+          ${sumItemsCount.toLocaleString()}
         </td>
         <td style="background: #cbd5e1;"></td>
       </tr>

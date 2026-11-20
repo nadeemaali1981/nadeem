@@ -222,7 +222,12 @@
 
       <!-- Modification Notice Banner (شريط إشعار حالة الدفتر وتاريخ التعديل) -->
       <div id="sheetStatusBanner" style="display: none; margin-bottom: 0.85rem; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 700; font-size: 0.88rem; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
-        <span id="sheetBannerText"></span>
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <span id="sheetBannerText"></span>
+          <button type="button" id="btnBannerEditSheet" onclick="requestEditSheet()" class="btn btn-warning btn-sm" style="display: inline-flex; align-items: center; gap: 4px; background: #d97706; border-color: #b45309; color: #fff; font-weight: 700; padding: 5px 14px; border-radius: 6px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">
+            ✏️ تعديل الأرقام الآن
+          </button>
+        </div>
         <span id="sheetBannerDate" style="font-size: 0.82rem; font-weight: 600;"></span>
       </div>
 
@@ -783,6 +788,10 @@
           <span class="kpi-title">عدد أيام البيع</span>
           <span class="kpi-value" id="salesKpiDaysCount" style="color: #0284c7;">0</span>
         </div>
+        <div class="kpi-card" style="border-right-color: #be185d; background: #fdf2f8;">
+          <span class="kpi-title" style="color: #9d174d; font-weight:800;">📦 إجمالي القطع</span>
+          <span class="kpi-value" id="salesKpiItemsCount" style="color: #be185d;">0</span>
+        </div>
         <div class="kpi-card balance">
           <span class="kpi-title" id="kpiTitleCash">صندوق</span>
           <span class="kpi-value" id="salesKpiCash">0.00</span>
@@ -823,12 +832,13 @@
               <th id="th_sales_ittihad_qr" style="width: 140px;">الاتحاد / QR</th>
               <th id="th_sales_cliq" style="width: 120px;">كليك</th>
               <th style="width: 140px;">الإجمالي</th>
+              <th id="th_sales_items_count" style="width: 110px; background: #fdf2f8; color: #9d174d;">عدد القطع</th>
               <th>ملاحظات</th>
             </tr>
           </thead>
           <tbody id="salesHistoryBody">
             <tr>
-              <td colspan="10" style="padding: 1.5rem; text-align: center;">جاري تحميل جدول المبيعات...</td>
+              <td colspan="11" style="padding: 1.5rem; text-align: center;">جاري تحميل جدول المبيعات...</td>
             </tr>
           </tbody>
           <tfoot id="salesHistoryFoot"></tfoot>

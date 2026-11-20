@@ -3533,24 +3533,24 @@ module.exports = [
   {
     "sheet_date": "2026-11-18",
     "day_name": "الأربعاء",
-    "sales_cash": 500,
-    "sales_delivery": 100,
-    "sales_visa": 90,
-    "sales_ittihad": 100,
-    "sales_ittihad_qr": 50,
-    "sales_cliq": 10,
-    "sales_items_count": 15
+    "sales_cash": 0,
+    "sales_delivery": 0,
+    "sales_visa": 0,
+    "sales_ittihad": 0,
+    "sales_ittihad_qr": 0,
+    "sales_cliq": 0,
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-19",
     "day_name": "الخميس",
-    "sales_cash": 500,
-    "sales_delivery": 100,
-    "sales_visa": 90,
-    "sales_ittihad": 100,
-    "sales_ittihad_qr": 50,
-    "sales_cliq": 10,
-    "sales_items_count": 5
+    "sales_cash": 0,
+    "sales_delivery": 0,
+    "sales_visa": 0,
+    "sales_ittihad": 0,
+    "sales_ittihad_qr": 0,
+    "sales_cliq": 0,
+    "sales_items_count": 0
   },
   {
     "sheet_date": "2026-11-20",
