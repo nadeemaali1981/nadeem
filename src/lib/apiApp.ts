@@ -110,6 +110,8 @@ app.delete('/api/media/:id', async (c) => c.json(await db.deleteMediaAsset(parse
 // 2. ERP Operational Modules
 app.get('/api/modules/sales-summary', async (c) => c.json(await db.getSalesSummary()));
 app.get('/api/modules/expenses-summary', async (c) => c.json(await db.getExpensesSummary()));
+app.post('/api/modules/expenses', async (c) => c.json(await db.createExpenseRecord(await c.req.json()), 201));
+app.delete('/api/modules/expenses/:id', async (c) => c.json(await db.deleteExpenseRecord(parseInt(c.req.param('id'), 10))));
 app.get('/api/modules/suppliers', async (c) => c.json(await db.getSuppliersList()));
 app.post('/api/modules/suppliers', async (c) => c.json(await db.createSupplier(await c.req.json()), 201));
 app.delete('/api/modules/suppliers/:id', async (c) => c.json(await db.deleteSupplier(parseInt(c.req.param('id'), 10))));
