@@ -1406,7 +1406,7 @@ async function saveDailySheet(data) {
         sheetId
       ]);
 
-      await tx.run('DELETE FROM daily_sheet_items WHERE sheet_id = ?', [sheetId]);
+      await tx.run("DELETE FROM daily_sheet_items WHERE sheet_id = ? AND category NOT IN ('fixed_expense', 'fixed_expenses')", [sheetId]);
     } else {
       const res = await tx.run(`
         INSERT INTO daily_sheets (
@@ -1604,25 +1604,91 @@ async function getExpensesSummary() {
       i.col2 as note
     FROM daily_sheet_items i
     JOIN daily_sheets s ON s.id = i.sheet_id
-    WHERE i.category IN ('internal_expense', 'internal_expenses', 'cash_purchase', 'cash_purchases')
+    WHERE i.category IN ('internal_expense', 'internal_expenses', 'operational_expense', 'fixed_expense', 'fixed_expenses')
     ORDER BY s.sheet_date DESC, i.id DESC
   `);
 
-  let totalInternal = 0;
-  let totalPurchases = 0;
+  let totalOperational = 0;
+  let totalFixed = 0;
+  const operationalItems = [];
+  const fixedItems = [];
+
   for (const r of rows) {
-    if (r.category.startsWith('internal')) totalInternal += Number(r.amount || 0);
-    else totalPurchases += Number(r.amount || 0);
+    const amt = Number(r.amount || 0);
+    if (r.category === 'fixed_expense' || r.category === 'fixed_expenses') {
+      totalFixed += amt;
+      r.expense_type = 'fixed';
+      fixedItems.push(r);
+    } else {
+      totalOperational += amt;
+      r.expense_type = 'operational';
+      operationalItems.push(r);
+    }
   }
 
+  const opRounded = Math.round(totalOperational * 100) / 100;
+  const fixRounded = Math.round(totalFixed * 100) / 100;
+  const grandRounded = Math.round((totalOperational + totalFixed) * 100) / 100;
+
   return {
-    totals: {
-      internal_expenses: Math.round(totalInternal * 100) / 100,
-      cash_purchases: Math.round(totalPurchases * 100) / 100,
-      grand_total: Math.round((totalInternal + totalPurchases) * 100) / 100
+    grand_total: grandRounded,
+    categories: {
+      operational_expenses: opRounded,
+      fixed_expenses: fixRounded,
+      internal_expenses: opRounded
     },
+    totals: {
+      operational_expenses: opRounded,
+      fixed_expenses: fixRounded,
+      internal_expenses: opRounded,
+      grand_total: grandRounded
+    },
+    operational_items: operationalItems,
+    fixed_items: fixedItems,
     items: rows
   };
+}
+
+async function createExpenseRecord(data) {
+  await initSchema();
+  const sheetDate = data.sheet_date || new Date().toISOString().split('T')[0];
+  const expType = data.expense_type === 'fixed' ? 'fixed_expense' : 'internal_expense';
+  const description = (data.description || '').trim();
+  const amount = Number(data.amount || 0);
+  const note = (data.note || '').trim();
+
+  if (!description || amount <= 0) {
+    throw new Error('يرجى إدخال بيان المصروف والقيمة بشكل صحيح');
+  }
+
+  return await withTransaction(async (tx) => {
+    let sheet = await tx.get('SELECT id FROM daily_sheets WHERE sheet_date = ?', [sheetDate]);
+    let sheetId;
+    if (sheet) {
+      sheetId = sheet.id;
+    } else {
+      const dateObj = new Date(sheetDate + 'T12:00:00');
+      const dayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+      const dayName = isNaN(dateObj.getDay()) ? '' : dayNames[dateObj.getDay()];
+      const ins = await tx.run(
+        'INSERT INTO daily_sheets (sheet_date, day_name) VALUES (?, ?)',
+        [sheetDate, dayName]
+      );
+      sheetId = ins.lastInsertRowid;
+    }
+
+    const res = await tx.run(
+      'INSERT INTO daily_sheet_items (sheet_id, category, col1, col2, amount1) VALUES (?, ?, ?, ?, ?)',
+      [sheetId, expType, description, note, amount]
+    );
+    return { id: res.lastInsertRowid, sheet_date: sheetDate, category: expType, description, amount, note };
+  });
+}
+
+async function deleteExpenseRecord(id) {
+  await initSchema();
+  await run('DELETE FROM daily_sheet_items WHERE id = ?', [Number(id)]);
+  return { deleted: true, id: Number(id) };
 }
 
 async function getSuppliersList() {
@@ -2051,6 +2117,8 @@ const db = {
   clearAllDailySheets,
   getSalesSummary,
   getExpensesSummary,
+  createExpenseRecord,
+  deleteExpenseRecord,
   getSuppliersList,
   createSupplier,
   deleteSupplier,
