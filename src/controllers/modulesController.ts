@@ -288,104 +288,50 @@ window.resetSalesFilters = function() {
   applySalesFilters();
 };
 
-// 2. Expenses Module (سجل المصاريف: 1- المصاريف التشغيلية | 2- المصاريف الثابتة)
+// 2. Expenses Module
 async function loadExpensesTab() {
   try {
-    const dateEl = document.getElementById('quickExpDate') as HTMLInputElement;
-    if (dateEl && !dateEl.value) {
-      dateEl.value = new Date().toISOString().split('T')[0];
-    }
-
     const res = await fetch('/api/modules/expenses-summary');
     const data = await res.json();
 
-    const opTotal = Number(data?.totals?.operational_expenses ?? data?.categories?.operational_expenses ?? 0);
-    const fixTotal = Number(data?.totals?.fixed_expenses ?? data?.categories?.fixed_expenses ?? 0);
-    const grandTotal = Number(data?.totals?.grand_total ?? data?.grand_total ?? (opTotal + fixTotal));
+    document.getElementById('expKpiGrandTotal').textContent = formatCurrency(data.grand_total);
+    document.getElementById('expKpiInternal').textContent = formatCurrency(data.categories.internal_expenses);
+    document.getElementById('expKpiPurchases').textContent = formatCurrency(data.categories.cash_purchases);
+    document.getElementById('expKpiAdvances').textContent = formatCurrency(data.categories.employee_advances);
+    document.getElementById('expKpiPayouts').textContent = formatCurrency(data.categories.supplier_payments);
 
-    const setElText = (id: string, val: string) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = val;
+    const tbody = document.getElementById('expensesListBody');
+    if (!tbody) return;
+    if (!data.items || data.items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:1.5rem;">لا توجد مصاريف مسجلة حتى الآن</td></tr>';
+      return;
+    }
+
+    const catLabels = {
+      internal_expense: '<span class="badge-status badge-pending">مصروف تشغيلي</span>',
+      cash_purchase: '<span class="badge-status badge-completed">مشتريات نقدية</span>',
+      employee_advance: '<span class="badge-status badge-customs">سلفة موظف</span>',
+      supplier_payment: '<span class="badge-status badge-in_transit">دفعة مورد</span>'
     };
 
-    setElText('expKpiGrandTotal', formatCurrency(grandTotal));
-    setElText('expKpiInternal', formatCurrency(opTotal));
-    setElText('expKpiFixed', formatCurrency(fixTotal));
-    setElText('expOpSubTotal', formatCurrency(opTotal));
-    setElText('expFixedSubTotal', formatCurrency(fixTotal));
-
-    const opItems = Array.isArray(data.operational_items)
-      ? data.operational_items
-      : (data.items || []).filter((i: any) => i.category !== 'fixed_expense' && i.category !== 'fixed_expenses');
-    const fixItems = Array.isArray(data.fixed_items)
-      ? data.fixed_items
-      : (data.items || []).filter((i: any) => i.category === 'fixed_expense' || i.category === 'fixed_expenses');
-
-    const renderExpenseSection = (tbodyId: string, list: any[], emptyMsg: string) => {
-      const tbody = document.getElementById(tbodyId);
-      if (!tbody) return;
-      if (!list || list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:1.5rem; color:#64748b;">${emptyMsg}</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = list.map((it: any) => `
-        <tr>
-          <td style="font-weight:600; white-space:nowrap;">${it.sheet_date} <span style="color:#64748b; font-size:0.78rem;">(${it.day_name || ''})</span></td>
-          <td style="font-weight:600;">${it.description || '-'}</td>
-          <td style="text-align:center; font-weight:700; color:#b91c1c;">${formatCurrency(it.amount)}</td>
-          <td style="text-align:center; white-space:nowrap;">
-            <button type="button" class="btn btn-secondary btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="selectHistoryDay('${it.sheet_date}'); switchTab('daily');" title="فتح دفتر اليومية">اليومية</button>
-            <button type="button" class="btn btn-danger btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="deleteExpenseItem(${it.id})" title="حذف المصروف">✕</button>
-          </td>
-        </tr>
-      `).join('');
-    };
-
-    renderExpenseSection('expensesOperationalBody', opItems, 'لا توجد مصاريف تشغيلية مسجلة');
-    renderExpenseSection('expensesFixedBody', fixItems, 'لا توجد مصاريف ثابتة مسجلة');
+    tbody.innerHTML = '';
+    data.items.forEach(it => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-weight:600;">${it.sheet_date} (${it.day_name || ''})</td>
+        <td>${catLabels[it.category] || it.category}</td>
+        <td style="font-weight:600;">${it.description || '-'}</td>
+        <td style="text-align:center; font-weight:700; color:#b91c1c;">${formatCurrency(it.amount)}</td>
+        <td style="text-align:center;">
+          <button class="btn btn-secondary btn-sm" onclick="selectHistoryDay('${it.sheet_date}'); switchTab('daily');">فتح اليومية</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
   } catch (err) {
     console.error('Error loading expenses:', err);
   }
 }
-
-window.submitQuickExpense = async function(e: Event) {
-  e.preventDefault();
-  const expense_type = (document.getElementById('quickExpType') as HTMLSelectElement)?.value || 'operational';
-  const sheet_date = (document.getElementById('quickExpDate') as HTMLInputElement)?.value || new Date().toISOString().split('T')[0];
-  const descEl = document.getElementById('quickExpDesc') as HTMLInputElement;
-  const amtEl = document.getElementById('quickExpAmount') as HTMLInputElement;
-  const description = (descEl?.value || '').trim();
-  const amount = parseFloat(amtEl?.value || '0');
-
-  if (!description || !(amount > 0)) {
-    alert('يرجى إدخال بيان المصروف والقيمة بشكل صحيح');
-    return;
-  }
-
-  try {
-    const res = await fetch('/api/modules/expenses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ expense_type, sheet_date, description, amount })
-    });
-    if (!res.ok) throw new Error('فشل حفظ المصروف');
-    if (descEl) descEl.value = '';
-    if (amtEl) amtEl.value = '';
-    await loadExpensesTab();
-  } catch (err: any) {
-    alert(err.message || 'حدث خطأ أثناء إضافة المصروف');
-  }
-};
-
-window.deleteExpenseItem = async function(id: number) {
-  if (!confirm('هل أنت متأكد من حذف هذا المصروف؟')) return;
-  try {
-    await fetch(`/api/modules/expenses/${id}`, { method: 'DELETE' });
-    await loadExpensesTab();
-  } catch (err) {
-    console.error(err);
-  }
-};
 
 // 3. Suppliers Module
 async function loadSuppliersTab() {
