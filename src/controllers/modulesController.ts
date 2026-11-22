@@ -981,7 +981,7 @@ window.applyCustomFieldNames = function() {
   if (lblCliq) lblCliq.textContent = `⚡ ${cliqName}`;
   const lblItems = document.getElementById('label_sales_items_count');
   if (lblItems) {
-    lblItems.innerHTML = `📦 ${itemsCountName} <span style="color: #dc2626; font-size: 0.85rem;">* (إجباري)</span>`;
+    lblItems.innerHTML = `📦 ${itemsCountName}`;
   }
 
   // 2. Sales table headers
@@ -1032,7 +1032,96 @@ window.loadSettingsTab = function() {
   if (compName && !compName.value) compName.value = 'نديم للحسابات';
   window.populateSettingsFieldInputs();
   window.applyCustomFieldNames();
+  if (typeof window.renderExpenseSettingsTables === 'function') {
+    window.renderExpenseSettingsTables();
+  }
 };
+
+// ============================================================================
+// Expense Settings Tables (2. إعدادات المصاريف: المصاريف التشغيلية & المصاريف الثابتة بدون القيمة)
+// ============================================================================
+function getExpenseSettingsData() {
+  try {
+    const raw = localStorage.getItem('erp_expense_settings_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        operational: Array.isArray(parsed.operational) && parsed.operational.length > 0 ? parsed.operational : [''],
+        fixed: Array.isArray(parsed.fixed) && parsed.fixed.length > 0 ? parsed.fixed : ['']
+      };
+    }
+  } catch (e) {}
+  return { operational: [''], fixed: [''] };
+}
+
+function saveExpenseSettingsData(data) {
+  try {
+    localStorage.setItem('erp_expense_settings_v1', JSON.stringify(data));
+  } catch (e) {}
+}
+
+let expenseSettingsState = getExpenseSettingsData();
+
+window.renderExpenseSettingsTables = function() {
+  const renderSection = (type, tbodyId) => {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    const rows = expenseSettingsState[type] || [];
+    if (rows.length === 0) {
+      tbody.innerHTML = `
+        <tr class="empty-row-placeholder">
+          <td colspan="2">لا توجد بيانات مسجلة (<span onclick="addExpenseSettingRow('${type}')">+ أضف سطر</span>)</td>
+        </tr>
+      `;
+      return;
+    }
+    tbody.innerHTML = rows.map((val, idx) => {
+      const safeVal = String(val || '').replace(/"/g, '&quot;');
+      return `
+        <tr>
+          <td>
+            <input type="text" class="table-input" value="${safeVal}" placeholder="بيان المصروف"
+                   oninput="updateExpenseSettingRow('${type}', ${idx}, this.value)">
+          </td>
+          <td style="width: 38px; text-align: center;">
+            <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteExpenseSettingRow('${type}', ${idx})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  };
+
+  renderSection('operational', 'settingsOperationalExpensesBody');
+  renderSection('fixed', 'settingsFixedExpensesBody');
+};
+
+window.addExpenseSettingRow = function(type) {
+  if (!expenseSettingsState[type]) expenseSettingsState[type] = [];
+  expenseSettingsState[type].push('');
+  saveExpenseSettingsData(expenseSettingsState);
+  window.renderExpenseSettingsTables();
+};
+
+window.updateExpenseSettingRow = function(type, idx, val) {
+  if (!expenseSettingsState[type]) return;
+  expenseSettingsState[type][idx] = val;
+  saveExpenseSettingsData(expenseSettingsState);
+};
+
+window.deleteExpenseSettingRow = function(type, idx) {
+  if (!expenseSettingsState[type]) return;
+  expenseSettingsState[type].splice(idx, 1);
+  saveExpenseSettingsData(expenseSettingsState);
+  window.renderExpenseSettingsTables();
+};
+
+setTimeout(() => {
+  if (typeof window.renderExpenseSettingsTables === 'function') {
+    window.renderExpenseSettingsTables();
+  }
+}, 50);
 
 window.clearAllDailySheetsConfirm = function() {
   if (typeof window.clearCurrentSheetFields === 'function') {
