@@ -436,7 +436,8 @@ async function loadSuppliersTab() {
     const res = await fetch('/api/modules/suppliers');
     const suppliers = await res.json();
 
-    document.getElementById('suppKpiTotal').textContent = suppliers.length;
+    const uniqueNames = new Set(suppliers.map((s: any) => String(s.name || '').trim()).filter(Boolean));
+    document.getElementById('suppKpiTotal').textContent = String(uniqueNames.size || suppliers.length);
     let totalPaid = 0;
     suppliers.forEach(s => totalPaid += (s.total_paid || 0));
     document.getElementById('suppKpiTotalPaid').textContent = formatCurrency(totalPaid);
@@ -444,21 +445,24 @@ async function loadSuppliersTab() {
     const tbody = document.getElementById('suppliersTableBody');
     if (!tbody) return;
     if (suppliers.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1.5rem;">لا يوجد موردون مسجلون. انقر فوق (+ إضافة مورد جديد)</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:1.5rem;">لا يوجد موردون مسجلون. انقر فوق (+ إضافة مورد جديد)</td></tr>';
       return;
     }
 
     tbody.innerHTML = '';
     suppliers.forEach(s => {
       const tr = document.createElement('tr');
+      const deleteId = s.payment_id || s.id;
+      const dateDisplay = s.payment_date && s.payment_date !== '-'
+        ? `${s.payment_date}${s.day_name ? ` <span style="color:#64748b; font-size:0.78rem;">(${s.day_name})</span>` : ''}`
+        : '-';
       tr.innerHTML = `
-        <td style="font-weight:700; color:#1e293b;">${s.name}</td>
-        <td>${s.phone || '-'}</td>
-        <td>${s.tax_number || '-'}</td>
-        <td>${s.address || '-'}</td>
+        <td style="text-align:center; font-weight:700; color:#1e293b;">${s.name}</td>
+        <td style="text-align:center; font-weight:600; white-space:nowrap;">${dateDisplay}</td>
+        <td style="text-align:center; font-weight:600;">${s.payment_channel || '-'}</td>
         <td style="text-align:center; font-weight:700; color:#2563eb;">${formatCurrency(s.total_paid)}</td>
         <td style="text-align:center;">
-          <button class="btn-del-row" title="حذف المورد" onclick="deleteModuleItem('/api/modules/suppliers/${s.id}', loadSuppliersTab)">
+          <button class="btn-del-row" title="حذف المورد" onclick="deleteModuleItem('/api/modules/suppliers/${deleteId}', loadSuppliersTab)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
           </button>
         </td>
