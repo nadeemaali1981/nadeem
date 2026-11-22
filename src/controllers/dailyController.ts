@@ -724,7 +724,7 @@ function renderInternalExpensesTable() {
   if (!state.items.internal_expenses || state.items.internal_expenses.length === 0) {
     tbody.innerHTML = `
       <tr class="empty-row-placeholder">
-        <td colspan="5">لا توجد بيانات مسجلة (<span onclick="addRow('internal_expenses')">+ أضف سطر</span>)</td>
+        <td colspan="6">لا توجد بيانات مسجلة (<span onclick="addRow('internal_expenses')">+ أضف سطر</span>)</td>
       </tr>
     `;
     return;
@@ -734,6 +734,7 @@ function renderInternalExpensesTable() {
     const selectedType = row.col2 || 'المصاريف التشغيلية';
     row.col2 = selectedType;
     const currentMainCat = (row.col3 || '').trim();
+    const currentPaymentSource = row.col4 || '';
     const currentDesc = (row.col1 || '').trim();
 
     const configuredMainCats = getConfiguredMainCategoriesByType(selectedType);
@@ -758,18 +759,22 @@ function renderInternalExpensesTable() {
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="width: 155px;">
+      <td style="width: 145px;">
         <select class="table-input" style="font-weight: 600;"
                 onchange="onInternalExpenseCategoryChange(${idx}, this.value)">
           <option value="المصاريف التشغيلية" ${selectedType === 'المصاريف التشغيلية' ? 'selected' : ''}>المصاريف التشغيلية</option>
           <option value="المصاريف الثابتة" ${selectedType === 'المصاريف الثابتة' ? 'selected' : ''}>المصاريف الثابتة</option>
         </select>
       </td>
-      <td style="width: 170px;">
+      <td style="width: 155px;">
         <select class="table-input" style="font-weight: 600;"
                 onchange="onInternalExpenseMainCategoryChange(${idx}, this.value)">
           ${mainCatOptionsHtml}
         </select>
+      </td>
+      <td style="width: 120px;">
+        <input type="text" class="table-input" style="font-weight: 600;" value="${escapeHtml(currentPaymentSource)}" placeholder="جهة الدفع"
+               oninput="updateRowCol('internal_expenses', ${idx}, 'col4', this.value)">
       </td>
       <td>
         <select class="table-input" style="font-weight: 600;"
@@ -777,7 +782,7 @@ function renderInternalExpensesTable() {
           ${optionsHtml}
         </select>
       </td>
-      <td style="width: 120px;">
+      <td style="width: 115px;">
         <input type="text" inputmode="decimal" class="table-input num" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
                oninput="updateRowAmount('internal_expenses', ${idx}, 'amount1', this.value)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">

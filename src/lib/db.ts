@@ -1226,7 +1226,12 @@ async function getPriorUndepositedCash(sheetDate) {
     LEFT JOIN (
       SELECT 
         sheet_id,
-        COALESCE(SUM(CASE WHEN category IN ('internal_expense', 'internal_expenses', 'employee_advance', 'employee_advances', 'supplier_payment', 'supplier_payments', 'cash_purchase', 'cash_purchases') THEN amount1 ELSE 0 END), 0) as total_expenses,
+        COALESCE(SUM(CASE
+          WHEN category IN ('internal_expense', 'internal_expenses') THEN
+            CASE WHEN COALESCE(col4, '') LIKE '%صندوق%' THEN amount1 ELSE 0 END
+          WHEN category IN ('employee_advance', 'employee_advances', 'supplier_payment', 'supplier_payments', 'cash_purchase', 'cash_purchases') THEN amount1
+          ELSE 0
+        END), 0) as total_expenses,
         COALESCE(SUM(CASE WHEN category IN ('extra_revenue', 'extra_revenues') THEN amount1 ELSE 0 END), 0) as extra_rev,
         COALESCE(SUM(CASE WHEN category IN ('perfume_sale', 'perfume_sales') THEN amount2 ELSE 0 END), 0) as perfume_credit
       FROM daily_sheet_items
