@@ -552,7 +552,7 @@ function renderUI() {
   // Render Tables
   renderInternalExpensesTable();
   renderEmployeeAdvancesTable();
-  renderSimpleTable('supplier_payments', 'supplierPaymentsBody', 'اسم المورد');
+  renderSupplierPaymentsTable();
   renderSimpleTable('cash_purchases', 'cashPurchasesBody', 'بيان المشتريات');
   renderPerfumeSalesTable();
   renderExtraRevenuesTable();
@@ -937,6 +937,101 @@ function renderEmployeeAdvancesTable() {
   renderCategorizedExpenseTable('employee_advances', 'employeeAdvancesBody');
 }
 window.renderEmployeeAdvancesTable = renderEmployeeAdvancesTable;
+
+function getConfiguredSuppliers() {
+  try {
+    const raw = localStorage.getItem('erp_expense_settings_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed.suppliers)) {
+        const seen = new Set();
+        const list = [];
+        parsed.suppliers.forEach(s => {
+          const val = String(s || '').trim();
+          if (val && !seen.has(val)) {
+            seen.add(val);
+            list.push(val);
+          }
+        });
+        return list.sort((a, b) => a.localeCompare(b, 'ar'));
+      }
+    }
+  } catch (e) {}
+  return [];
+}
+
+function renderSupplierPaymentsTable() {
+  const tbody = document.getElementById('supplierPaymentsBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!state.items.supplier_payments || state.items.supplier_payments.length === 0) {
+    tbody.innerHTML = `
+      <tr class="empty-row-placeholder">
+        <td colspan="4">لا توجد بيانات مسجلة (<span onclick="addRow('supplier_payments')">+ أضف سطر</span>)</td>
+      </tr>
+    `;
+    return;
+  }
+
+  const configuredSuppliers = getConfiguredSuppliers();
+  const configuredChannels = getConfiguredPaymentChannels();
+
+  state.items.supplier_payments.forEach((row, idx) => {
+    const currentSupplier = (row.col1 || '').trim();
+    const currentPaymentSource = (row.col4 || '').trim();
+
+    let supplierOptionsHtml = `<option value="">-- اختر اسم المورد --</option>`;
+    if (currentSupplier && !configuredSuppliers.includes(currentSupplier)) {
+      supplierOptionsHtml += `<option value="${escapeHtml(currentSupplier)}" selected>${escapeHtml(currentSupplier)}</option>`;
+    }
+    configuredSuppliers.forEach(supp => {
+      const isSelected = currentSupplier === supp ? 'selected' : '';
+      supplierOptionsHtml += `<option value="${escapeHtml(supp)}" ${isSelected}>${escapeHtml(supp)}</option>`;
+    });
+
+    let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع --</option>`;
+    if (currentPaymentSource && !configuredChannels.includes(currentPaymentSource)) {
+      paymentOptionsHtml += `<option value="${escapeHtml(currentPaymentSource)}" selected>${escapeHtml(currentPaymentSource)}</option>`;
+    }
+    configuredChannels.forEach(ch => {
+      const isSelected = currentPaymentSource === ch ? 'selected' : '';
+      paymentOptionsHtml += `<option value="${escapeHtml(ch)}" ${isSelected}>${escapeHtml(ch)}</option>`;
+    });
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <select class="table-input" style="font-weight: 600; text-align: center;"
+                onchange="updateRowCol('supplier_payments', ${idx}, 'col1', this.value)">
+          ${supplierOptionsHtml}
+        </select>
+      </td>
+      <td style="width: 22%; min-width: 155px;">
+        <select class="table-input" style="font-weight: 600; text-align: center;"
+                onchange="onCategorizedRowPaymentChannelChange('supplier_payments', ${idx}, this.value)">
+          ${paymentOptionsHtml}
+        </select>
+      </td>
+      <td style="width: 15%; min-width: 125px;">
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
+               oninput="updateRowAmount('supplier_payments', ${idx}, 'amount1', this.value)"
+               onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
+      </td>
+      <td style="width: 40px; text-align: center;">
+        <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteRow('supplier_payments', ${idx})">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (state.isLocked) {
+    setSheetLockedState(true);
+  }
+}
+window.renderSupplierPaymentsTable = renderSupplierPaymentsTable;
 
 window.getDailyJournalLiveExpenses = function() {
   const result = [];
@@ -1421,9 +1516,17 @@ function recalculateAll() {
     return acc;
   }, 0);
 
+  const sumCashSupplierPayments = (state.items.supplier_payments || []).reduce((acc, r) => {
+    const paySource = String(r.col4 || '').trim();
+    if (paySource.includes('صندوق')) {
+      return acc + (parseFloat(r.amount1) || 0);
+    }
+    return acc;
+  }, 0);
+
   const salesCash = state.sales.cash || 0;
   const salesDelivery = state.sales.delivery || 0;
-  const netCashRemaining = (salesCash + salesDelivery + sumExtraRevenues) - (sumCashInternalExpenses + sumCashEmployeeAdvances + sumSupplierPayments + sumCashPurchases + sumPerfumeCredit);
+  const netCashRemaining = (salesCash + salesDelivery + sumExtraRevenues) - (sumCashInternalExpenses + sumCashEmployeeAdvances + sumCashSupplierPayments + sumCashPurchases + sumPerfumeCredit);
 
   setText('kpiNetCash', formatMoney(netCashRemaining));
   const kpiNetCard = document.getElementById('kpiNetCashCard');

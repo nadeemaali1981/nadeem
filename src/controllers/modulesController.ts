@@ -1397,23 +1397,56 @@ window.renderExpenseSettingsTables = function() {
     }).join('');
   };
 
+  const renderSuppliersSettings = (tbodyId) => {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    const rows = expenseSettingsState.suppliers || [];
+    if (rows.length === 0) {
+      tbody.innerHTML = `
+        <tr class="empty-row-placeholder">
+          <td colspan="2">لا توجد بيانات موردين مسجلة (<span onclick="addExpenseSettingRow('suppliers')">+ أضف سطر</span>)</td>
+        </tr>
+      `;
+      return;
+    }
+    tbody.innerHTML = rows.map((val, idx) => {
+      const safeVal = String(val || '').replace(/"/g, '&quot;');
+      return `
+        <tr>
+          <td>
+            <input type="text" class="table-input" style="text-align: center; font-weight: 700;" value="${safeVal}" placeholder="اسم المورد"
+                   oninput="updateExpenseSettingRow('suppliers', ${idx}, this.value)"
+                   onblur="onExpenseSettingInputBlur()">
+          </td>
+          <td style="width: 38px; text-align: center;">
+            <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteExpenseSettingRow('suppliers', ${idx})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  };
+
   renderSection('operational', 'settingsOperationalExpensesBody');
   renderSection('fixed', 'settingsFixedExpensesBody');
   renderPaymentChannels('settingsPaymentChannelsBody');
   renderPaymentChannels('settingsGeneralPaymentChannelsBody');
   renderEmployeesSettings();
+  renderSuppliersSettings('settingsSuppliersBody');
 };
 
 window.onExpenseSettingInputBlur = function() {
   setTimeout(() => {
     const active = document.activeElement;
-    if (active && active.tagName === 'INPUT' && active.closest('#settingsOperationalExpensesBody, #settingsFixedExpensesBody, #settingsPaymentChannelsBody, #settingsGeneralPaymentChannelsBody, #settingsEmployeesBody')) {
+    if (active && active.tagName === 'INPUT' && active.closest('#settingsOperationalExpensesBody, #settingsFixedExpensesBody, #settingsPaymentChannelsBody, #settingsGeneralPaymentChannelsBody, #settingsEmployeesBody, #settingsSuppliersBody')) {
       return;
     }
     expenseSettingsState.operational = sortExpenseRowsArabic(expenseSettingsState.operational);
     expenseSettingsState.fixed = sortExpenseRowsArabic(expenseSettingsState.fixed);
     expenseSettingsState.paymentChannels = sortPaymentChannelsArabic(expenseSettingsState.paymentChannels);
     expenseSettingsState.employees = sortEmployeesSettingsArabic(expenseSettingsState.employees);
+    expenseSettingsState.suppliers = sortPaymentChannelsArabic(expenseSettingsState.suppliers);
     saveExpenseSettingsData(expenseSettingsState);
     window.renderExpenseSettingsTables();
   }, 120);
@@ -1441,8 +1474,8 @@ window.deleteEmployeeSettingRow = function(idx) {
 
 window.addExpenseSettingRow = function(type) {
   if (!expenseSettingsState[type]) expenseSettingsState[type] = [];
-  if (type === 'paymentChannels') {
-    expenseSettingsState.paymentChannels.push('');
+  if (type === 'paymentChannels' || type === 'suppliers') {
+    expenseSettingsState[type].push('');
   } else {
     expenseSettingsState[type].push({ mainCategory: '', descriptions: [''], description: '' });
   }
@@ -1501,8 +1534,8 @@ window.deleteExpenseStatementFromRow = function(type, idx, descIdx) {
 
 window.updateExpenseSettingRow = function(type, idx, fieldOrVal, maybeVal) {
   if (!expenseSettingsState[type]) return;
-  if (type === 'paymentChannels') {
-    expenseSettingsState.paymentChannels[idx] = String(fieldOrVal || '');
+  if (type === 'paymentChannels' || type === 'suppliers') {
+    expenseSettingsState[type][idx] = String(fieldOrVal || '');
     saveExpenseSettingsData(expenseSettingsState);
     return;
   }
