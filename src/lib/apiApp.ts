@@ -159,4 +159,8 @@ app.get('/api/reports/general-ledger', async (c) => {
 app.get('/api/reports/income-statement', async (c) => c.json(await db.getIncomeStatement()));
 app.get('/api/reports/balance-sheet', async (c) => c.json(await db.getBalanceSheet()));
 
+// 4. App Settings (إعدادات المصاريف التشغيلية والثابتة)
+app.get('/api/settings/expense-definitions', async (c) => c.json(await db.getExpenseDefinitions()));
+app.post('/api/settings/expense-definitions', async (c) => c.json(await db.saveExpenseDefinitions(await c.req.json())));
+
 app.all('/api/*', (c) => c.json({ error: 'نقطة الاتصال غير موجودة' }, 404));

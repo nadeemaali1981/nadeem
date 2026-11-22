@@ -2086,6 +2086,56 @@ async function getMediaStorageStats() {
   };
 }
 
+// ----------------------------------------------------
+// App Settings (إعدادات المصاريف التشغيلية والثابتة)
+// ----------------------------------------------------
+let settingsTableReady = false;
+async function ensureSettingsTable() {
+  if (settingsTableReady) return;
+  await initSchema();
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS app_settings (
+      setting_key TEXT PRIMARY KEY,
+      setting_value TEXT NOT NULL,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+  settingsTableReady = true;
+}
+
+async function getExpenseDefinitions() {
+  await ensureSettingsTable();
+  const row = await get('SELECT setting_value FROM app_settings WHERE setting_key = ?', ['expense_definitions']);
+  if (!row || !row.setting_value) {
+    return { operational: [], fixed: [] };
+  }
+  try {
+    const parsed = JSON.parse(row.setting_value);
+    return {
+      operational: Array.isArray(parsed.operational) ? parsed.operational : [],
+      fixed: Array.isArray(parsed.fixed) ? parsed.fixed : []
+    };
+  } catch (e) {
+    return { operational: [], fixed: [] };
+  }
+}
+
+async function saveExpenseDefinitions(data = {}) {
+  await ensureSettingsTable();
+  const payload = {
+    operational: Array.isArray(data.operational) ? data.operational : [],
+    fixed: Array.isArray(data.fixed) ? data.fixed : []
+  };
+  await run(`
+    INSERT INTO app_settings (setting_key, setting_value, updated_at)
+    VALUES ('expense_definitions', ?, CURRENT_TIMESTAMP)
+    ON CONFLICT (setting_key) DO UPDATE SET
+      setting_value = EXCLUDED.setting_value,
+      updated_at = CURRENT_TIMESTAMP
+  `, [JSON.stringify(payload)]);
+  return { success: true, ...payload };
+}
+
 // Auto Initialize Schema immediately
 initSchema().catch(err => {
   console.error('Initial Supabase schema setup warning:', err.message);
@@ -2145,7 +2195,9 @@ const db = {
   getMediaAssetsList,
   getMediaAssetById,
   deleteMediaAsset,
-  getMediaStorageStats
+  getMediaStorageStats,
+  getExpenseDefinitions,
+  saveExpenseDefinitions
 };
 
 export default db;
