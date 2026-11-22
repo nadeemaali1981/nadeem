@@ -1088,6 +1088,16 @@ fetch('/api/settings/expense-definitions')
         localStorage.setItem('erp_expense_settings_v1', JSON.stringify(expenseSettingsState));
         if (typeof window.renderExpenseSettingsTables === 'function') window.renderExpenseSettingsTables();
         if (typeof (window as any).renderInternalExpensesTable === 'function') (window as any).renderInternalExpensesTable();
+      } else {
+        const localHasOps = Array.isArray(expenseSettingsState.operational) && expenseSettingsState.operational.some(Boolean);
+        const localHasFix = Array.isArray(expenseSettingsState.fixed) && expenseSettingsState.fixed.some(Boolean);
+        if (localHasOps || localHasFix) {
+          fetch('/api/settings/expense-definitions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(expenseSettingsState)
+          }).catch(() => {});
+        }
       }
     }
   })
