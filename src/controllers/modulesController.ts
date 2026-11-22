@@ -1195,6 +1195,13 @@ function hasNonEmptyEmployeeSettingRow(arr) {
   );
 }
 
+function normalizeSuppliersSettingsRows(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return [''];
+  }
+  return sortPaymentChannelsArabic(arr.map(item => String(item || '')));
+}
+
 function getExpenseSettingsData() {
   try {
     const raw = localStorage.getItem('erp_expense_settings_v1');
@@ -1204,7 +1211,8 @@ function getExpenseSettingsData() {
         operational: normalizeExpenseRows(parsed.operational),
         fixed: normalizeExpenseRows(parsed.fixed),
         paymentChannels: normalizePaymentChannels(parsed.paymentChannels),
-        employees: normalizeEmployeesSettingsRows(parsed.employees)
+        employees: normalizeEmployeesSettingsRows(parsed.employees),
+        suppliers: normalizeSuppliersSettingsRows(parsed.suppliers)
       };
     }
   } catch (e) {}
@@ -1212,7 +1220,8 @@ function getExpenseSettingsData() {
     operational: [{ mainCategory: '' }],
     fixed: [{ mainCategory: '' }],
     paymentChannels: ['صندوق'],
-    employees: [{ name: '', employeeId: '', basicSalary: '' }]
+    employees: [{ name: '', employeeId: '', basicSalary: '' }],
+    suppliers: ['']
   };
 }
 
@@ -1224,6 +1233,9 @@ function saveExpenseSettingsData(data) {
     }
     if (typeof (window as any).renderEmployeeAdvancesTable === 'function') {
       (window as any).renderEmployeeAdvancesTable();
+    }
+    if (typeof (window as any).renderSupplierPaymentsTable === 'function') {
+      (window as any).renderSupplierPaymentsTable();
     }
     fetch('/api/settings/expense-definitions', {
       method: 'POST',
@@ -1239,28 +1251,32 @@ let expenseSettingsState = getExpenseSettingsData();
 fetch('/api/settings/expense-definitions')
   .then(r => r.ok ? r.json() : null)
   .then(cloudData => {
-    if (cloudData && (Array.isArray(cloudData.operational) || Array.isArray(cloudData.fixed) || Array.isArray(cloudData.paymentChannels) || Array.isArray(cloudData.employees))) {
+    if (cloudData && (Array.isArray(cloudData.operational) || Array.isArray(cloudData.fixed) || Array.isArray(cloudData.paymentChannels) || Array.isArray(cloudData.employees) || Array.isArray(cloudData.suppliers))) {
       const hasOps = hasNonEmptyExpenseRow(cloudData.operational);
       const hasFix = hasNonEmptyExpenseRow(cloudData.fixed);
       const hasChannels = Array.isArray(cloudData.paymentChannels) && cloudData.paymentChannels.some(c => String(c || '').trim());
       const hasEmps = hasNonEmptyEmployeeSettingRow(cloudData.employees);
-      if (hasOps || hasFix || hasChannels || hasEmps) {
+      const hasSupps = Array.isArray(cloudData.suppliers) && cloudData.suppliers.some(s => String(s || '').trim());
+      if (hasOps || hasFix || hasChannels || hasEmps || hasSupps) {
         expenseSettingsState = {
           operational: hasOps ? normalizeExpenseRows(cloudData.operational) : expenseSettingsState.operational,
           fixed: hasFix ? normalizeExpenseRows(cloudData.fixed) : expenseSettingsState.fixed,
           paymentChannels: hasChannels ? normalizePaymentChannels(cloudData.paymentChannels) : expenseSettingsState.paymentChannels,
-          employees: hasEmps ? normalizeEmployeesSettingsRows(cloudData.employees) : expenseSettingsState.employees
+          employees: hasEmps ? normalizeEmployeesSettingsRows(cloudData.employees) : expenseSettingsState.employees,
+          suppliers: hasSupps ? normalizeSuppliersSettingsRows(cloudData.suppliers) : expenseSettingsState.suppliers
         };
         localStorage.setItem('erp_expense_settings_v1', JSON.stringify(expenseSettingsState));
         if (typeof window.renderExpenseSettingsTables === 'function') window.renderExpenseSettingsTables();
         if (typeof (window as any).renderInternalExpensesTable === 'function') (window as any).renderInternalExpensesTable();
         if (typeof (window as any).renderEmployeeAdvancesTable === 'function') (window as any).renderEmployeeAdvancesTable();
+        if (typeof (window as any).renderSupplierPaymentsTable === 'function') (window as any).renderSupplierPaymentsTable();
       } else {
         const localHasOps = hasNonEmptyExpenseRow(expenseSettingsState.operational);
         const localHasFix = hasNonEmptyExpenseRow(expenseSettingsState.fixed);
         const localHasChannels = Array.isArray(expenseSettingsState.paymentChannels) && expenseSettingsState.paymentChannels.some(c => String(c || '').trim());
         const localHasEmps = hasNonEmptyEmployeeSettingRow(expenseSettingsState.employees);
-        if (localHasOps || localHasFix || localHasChannels || localHasEmps) {
+        const localHasSupps = Array.isArray(expenseSettingsState.suppliers) && expenseSettingsState.suppliers.some(s => String(s || '').trim());
+        if (localHasOps || localHasFix || localHasChannels || localHasEmps || localHasSupps) {
           fetch('/api/settings/expense-definitions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

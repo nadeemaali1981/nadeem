@@ -1227,9 +1227,9 @@ async function getPriorUndepositedCash(sheetDate) {
       SELECT 
         sheet_id,
         COALESCE(SUM(CASE
-          WHEN category IN ('internal_expense', 'internal_expenses', 'employee_advance', 'employee_advances') THEN
+          WHEN category IN ('internal_expense', 'internal_expenses', 'employee_advance', 'employee_advances', 'supplier_payment', 'supplier_payments') THEN
             CASE WHEN COALESCE(col4, '') LIKE '%صندوق%' THEN amount1 ELSE 0 END
-          WHEN category IN ('supplier_payment', 'supplier_payments', 'cash_purchase', 'cash_purchases') THEN amount1
+          WHEN category IN ('cash_purchase', 'cash_purchases') THEN amount1
           ELSE 0
         END), 0) as total_expenses,
         COALESCE(SUM(CASE WHEN category IN ('extra_revenue', 'extra_revenues') THEN amount1 ELSE 0 END), 0) as extra_rev,
@@ -2131,7 +2131,7 @@ async function getExpenseDefinitions() {
   await ensureSettingsTable();
   const row = await get('SELECT setting_value FROM app_settings WHERE setting_key = ?', ['expense_definitions']);
   if (!row || !row.setting_value) {
-    return { operational: [], fixed: [], paymentChannels: [], employees: [] };
+    return { operational: [], fixed: [], paymentChannels: [], employees: [], suppliers: [] };
   }
   try {
     const parsed = JSON.parse(row.setting_value);
@@ -2139,10 +2139,11 @@ async function getExpenseDefinitions() {
       operational: Array.isArray(parsed.operational) ? parsed.operational : [],
       fixed: Array.isArray(parsed.fixed) ? parsed.fixed : [],
       paymentChannels: Array.isArray(parsed.paymentChannels) ? parsed.paymentChannels : [],
-      employees: Array.isArray(parsed.employees) ? parsed.employees : []
+      employees: Array.isArray(parsed.employees) ? parsed.employees : [],
+      suppliers: Array.isArray(parsed.suppliers) ? parsed.suppliers : []
     };
   } catch (e) {
-    return { operational: [], fixed: [], paymentChannels: [], employees: [] };
+    return { operational: [], fixed: [], paymentChannels: [], employees: [], suppliers: [] };
   }
 }
 
@@ -2152,7 +2153,8 @@ async function saveExpenseDefinitions(data = {}) {
     operational: Array.isArray(data.operational) ? data.operational : [],
     fixed: Array.isArray(data.fixed) ? data.fixed : [],
     paymentChannels: Array.isArray(data.paymentChannels) ? data.paymentChannels : [],
-    employees: Array.isArray(data.employees) ? data.employees : []
+    employees: Array.isArray(data.employees) ? data.employees : [],
+    suppliers: Array.isArray(data.suppliers) ? data.suppliers : []
   };
   await run(`
     INSERT INTO app_settings (setting_key, setting_value, updated_at)
