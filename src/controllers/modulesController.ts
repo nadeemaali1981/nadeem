@@ -475,10 +475,14 @@ async function loadSuppliersTab() {
 }
 
 // 4. Employees Module
+let currentEmployeesList: any[] = [];
+let editingEmployeeId: number | null = null;
+
 async function loadEmployeesTab() {
   try {
     const res = await fetch('/api/modules/employees');
     const employees = await res.json();
+    currentEmployeesList = Array.isArray(employees) ? employees : [];
 
     document.getElementById('empKpiTotal').textContent = employees.length;
     let sumSales = 0;
@@ -502,7 +506,14 @@ async function loadEmployeesTab() {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="text-align:center; font-weight:700; color:#0f766e;">${e.employee_id || '-'}</td>
-        <td style="text-align:center; font-weight:700;">${e.name}</td>
+        <td style="text-align:center; font-weight:700;">
+          <div style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+            <span>${e.name}</span>
+            <button type="button" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.75rem; font-weight:700; color:#0284c7; border-color:#bae6fd; background:#f0f9ff;" title="تعديل اسم وبيانات الموظف" onclick="openEditEmployeeModal(${e.id})">
+              ✏️ تعديل
+            </button>
+          </div>
+        </td>
         <td style="text-align:center;">${e.phone || '-'}</td>
         <td style="text-align:center; font-weight:600;">${formatCurrency(e.salary)}</td>
         <td style="text-align:center; font-weight:700; color:#059669;">${formatCurrency(e.total_sales)}</td>
@@ -519,6 +530,39 @@ async function loadEmployeesTab() {
     console.error('Error loading employees:', err);
   }
 }
+
+window.openEditEmployeeModal = function(empId: number) {
+  const emp = currentEmployeesList.find(item => Number(item.id) === Number(empId));
+  if (!emp) return;
+  editingEmployeeId = Number(emp.id);
+
+  const modal = document.getElementById('modalAddEmployee');
+  const form = document.getElementById('formAddEmployee') as HTMLFormElement;
+  if (!modal || !form) return;
+
+  const titleEl = modal.querySelector('.modal-header h3');
+  if (titleEl) titleEl.textContent = '✏️ تعديل بيانات الموظف';
+
+  const empIdInput = form.querySelector('[name="employee_id"]') as HTMLInputElement;
+  const nameInput = form.querySelector('[name="name"]') as HTMLInputElement;
+  const phoneInput = form.querySelector('[name="phone"]') as HTMLInputElement;
+  const salaryInput = form.querySelector('[name="salary"]') as HTMLInputElement;
+  const hireDateInput = form.querySelector('[name="hire_date"]') as HTMLInputElement;
+
+  if (empIdInput) empIdInput.value = emp.employee_id || '';
+  if (nameInput) nameInput.value = emp.name || '';
+  if (phoneInput) phoneInput.value = emp.phone || '';
+  if (salaryInput) salaryInput.value = emp.salary !== undefined && emp.salary !== null ? String(emp.salary) : '';
+  if (hireDateInput) hireDateInput.value = emp.hire_date || '';
+
+  modal.classList.add('open');
+  setTimeout(() => {
+    if (nameInput) {
+      nameInput.focus();
+      nameInput.select();
+    }
+  }, 40);
+};
 
 // 5. Receivables & Payables (الذمم)
 async function loadReceivablesTab() {

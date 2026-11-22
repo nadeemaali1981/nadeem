@@ -1835,6 +1835,39 @@ async function createEmployee(data) {
   return { id: res.lastInsertRowid, employee_id: nextId, ...data };
 }
 
+async function updateEmployee(id, data) {
+  await initSchema();
+  const existing = await get('SELECT * FROM employees WHERE id = ?', [Number(id)]);
+  if (!existing) throw new Error('الموظف غير موجود');
+
+  const newName = String(data.name !== undefined ? data.name : existing.name).trim();
+  const newEmpId = String(data.employee_id !== undefined ? data.employee_id : existing.employee_id).trim() || existing.employee_id;
+  const newPhone = data.phone !== undefined ? String(data.phone) : (existing.phone || '');
+  const newSalary = data.salary !== undefined && data.salary !== '' ? Number(data.salary) : Number(existing.salary || 0);
+  const newHireDate = data.hire_date !== undefined && data.hire_date !== '' ? String(data.hire_date) : (existing.hire_date || '');
+
+  await run(
+    'UPDATE employees SET employee_id = ?, name = ?, phone = ?, salary = ?, hire_date = ? WHERE id = ?',
+    [newEmpId, newName, newPhone, newSalary, newHireDate, Number(id)]
+  );
+
+  if (existing.name && newName && existing.name !== newName) {
+    await run(
+      "UPDATE daily_sheet_items SET col1 = ? WHERE col1 = ? AND category IN ('employee_advance', 'employee_advances', 'employee_sale', 'employee_sales')",
+      [newName, existing.name]
+    );
+  }
+
+  return {
+    id: Number(id),
+    employee_id: newEmpId,
+    name: newName,
+    phone: newPhone,
+    salary: newSalary,
+    hire_date: newHireDate
+  };
+}
+
 async function deleteEmployee(id) {
   await initSchema();
   await run('DELETE FROM employees WHERE id = ?', [id]);
@@ -2246,6 +2279,7 @@ const db = {
   deleteSupplier,
   getEmployeesList,
   createEmployee,
+  updateEmployee,
   deleteEmployee,
   getReceivablesSummary,
   getChecksList,
