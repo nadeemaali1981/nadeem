@@ -716,6 +716,28 @@ function onInternalExpenseDescriptionChange(idx, newDesc) {
 }
 window.onInternalExpenseDescriptionChange = onInternalExpenseDescriptionChange;
 
+function getConfiguredPaymentChannels() {
+  try {
+    const raw = localStorage.getItem('erp_expense_settings_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed.paymentChannels)) {
+        const list = parsed.paymentChannels.map(s => String(s || '').trim()).filter(Boolean);
+        if (list.length > 0) return list;
+      }
+    }
+  } catch (e) {}
+  return ['صندوق'];
+}
+
+function onInternalExpensePaymentChannelChange(idx, newChannel) {
+  if (!state.items.internal_expenses || !state.items.internal_expenses[idx]) return;
+  state.items.internal_expenses[idx].col4 = newChannel;
+  recalculateAll();
+  markUnsaved();
+}
+window.onInternalExpensePaymentChannelChange = onInternalExpensePaymentChannelChange;
+
 function renderInternalExpensesTable() {
   const tbody = document.getElementById('internalExpensesBody');
   if (!tbody) return;
@@ -734,7 +756,7 @@ function renderInternalExpensesTable() {
     const selectedType = row.col2 || 'المصاريف التشغيلية';
     row.col2 = selectedType;
     const currentMainCat = (row.col3 || '').trim();
-    const currentPaymentSource = row.col4 || '';
+    const currentPaymentSource = (row.col4 || '').trim();
     const currentDesc = (row.col1 || '').trim();
 
     const configuredMainCats = getConfiguredMainCategoriesByType(selectedType);
@@ -745,6 +767,16 @@ function renderInternalExpensesTable() {
     configuredMainCats.forEach(cat => {
       const isSelected = currentMainCat === cat ? 'selected' : '';
       mainCatOptionsHtml += `<option value="${escapeHtml(cat)}" ${isSelected}>${escapeHtml(cat)}</option>`;
+    });
+
+    const configuredChannels = getConfiguredPaymentChannels();
+    let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع --</option>`;
+    if (currentPaymentSource && !configuredChannels.includes(currentPaymentSource)) {
+      paymentOptionsHtml += `<option value="${escapeHtml(currentPaymentSource)}" selected>${escapeHtml(currentPaymentSource)}</option>`;
+    }
+    configuredChannels.forEach(ch => {
+      const isSelected = currentPaymentSource === ch ? 'selected' : '';
+      paymentOptionsHtml += `<option value="${escapeHtml(ch)}" ${isSelected}>${escapeHtml(ch)}</option>`;
     });
 
     const configuredList = getConfiguredExpensesByType(selectedType, currentMainCat);
@@ -772,9 +804,11 @@ function renderInternalExpensesTable() {
           ${mainCatOptionsHtml}
         </select>
       </td>
-      <td style="width: 120px;">
-        <input type="text" class="table-input" style="font-weight: 600;" value="${escapeHtml(currentPaymentSource)}" placeholder="جهة الدفع"
-               oninput="updateRowCol('internal_expenses', ${idx}, 'col4', this.value)">
+      <td style="width: 140px;">
+        <select class="table-input" style="font-weight: 600;"
+                onchange="onInternalExpensePaymentChannelChange(${idx}, this.value)">
+          ${paymentOptionsHtml}
+        </select>
       </td>
       <td>
         <select class="table-input" style="font-weight: 600;"

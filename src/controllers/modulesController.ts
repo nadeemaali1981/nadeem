@@ -1071,6 +1071,13 @@ function hasNonEmptyExpenseRow(arr) {
   });
 }
 
+function normalizePaymentChannels(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return ['صندوق'];
+  }
+  return arr.map(item => String(item || ''));
+}
+
 function getExpenseSettingsData() {
   try {
     const raw = localStorage.getItem('erp_expense_settings_v1');
@@ -1078,13 +1085,15 @@ function getExpenseSettingsData() {
       const parsed = JSON.parse(raw);
       return {
         operational: normalizeExpenseRows(parsed.operational),
-        fixed: normalizeExpenseRows(parsed.fixed)
+        fixed: normalizeExpenseRows(parsed.fixed),
+        paymentChannels: normalizePaymentChannels(parsed.paymentChannels)
       };
     }
   } catch (e) {}
   return {
     operational: [{ mainCategory: '', description: '' }],
-    fixed: [{ mainCategory: '', description: '' }]
+    fixed: [{ mainCategory: '', description: '' }],
+    paymentChannels: ['صندوق']
   };
 }
 
@@ -1108,13 +1117,15 @@ let expenseSettingsState = getExpenseSettingsData();
 fetch('/api/settings/expense-definitions')
   .then(r => r.ok ? r.json() : null)
   .then(cloudData => {
-    if (cloudData && (Array.isArray(cloudData.operational) || Array.isArray(cloudData.fixed))) {
+    if (cloudData && (Array.isArray(cloudData.operational) || Array.isArray(cloudData.fixed) || Array.isArray(cloudData.paymentChannels))) {
       const hasOps = hasNonEmptyExpenseRow(cloudData.operational);
       const hasFix = hasNonEmptyExpenseRow(cloudData.fixed);
-      if (hasOps || hasFix) {
+      const hasChannels = Array.isArray(cloudData.paymentChannels) && cloudData.paymentChannels.some(c => String(c || '').trim());
+      if (hasOps || hasFix || hasChannels) {
         expenseSettingsState = {
           operational: hasOps ? normalizeExpenseRows(cloudData.operational) : expenseSettingsState.operational,
-          fixed: hasFix ? normalizeExpenseRows(cloudData.fixed) : expenseSettingsState.fixed
+          fixed: hasFix ? normalizeExpenseRows(cloudData.fixed) : expenseSettingsState.fixed,
+          paymentChannels: hasChannels ? normalizePaymentChannels(cloudData.paymentChannels) : expenseSettingsState.paymentChannels
         };
         localStorage.setItem('erp_expense_settings_v1', JSON.stringify(expenseSettingsState));
         if (typeof window.renderExpenseSettingsTables === 'function') window.renderExpenseSettingsTables();
@@ -1122,7 +1133,8 @@ fetch('/api/settings/expense-definitions')
       } else {
         const localHasOps = hasNonEmptyExpenseRow(expenseSettingsState.operational);
         const localHasFix = hasNonEmptyExpenseRow(expenseSettingsState.fixed);
-        if (localHasOps || localHasFix) {
+        const localHasChannels = Array.isArray(expenseSettingsState.paymentChannels) && expenseSettingsState.paymentChannels.some(c => String(c || '').trim());
+        if (localHasOps || localHasFix || localHasChannels) {
           fetch('/api/settings/expense-definitions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1173,19 +1185,60 @@ window.renderExpenseSettingsTables = function() {
     }).join('');
   };
 
+  const renderPaymentChannels = (tbodyId) => {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    const rows = expenseSettingsState.paymentChannels || [];
+    if (rows.length === 0) {
+      tbody.innerHTML = `
+        <tr class="empty-row-placeholder">
+          <td colspan="2">لا توجد قنوات دفع مسجلة (<span onclick="addExpenseSettingRow('paymentChannels')">+ أضف قناة دفع</span>)</td>
+        </tr>
+      `;
+      return;
+    }
+    tbody.innerHTML = rows.map((val, idx) => {
+      const safeVal = String(val || '').replace(/"/g, '&quot;');
+      return `
+        <tr>
+          <td>
+            <input type="text" class="table-input" value="${safeVal}" placeholder="قناة الدفع (مثلاً: صندوق، بنك، كليك...)"
+                   oninput="updateExpenseSettingRow('paymentChannels', ${idx}, this.value)">
+          </td>
+          <td style="width: 38px; text-align: center;">
+            <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteExpenseSettingRow('paymentChannels', ${idx})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  };
+
   renderSection('operational', 'settingsOperationalExpensesBody');
   renderSection('fixed', 'settingsFixedExpensesBody');
+  renderPaymentChannels('settingsPaymentChannelsBody');
+  renderPaymentChannels('settingsGeneralPaymentChannelsBody');
 };
 
 window.addExpenseSettingRow = function(type) {
   if (!expenseSettingsState[type]) expenseSettingsState[type] = [];
-  expenseSettingsState[type].push({ mainCategory: '', description: '' });
+  if (type === 'paymentChannels') {
+    expenseSettingsState.paymentChannels.push('');
+  } else {
+    expenseSettingsState[type].push({ mainCategory: '', description: '' });
+  }
   saveExpenseSettingsData(expenseSettingsState);
   window.renderExpenseSettingsTables();
 };
 
 window.updateExpenseSettingRow = function(type, idx, fieldOrVal, maybeVal) {
   if (!expenseSettingsState[type]) return;
+  if (type === 'paymentChannels') {
+    expenseSettingsState.paymentChannels[idx] = String(fieldOrVal || '');
+    saveExpenseSettingsData(expenseSettingsState);
+    return;
+  }
   const current = expenseSettingsState[type][idx];
   const obj = typeof current === 'object' && current !== null
     ? current

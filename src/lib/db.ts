@@ -2112,16 +2112,17 @@ async function getExpenseDefinitions() {
   await ensureSettingsTable();
   const row = await get('SELECT setting_value FROM app_settings WHERE setting_key = ?', ['expense_definitions']);
   if (!row || !row.setting_value) {
-    return { operational: [], fixed: [] };
+    return { operational: [], fixed: [], paymentChannels: [] };
   }
   try {
     const parsed = JSON.parse(row.setting_value);
     return {
       operational: Array.isArray(parsed.operational) ? parsed.operational : [],
-      fixed: Array.isArray(parsed.fixed) ? parsed.fixed : []
+      fixed: Array.isArray(parsed.fixed) ? parsed.fixed : [],
+      paymentChannels: Array.isArray(parsed.paymentChannels) ? parsed.paymentChannels : []
     };
   } catch (e) {
-    return { operational: [], fixed: [] };
+    return { operational: [], fixed: [], paymentChannels: [] };
   }
 }
 
@@ -2129,7 +2130,8 @@ async function saveExpenseDefinitions(data = {}) {
   await ensureSettingsTable();
   const payload = {
     operational: Array.isArray(data.operational) ? data.operational : [],
-    fixed: Array.isArray(data.fixed) ? data.fixed : []
+    fixed: Array.isArray(data.fixed) ? data.fixed : [],
+    paymentChannels: Array.isArray(data.paymentChannels) ? data.paymentChannels : []
   };
   await run(`
     INSERT INTO app_settings (setting_key, setting_value, updated_at)
