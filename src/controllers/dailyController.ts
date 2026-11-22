@@ -794,7 +794,7 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
     return;
   }
 
-  const mainTypeList = ['المصاريف التشغيلية', 'المصاريف الثابتة'].sort((a, b) => a.localeCompare(b, 'ar'));
+  const mainTypeList = ['المصاريف التشغيلية', 'المصاريف الثابتة'];
 
   state.items[categoryKey].forEach((row, idx) => {
     const selectedType = row.col2 || 'المصاريف التشغيلية';
@@ -809,7 +809,7 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
     }).join('');
 
     const configuredMainCats = getConfiguredMainCategoriesByType(selectedType);
-    let mainCatOptionsHtml = `<option value="">-- اختر التصنيف الفرعي --</option>`;
+    let mainCatOptionsHtml = `<option value="">-- اختر التصنيف الرئيسي --</option>`;
     if (currentMainCat && !configuredMainCats.includes(currentMainCat)) {
       mainCatOptionsHtml += `<option value="${escapeHtml(currentMainCat)}" selected>${escapeHtml(currentMainCat)}</option>`;
     }

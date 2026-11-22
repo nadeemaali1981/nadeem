@@ -1245,7 +1245,7 @@ window.renderExpenseSettingsTables = function() {
       return `
         <tr>
           <td style="width: 240px;">
-            <input type="text" class="table-input" style="text-align: center;" value="${safeMainCat}" placeholder="التصنيف الفرعي"
+            <input type="text" class="table-input" style="text-align: center;" value="${safeMainCat}" placeholder="التصنيف الرئيسي"
                    oninput="updateExpenseSettingRow('${type}', ${idx}, 'mainCategory', this.value)"
                    onblur="onExpenseSettingInputBlur()">
           </td>
