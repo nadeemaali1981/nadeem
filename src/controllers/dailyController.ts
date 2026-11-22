@@ -1578,6 +1578,10 @@ async function saveSheet(isManual = true) {
       statusEl.style.color = '#059669';
     }
 
+    if (typeof (window as any).loadExpensesTab === 'function') {
+      (window as any).loadExpensesTab();
+    }
+
     showToast('تم حفظ اليومية بنجاح!');
     return true;
   } catch (err) {
