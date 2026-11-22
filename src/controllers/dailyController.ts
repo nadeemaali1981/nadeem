@@ -608,7 +608,31 @@ function renderPerfumeSalesTable() {
   });
 }
 
-// Render Internal Expenses Table (بيان المصروف، تصنيف المصروف، القيمة)
+// Render Internal Expenses Table (تصنيف المصروف، بيان المصروف من إعدادات المصاريف، القيمة)
+function getConfiguredExpensesByType(typeLabel) {
+  try {
+    const raw = localStorage.getItem('erp_expense_settings_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const list = typeLabel === 'المصاريف الثابتة' ? (parsed.fixed || []) : (parsed.operational || []);
+      return list.map(s => String(s || '').trim()).filter(Boolean);
+    }
+  } catch (e) {}
+  return [];
+}
+
+function onInternalExpenseCategoryChange(idx, newType) {
+  if (!state.items.internal_expenses || !state.items.internal_expenses[idx]) return;
+  state.items.internal_expenses[idx].col2 = newType;
+  const validOptions = getConfiguredExpensesByType(newType);
+  if (!validOptions.includes(state.items.internal_expenses[idx].col1)) {
+    state.items.internal_expenses[idx].col1 = '';
+  }
+  markUnsaved();
+  renderInternalExpensesTable();
+}
+window.onInternalExpenseCategoryChange = onInternalExpenseCategoryChange;
+
 function renderInternalExpensesTable() {
   const tbody = document.getElementById('internalExpensesBody');
   if (!tbody) return;
@@ -625,17 +649,32 @@ function renderInternalExpensesTable() {
 
   state.items.internal_expenses.forEach((row, idx) => {
     const selectedType = row.col2 || 'المصاريف التشغيلية';
+    row.col2 = selectedType;
+    const currentDesc = (row.col1 || '').trim();
+    const configuredList = getConfiguredExpensesByType(selectedType);
+
+    let optionsHtml = `<option value="">-- اختر بيان المصروف --</option>`;
+    if (currentDesc && !configuredList.includes(currentDesc)) {
+      optionsHtml += `<option value="${escapeHtml(currentDesc)}" selected>${escapeHtml(currentDesc)}</option>`;
+    }
+    configuredList.forEach(item => {
+      const isSelected = currentDesc === item ? 'selected' : '';
+      optionsHtml += `<option value="${escapeHtml(item)}" ${isSelected}>${escapeHtml(item)}</option>`;
+    });
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>
-        <input type="text" class="table-input" value="${escapeHtml(row.col1 || '')}" placeholder="بيان المصروف"
-               oninput="updateRowCol('internal_expenses', ${idx}, 'col1', this.value)">
-      </td>
       <td style="width: 170px;">
         <select class="table-input" style="font-weight: 600;"
-                onchange="updateRowCol('internal_expenses', ${idx}, 'col2', this.value)">
+                onchange="onInternalExpenseCategoryChange(${idx}, this.value)">
           <option value="المصاريف التشغيلية" ${selectedType === 'المصاريف التشغيلية' ? 'selected' : ''}>المصاريف التشغيلية</option>
           <option value="المصاريف الثابتة" ${selectedType === 'المصاريف الثابتة' ? 'selected' : ''}>المصاريف الثابتة</option>
+        </select>
+      </td>
+      <td>
+        <select class="table-input" style="font-weight: 600;"
+                onchange="updateRowCol('internal_expenses', ${idx}, 'col1', this.value)">
+          ${optionsHtml}
         </select>
       </td>
       <td style="width: 130px;">
@@ -651,7 +690,12 @@ function renderInternalExpensesTable() {
     `;
     tbody.appendChild(tr);
   });
+
+  if (state.isLocked) {
+    setSheetLockedState(true);
+  }
 }
+window.renderInternalExpensesTable = renderInternalExpensesTable;
 
 // Render Standard 2-Column Table (Description & Amount)
 function renderSimpleTable(categoryKey, tbodyId, placeholder) {

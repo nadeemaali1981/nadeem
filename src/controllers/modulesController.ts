@@ -1060,10 +1060,38 @@ function getExpenseSettingsData() {
 function saveExpenseSettingsData(data) {
   try {
     localStorage.setItem('erp_expense_settings_v1', JSON.stringify(data));
+    if (typeof (window as any).renderInternalExpensesTable === 'function') {
+      (window as any).renderInternalExpensesTable();
+    }
+    fetch('/api/settings/expense-definitions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).catch(() => {});
   } catch (e) {}
 }
 
 let expenseSettingsState = getExpenseSettingsData();
+
+// Sync from cloud database on load
+fetch('/api/settings/expense-definitions')
+  .then(r => r.ok ? r.json() : null)
+  .then(cloudData => {
+    if (cloudData && (Array.isArray(cloudData.operational) || Array.isArray(cloudData.fixed))) {
+      const hasOps = Array.isArray(cloudData.operational) && cloudData.operational.some(Boolean);
+      const hasFix = Array.isArray(cloudData.fixed) && cloudData.fixed.some(Boolean);
+      if (hasOps || hasFix) {
+        expenseSettingsState = {
+          operational: hasOps ? cloudData.operational : expenseSettingsState.operational,
+          fixed: hasFix ? cloudData.fixed : expenseSettingsState.fixed
+        };
+        localStorage.setItem('erp_expense_settings_v1', JSON.stringify(expenseSettingsState));
+        if (typeof window.renderExpenseSettingsTables === 'function') window.renderExpenseSettingsTables();
+        if (typeof (window as any).renderInternalExpensesTable === 'function') (window as any).renderInternalExpensesTable();
+      }
+    }
+  })
+  .catch(() => {});
 
 window.renderExpenseSettingsTables = function() {
   const renderSection = (type, tbodyId) => {
