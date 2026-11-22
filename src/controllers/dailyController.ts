@@ -1068,6 +1068,9 @@ window.deleteRow = function(categoryKey, idx) {
 window.updateRowCol = function(categoryKey, idx, colKey, val) {
   if (state.items[categoryKey][idx]) {
     state.items[categoryKey][idx][colKey] = val;
+    if (categoryKey === 'internal_expenses' && colKey === 'col4') {
+      recalculateAll();
+    }
     markUnsaved();
   }
 };
@@ -1231,10 +1234,18 @@ function recalculateAll() {
   setText('kpiTotalPerfumeSales', formatMoney(totalPerfumes));
 
   // 1. معادلة الصندوق الحالي لليوم:
-  // (مجموع المبيعات النقدية + مبيعات التوصيل + إيرادات أخرى) - (مجموع المصاريف + مسحوبات الموظفين + دفعات الموردين + المشتريات النقدية + دائن مبيعات العطور)
+  // يخصم من المصاريف الداخلية فقط ما كانت جهة الدفع فيه "صندوق"
+  const sumCashInternalExpenses = (state.items.internal_expenses || []).reduce((acc, r) => {
+    const paySource = String(r.col4 || '').trim();
+    if (paySource.includes('صندوق')) {
+      return acc + (parseFloat(r.amount1) || 0);
+    }
+    return acc;
+  }, 0);
+
   const salesCash = state.sales.cash || 0;
   const salesDelivery = state.sales.delivery || 0;
-  const netCashRemaining = (salesCash + salesDelivery + sumExtraRevenues) - (sumInternalExpenses + sumEmployeeAdvances + sumSupplierPayments + sumCashPurchases + sumPerfumeCredit);
+  const netCashRemaining = (salesCash + salesDelivery + sumExtraRevenues) - (sumCashInternalExpenses + sumEmployeeAdvances + sumSupplierPayments + sumCashPurchases + sumPerfumeCredit);
 
   setText('kpiNetCash', formatMoney(netCashRemaining));
   const kpiNetCard = document.getElementById('kpiNetCashCard');
