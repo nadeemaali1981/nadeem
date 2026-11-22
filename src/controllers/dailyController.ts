@@ -1833,6 +1833,9 @@ async function saveSheet(isManual = true) {
     if (typeof (window as any).loadSuppliersTab === 'function') {
       (window as any).loadSuppliersTab();
     }
+    if (typeof (window as any).loadEmployeesTab === 'function') {
+      (window as any).loadEmployeesTab();
+    }
 
     showToast('تم حفظ اليومية بنجاح!');
     return true;
