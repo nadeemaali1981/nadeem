@@ -2131,17 +2131,18 @@ async function getExpenseDefinitions() {
   await ensureSettingsTable();
   const row = await get('SELECT setting_value FROM app_settings WHERE setting_key = ?', ['expense_definitions']);
   if (!row || !row.setting_value) {
-    return { operational: [], fixed: [], paymentChannels: [] };
+    return { operational: [], fixed: [], paymentChannels: [], employees: [] };
   }
   try {
     const parsed = JSON.parse(row.setting_value);
     return {
       operational: Array.isArray(parsed.operational) ? parsed.operational : [],
       fixed: Array.isArray(parsed.fixed) ? parsed.fixed : [],
-      paymentChannels: Array.isArray(parsed.paymentChannels) ? parsed.paymentChannels : []
+      paymentChannels: Array.isArray(parsed.paymentChannels) ? parsed.paymentChannels : [],
+      employees: Array.isArray(parsed.employees) ? parsed.employees : []
     };
   } catch (e) {
-    return { operational: [], fixed: [], paymentChannels: [] };
+    return { operational: [], fixed: [], paymentChannels: [], employees: [] };
   }
 }
 
@@ -2150,7 +2151,8 @@ async function saveExpenseDefinitions(data = {}) {
   const payload = {
     operational: Array.isArray(data.operational) ? data.operational : [],
     fixed: Array.isArray(data.fixed) ? data.fixed : [],
-    paymentChannels: Array.isArray(data.paymentChannels) ? data.paymentChannels : []
+    paymentChannels: Array.isArray(data.paymentChannels) ? data.paymentChannels : [],
+    employees: Array.isArray(data.employees) ? data.employees : []
   };
   await run(`
     INSERT INTO app_settings (setting_key, setting_value, updated_at)

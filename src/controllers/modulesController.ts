@@ -1162,6 +1162,39 @@ function normalizePaymentChannels(arr) {
   return sortPaymentChannelsArabic(arr.map(item => String(item || '')));
 }
 
+function sortEmployeesSettingsArabic(arr) {
+  if (!Array.isArray(arr)) return [];
+  return [...arr].sort((a, b) => {
+    const aName = String(a?.name || '').trim();
+    const bName = String(b?.name || '').trim();
+    const aEmpty = !aName && !String(a?.employeeId || '').trim() && !String(a?.basicSalary || '').trim();
+    const bEmpty = !bName && !String(b?.employeeId || '').trim() && !String(b?.basicSalary || '').trim();
+    if (aEmpty && bEmpty) return 0;
+    if (aEmpty) return 1;
+    if (bEmpty) return -1;
+    return aName.localeCompare(bName, 'ar');
+  });
+}
+
+function normalizeEmployeesSettingsRows(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return [{ name: '', employeeId: '', basicSalary: '' }];
+  }
+  const mapped = arr.map(item => ({
+    name: String(item?.name || ''),
+    employeeId: String(item?.employeeId || ''),
+    basicSalary: String(item?.basicSalary || '')
+  }));
+  return sortEmployeesSettingsArabic(mapped);
+}
+
+function hasNonEmptyEmployeeSettingRow(arr) {
+  if (!Array.isArray(arr)) return false;
+  return arr.some(item =>
+    Boolean(String(item?.name || '').trim() || String(item?.employeeId || '').trim() || String(item?.basicSalary || '').trim())
+  );
+}
+
 function getExpenseSettingsData() {
   try {
     const raw = localStorage.getItem('erp_expense_settings_v1');
@@ -1170,14 +1203,16 @@ function getExpenseSettingsData() {
       return {
         operational: normalizeExpenseRows(parsed.operational),
         fixed: normalizeExpenseRows(parsed.fixed),
-        paymentChannels: normalizePaymentChannels(parsed.paymentChannels)
+        paymentChannels: normalizePaymentChannels(parsed.paymentChannels),
+        employees: normalizeEmployeesSettingsRows(parsed.employees)
       };
     }
   } catch (e) {}
   return {
-    operational: [{ mainCategory: '', description: '' }],
-    fixed: [{ mainCategory: '', description: '' }],
-    paymentChannels: ['صندوق']
+    operational: [{ mainCategory: '' }],
+    fixed: [{ mainCategory: '' }],
+    paymentChannels: ['صندوق'],
+    employees: [{ name: '', employeeId: '', basicSalary: '' }]
   };
 }
 
@@ -1204,24 +1239,28 @@ let expenseSettingsState = getExpenseSettingsData();
 fetch('/api/settings/expense-definitions')
   .then(r => r.ok ? r.json() : null)
   .then(cloudData => {
-    if (cloudData && (Array.isArray(cloudData.operational) || Array.isArray(cloudData.fixed) || Array.isArray(cloudData.paymentChannels))) {
+    if (cloudData && (Array.isArray(cloudData.operational) || Array.isArray(cloudData.fixed) || Array.isArray(cloudData.paymentChannels) || Array.isArray(cloudData.employees))) {
       const hasOps = hasNonEmptyExpenseRow(cloudData.operational);
       const hasFix = hasNonEmptyExpenseRow(cloudData.fixed);
       const hasChannels = Array.isArray(cloudData.paymentChannels) && cloudData.paymentChannels.some(c => String(c || '').trim());
-      if (hasOps || hasFix || hasChannels) {
+      const hasEmps = hasNonEmptyEmployeeSettingRow(cloudData.employees);
+      if (hasOps || hasFix || hasChannels || hasEmps) {
         expenseSettingsState = {
           operational: hasOps ? normalizeExpenseRows(cloudData.operational) : expenseSettingsState.operational,
           fixed: hasFix ? normalizeExpenseRows(cloudData.fixed) : expenseSettingsState.fixed,
-          paymentChannels: hasChannels ? normalizePaymentChannels(cloudData.paymentChannels) : expenseSettingsState.paymentChannels
+          paymentChannels: hasChannels ? normalizePaymentChannels(cloudData.paymentChannels) : expenseSettingsState.paymentChannels,
+          employees: hasEmps ? normalizeEmployeesSettingsRows(cloudData.employees) : expenseSettingsState.employees
         };
         localStorage.setItem('erp_expense_settings_v1', JSON.stringify(expenseSettingsState));
         if (typeof window.renderExpenseSettingsTables === 'function') window.renderExpenseSettingsTables();
         if (typeof (window as any).renderInternalExpensesTable === 'function') (window as any).renderInternalExpensesTable();
+        if (typeof (window as any).renderEmployeeAdvancesTable === 'function') (window as any).renderEmployeeAdvancesTable();
       } else {
         const localHasOps = hasNonEmptyExpenseRow(expenseSettingsState.operational);
         const localHasFix = hasNonEmptyExpenseRow(expenseSettingsState.fixed);
         const localHasChannels = Array.isArray(expenseSettingsState.paymentChannels) && expenseSettingsState.paymentChannels.some(c => String(c || '').trim());
-        if (localHasOps || localHasFix || localHasChannels) {
+        const localHasEmps = hasNonEmptyEmployeeSettingRow(expenseSettingsState.employees);
+        if (localHasOps || localHasFix || localHasChannels || localHasEmps) {
           fetch('/api/settings/expense-definitions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
