@@ -687,10 +687,6 @@ function onCategorizedRowMainTypeChange(categoryKey, idx, newType) {
   if (!validMainCats.includes(row.col3)) {
     row.col3 = '';
   }
-  const validDescriptions = getConfiguredExpensesByType(newType, row.col3);
-  if (!validDescriptions.includes(row.col1)) {
-    row.col1 = '';
-  }
   markUnsaved();
   if (categoryKey === 'employee_advances') {
     renderEmployeeAdvancesTable();
@@ -709,17 +705,7 @@ function onCategorizedRowSubCategoryChange(categoryKey, idx, newMainCat) {
   if (!state.items[categoryKey] || !state.items[categoryKey][idx]) return;
   const row = state.items[categoryKey][idx];
   row.col3 = newMainCat;
-  const selectedType = row.col2 || 'المصاريف التشغيلية';
-  const validDescriptions = getConfiguredExpensesByType(selectedType, newMainCat);
-  if (newMainCat && !validDescriptions.includes(row.col1)) {
-    row.col1 = '';
-  }
   markUnsaved();
-  if (categoryKey === 'employee_advances') {
-    renderEmployeeAdvancesTable();
-  } else {
-    renderInternalExpensesTable();
-  }
 }
 window.onCategorizedRowSubCategoryChange = onCategorizedRowSubCategoryChange;
 
