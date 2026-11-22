@@ -550,7 +550,7 @@ function renderUI() {
   if (notesEl) notesEl.value = state.notes;
 
   // Render Tables
-  renderSimpleTable('internal_expenses', 'internalExpensesBody', 'بيان المصروف');
+  renderInternalExpensesTable();
   renderSimpleTable('employee_advances', 'employeeAdvancesBody', 'الرقم الوظيفي / اسم الموظف');
   renderSimpleTable('supplier_payments', 'supplierPaymentsBody', 'اسم المورد');
   renderSimpleTable('cash_purchases', 'cashPurchasesBody', 'بيان المشتريات');
@@ -600,6 +600,51 @@ function renderPerfumeSalesTable() {
       </td>
       <td style="width: 38px; text-align: center;">
         <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteRow('perfume_sales', ${idx})">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Render Internal Expenses Table (بيان المصروف، تصنيف المصروف، القيمة)
+function renderInternalExpensesTable() {
+  const tbody = document.getElementById('internalExpensesBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!state.items.internal_expenses || state.items.internal_expenses.length === 0) {
+    tbody.innerHTML = `
+      <tr class="empty-row-placeholder">
+        <td colspan="4">لا توجد بيانات مسجلة (<span onclick="addRow('internal_expenses')">+ أضف سطر</span>)</td>
+      </tr>
+    `;
+    return;
+  }
+
+  state.items.internal_expenses.forEach((row, idx) => {
+    const selectedType = row.col2 || 'المصاريف التشغيلية';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <input type="text" class="table-input" value="${escapeHtml(row.col1 || '')}" placeholder="بيان المصروف"
+               oninput="updateRowCol('internal_expenses', ${idx}, 'col1', this.value)">
+      </td>
+      <td style="width: 170px;">
+        <select class="table-input" style="font-weight: 600;"
+                onchange="updateRowCol('internal_expenses', ${idx}, 'col2', this.value)">
+          <option value="المصاريف التشغيلية" ${selectedType === 'المصاريف التشغيلية' ? 'selected' : ''}>المصاريف التشغيلية</option>
+          <option value="المصاريف الثابتة" ${selectedType === 'المصاريف الثابتة' ? 'selected' : ''}>المصاريف الثابتة</option>
+        </select>
+      </td>
+      <td style="width: 130px;">
+        <input type="text" inputmode="decimal" class="table-input num" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
+               oninput="updateRowAmount('internal_expenses', ${idx}, 'amount1', this.value)"
+               onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
+      </td>
+      <td style="width: 38px; text-align: center;">
+        <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteRow('internal_expenses', ${idx})">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
         </button>
       </td>

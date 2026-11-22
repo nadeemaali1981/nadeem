@@ -1615,7 +1615,7 @@ async function getExpensesSummary() {
 
   for (const r of rows) {
     const amt = Number(r.amount || 0);
-    if (r.category === 'fixed_expense' || r.category === 'fixed_expenses') {
+    if (r.category === 'fixed_expense' || r.category === 'fixed_expenses' || r.note === 'المصاريف الثابتة') {
       totalFixed += amt;
       r.expense_type = 'fixed';
       fixedItems.push(r);
