@@ -907,6 +907,9 @@ window.showSettingsSection = function(secId, btnEl) {
   if (target) {
     target.classList.add('active');
   }
+  if (secId === 'sec_expenses' && typeof window.renderExpenseSettingsTables === 'function') {
+    window.renderExpenseSettingsTables();
+  }
 };
 
 window.updateFieldNamePreview = function(key) {
