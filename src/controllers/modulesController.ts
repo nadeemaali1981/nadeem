@@ -1643,11 +1643,22 @@ window.deleteModuleItem = async function(url, reloadFn) {
 
 // Modal Open / Close
 window.openModal = function(modalId) {
+  if (modalId === 'modalAddEmployee') {
+    editingEmployeeId = null;
+    const form = document.getElementById('formAddEmployee') as HTMLFormElement;
+    if (form) form.reset();
+    const modal = document.getElementById('modalAddEmployee');
+    const titleEl = modal?.querySelector('.modal-header h3');
+    if (titleEl) titleEl.textContent = '+ إضافة موظف جديد';
+  }
   const m = document.getElementById(modalId);
   if (m) m.classList.add('open');
 };
 
 window.closeModal = function(modalId) {
+  if (modalId === 'modalAddEmployee') {
+    editingEmployeeId = null;
+  }
   const m = document.getElementById(modalId);
   if (m) m.classList.remove('open');
 };
@@ -1685,8 +1696,47 @@ window.submitAddSupplier = function(e) {
   submitForm('/api/modules/suppliers', 'formAddSupplier', 'modalAddSupplier', loadSuppliersTab);
 };
 
-window.submitAddEmployee = function(e) {
+window.submitAddEmployee = async function(e) {
   e.preventDefault();
+  if (editingEmployeeId !== null) {
+    const form = document.getElementById('formAddEmployee') as HTMLFormElement;
+    if (!form) return;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    const oldEmp = currentEmployeesList.find(item => Number(item.id) === Number(editingEmployeeId));
+    try {
+      const res = await fetch(`/api/modules/employees/${editingEmployeeId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        if (oldEmp && Array.isArray(expenseSettingsState.employees)) {
+          expenseSettingsState.employees.forEach(row => {
+            if (String(row.name || '').trim() === String(oldEmp.name || '').trim()) {
+              row.name = String(data.name || row.name);
+              if (data.employee_id) row.employeeId = String(data.employee_id);
+              if (data.salary !== undefined && data.salary !== '') row.basicSalary = String(data.salary);
+            }
+          });
+          saveExpenseSettingsData(expenseSettingsState);
+          if (typeof window.renderExpenseSettingsTables === 'function') window.renderExpenseSettingsTables();
+        }
+        editingEmployeeId = null;
+        form.reset();
+        closeModal('modalAddEmployee');
+        showToast('تم تعديل بيانات الموظف بنجاح!');
+        await loadEmployeesTab();
+      } else {
+        const err = await res.json();
+        alert('خطأ: ' + (err.error || 'تعذر حفظ التعديلات'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('حدث خطأ أثناء حفظ التعديلات');
+    }
+    return;
+  }
   submitForm('/api/modules/employees', 'formAddEmployee', 'modalAddEmployee', loadEmployeesTab);
 };
 
