@@ -481,10 +481,18 @@ let editingEmployeeId: number | null = null;
 async function loadEmployeesTab() {
   try {
     const res = await fetch('/api/modules/employees');
-    const employees = await res.json();
-    currentEmployeesList = Array.isArray(employees) ? employees : [];
+    const rawEmployees = await res.json();
+    const employees = (Array.isArray(rawEmployees) ? [...rawEmployees] : []).sort((a, b) => {
+      const aId = String(a?.employee_id || '').trim();
+      const bId = String(b?.employee_id || '').trim();
+      if (!aId && !bId) return 0;
+      if (!aId) return 1;
+      if (!bId) return -1;
+      return aId.localeCompare(bId, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    currentEmployeesList = employees;
 
-    document.getElementById('empKpiTotal').textContent = employees.length;
+    document.getElementById('empKpiTotal').textContent = String(employees.length);
     let sumSales = 0;
     let sumAdvances = 0;
     employees.forEach(e => {
@@ -506,22 +514,20 @@ async function loadEmployeesTab() {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="text-align:center; font-weight:700; color:#0f766e;">${e.employee_id || '-'}</td>
-        <td style="text-align:center; font-weight:700;">
-          <div style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">
-            <span>${e.name}</span>
-            <button type="button" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.75rem; font-weight:700; color:#0284c7; border-color:#bae6fd; background:#f0f9ff;" title="تعديل اسم وبيانات الموظف" onclick="openEditEmployeeModal(${e.id})">
-              ✏️ تعديل
-            </button>
-          </div>
-        </td>
+        <td style="text-align:center; font-weight:700;">${e.name}</td>
         <td style="text-align:center;">${e.phone || '-'}</td>
         <td style="text-align:center; font-weight:600;">${formatCurrency(e.salary)}</td>
         <td style="text-align:center; font-weight:700; color:#059669;">${formatCurrency(e.total_sales)}</td>
         <td style="text-align:center; font-weight:700; color:#dc2626;">${formatCurrency(e.total_advances)}</td>
-        <td style="text-align:center;">
-          <button class="btn-del-row" title="حذف الموظف" onclick="deleteModuleItem('/api/modules/employees/${e.id}', loadEmployeesTab)">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-          </button>
+        <td style="text-align:center; white-space:nowrap;">
+          <div style="display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+            <button type="button" class="btn-del-row" style="color:#0284c7;" title="تعديل بيانات الموظف" onclick="openEditEmployeeModal(${e.id})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button type="button" class="btn-del-row" title="حذف الموظف" onclick="deleteModuleItem('/api/modules/employees/${e.id}', loadEmployeesTab)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
