@@ -1112,6 +1112,60 @@ function renderSimpleTable(categoryKey, tbodyId, placeholder) {
 }
 
 // Render Employee Sales Table (المبيعات اليومية للموظف)
+function getConfiguredEmployeeRecords() {
+  try {
+    let source = Array.isArray((window as any).erpEmployeesPageRecords)
+      ? (window as any).erpEmployeesPageRecords
+      : null;
+    if (!source) {
+      const raw = localStorage.getItem('erp_employees_page_records_v1');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) source = parsed;
+      }
+    }
+    if (Array.isArray(source)) {
+      return source.map(r => ({
+        name: String(r?.name || '').trim(),
+        employee_id: String(r?.employee_id || '').trim()
+      })).filter(r => r.name || r.employee_id);
+    }
+  } catch (e) {}
+  return [];
+}
+
+function onEmployeeSalesNameChange(idx, newName) {
+  if (!state.items.employee_sales || !state.items.employee_sales[idx]) return;
+  const row = state.items.employee_sales[idx];
+  row.col1 = newName;
+  if (newName) {
+    const records = getConfiguredEmployeeRecords();
+    const match = records.find(r => r.name === newName && r.employee_id);
+    if (match) {
+      row.col2 = match.employee_id;
+    }
+  }
+  markUnsaved();
+  renderEmployeeSalesTable();
+}
+window.onEmployeeSalesNameChange = onEmployeeSalesNameChange;
+
+function onEmployeeSalesIdChange(idx, newId) {
+  if (!state.items.employee_sales || !state.items.employee_sales[idx]) return;
+  const row = state.items.employee_sales[idx];
+  row.col2 = newId;
+  if (newId) {
+    const records = getConfiguredEmployeeRecords();
+    const match = records.find(r => r.employee_id === newId && r.name);
+    if (match) {
+      row.col1 = match.name;
+    }
+  }
+  markUnsaved();
+  renderEmployeeSalesTable();
+}
+window.onEmployeeSalesIdChange = onEmployeeSalesIdChange;
+
 function renderEmployeeSalesTable() {
   const tbody = document.getElementById('employeeSalesBody');
   if (!tbody) return;
@@ -1126,19 +1180,54 @@ function renderEmployeeSalesTable() {
     return;
   }
 
+  const records = getConfiguredEmployeeRecords();
+  const namesList = Array.from(new Set([
+    ...getConfiguredEmployeeNames(),
+    ...records.map(r => r.name).filter(Boolean)
+  ])).sort((a, b) => a.localeCompare(b, 'ar'));
+
+  const idsList = Array.from(new Set(
+    records.map(r => r.employee_id).filter(Boolean)
+  )).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
   state.items.employee_sales.forEach((row, idx) => {
+    const currentName = String(row.col1 || '').trim();
+    const currentId = String(row.col2 || '').trim();
+
+    let nameOptionsHtml = `<option value="">-- اختر اسم الموظف --</option>`;
+    if (currentName && !namesList.includes(currentName)) {
+      nameOptionsHtml += `<option value="${escapeHtml(currentName)}" selected>${escapeHtml(currentName)}</option>`;
+    }
+    namesList.forEach(n => {
+      const isSelected = currentName === n ? 'selected' : '';
+      nameOptionsHtml += `<option value="${escapeHtml(n)}" ${isSelected}>${escapeHtml(n)}</option>`;
+    });
+
+    let idOptionsHtml = `<option value="">-- اختر الرقم الوظيفي --</option>`;
+    if (currentId && !idsList.includes(currentId)) {
+      idOptionsHtml += `<option value="${escapeHtml(currentId)}" selected>${escapeHtml(currentId)}</option>`;
+    }
+    idsList.forEach(empId => {
+      const isSelected = currentId === empId ? 'selected' : '';
+      idOptionsHtml += `<option value="${escapeHtml(empId)}" ${isSelected}>${escapeHtml(empId)}</option>`;
+    });
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>
-        <input type="text" class="table-input" value="${escapeHtml(row.col1 || '')}" placeholder="اسم الموظف"
-               oninput="updateRowCol('employee_sales', ${idx}, 'col1', this.value)">
+        <select class="table-input" style="font-weight: 600; text-align: center;"
+                onchange="onEmployeeSalesNameChange(${idx}, this.value)">
+          ${nameOptionsHtml}
+        </select>
       </td>
       <td>
-        <input type="text" class="table-input" value="${escapeHtml(row.col2 || '')}" placeholder="الرقم الوظيفي"
-               oninput="updateRowCol('employee_sales', ${idx}, 'col2', this.value)">
+        <select class="table-input" style="font-weight: 600; text-align: center;"
+                onchange="onEmployeeSalesIdChange(${idx}, this.value)">
+          ${idOptionsHtml}
+        </select>
       </td>
       <td>
-        <input type="text" inputmode="decimal" class="table-input num" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
                oninput="updateRowAmount('employee_sales', ${idx}, 'amount1', this.value)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
@@ -1150,7 +1239,12 @@ function renderEmployeeSalesTable() {
     `;
     tbody.appendChild(tr);
   });
+
+  if (state.isLocked) {
+    setSheetLockedState(true);
+  }
 }
+window.renderEmployeeSalesTable = renderEmployeeSalesTable;
 
 // Render Merchant Dispatches (سند اخراج بضاعة/فروع)
 function renderMerchantDispatchesTable() {

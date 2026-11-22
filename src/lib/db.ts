@@ -1807,9 +1807,17 @@ async function getEmployeesList() {
       WHERE i.category IN ('employee_advance', 'employee_advances') AND (i.col1 = ? OR i.col1 LIKE ?)
     `, [e.name, `%${e.name}%`]);
 
+    const sales = await get(`
+      SELECT SUM(i.amount1) as total_sales
+      FROM daily_sheet_items i
+      WHERE i.category IN ('employee_sale', 'employee_sales') AND (i.col1 = ? OR (i.col2 != '' AND i.col2 = ?))
+    `, [e.name, e.employee_id || '']);
+
     const totalAdv = Number(adv?.total_adv || 0);
+    const totalSales = Number(sales?.total_sales || 0);
     result.push({
       ...e,
+      total_sales: Math.round(totalSales * 100) / 100,
       total_advances: Math.round(totalAdv * 100) / 100,
       net_remaining_salary: Math.round((Number(e.salary || 0) - totalAdv) * 100) / 100
     });

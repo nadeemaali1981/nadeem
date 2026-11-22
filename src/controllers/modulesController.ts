@@ -480,13 +480,22 @@ let editingEmployeeId: number | null = null;
 
 function syncEmployeesPageToDailyDropdown(employeesList: any[]) {
   try {
-    const names = (Array.isArray(employeesList) ? employeesList : [])
-      .map(e => String(e?.name || '').trim())
-      .filter(Boolean);
+    const records = (Array.isArray(employeesList) ? employeesList : [])
+      .map(e => ({
+        name: String(e?.name || '').trim(),
+        employee_id: String(e?.employee_id || '').trim()
+      }))
+      .filter(r => r.name || r.employee_id);
+    const names = records.map(r => r.name).filter(Boolean);
     (window as any).erpEmployeesPageNames = names;
+    (window as any).erpEmployeesPageRecords = records;
     localStorage.setItem('erp_employees_page_names_v1', JSON.stringify(names));
+    localStorage.setItem('erp_employees_page_records_v1', JSON.stringify(records));
     if (typeof (window as any).renderEmployeeAdvancesTable === 'function') {
       (window as any).renderEmployeeAdvancesTable();
+    }
+    if (typeof (window as any).renderEmployeeSalesTable === 'function') {
+      (window as any).renderEmployeeSalesTable();
     }
   } catch (e) {}
 }
