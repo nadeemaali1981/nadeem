@@ -615,18 +615,31 @@ function getConfiguredExpenseRowsByType(typeLabel) {
     if (raw) {
       const parsed = JSON.parse(raw);
       const list = typeLabel === 'المصاريف الثابتة' ? (parsed.fixed || []) : (parsed.operational || []);
-      return list.map(item => {
+      const expanded = [];
+      list.forEach(item => {
         if (typeof item === 'object' && item !== null) {
-          return {
-            mainCategory: String(item.mainCategory || '').trim(),
-            description: String(item.description || '').trim()
-          };
+          const mainCat = String(item.mainCategory || '').trim();
+          if (Array.isArray(item.descriptions) && item.descriptions.length > 0) {
+            item.descriptions.forEach(d => {
+              expanded.push({
+                mainCategory: mainCat,
+                description: String(d || '').trim()
+              });
+            });
+          } else {
+            expanded.push({
+              mainCategory: mainCat,
+              description: String(item.description || '').trim()
+            });
+          }
+        } else {
+          expanded.push({
+            mainCategory: '',
+            description: String(item || '').trim()
+          });
         }
-        return {
-          mainCategory: '',
-          description: String(item || '').trim()
-        };
       });
+      return expanded;
     }
   } catch (e) {}
   return [];
