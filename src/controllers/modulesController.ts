@@ -478,6 +478,29 @@ async function loadSuppliersTab() {
 let currentEmployeesList: any[] = [];
 let editingEmployeeId: number | null = null;
 
+function syncEmployeesPageToDailyDropdown(employeesList: any[]) {
+  try {
+    const names = (Array.isArray(employeesList) ? employeesList : [])
+      .map(e => String(e?.name || '').trim())
+      .filter(Boolean);
+    (window as any).erpEmployeesPageNames = names;
+    localStorage.setItem('erp_employees_page_names_v1', JSON.stringify(names));
+    if (typeof (window as any).renderEmployeeAdvancesTable === 'function') {
+      (window as any).renderEmployeeAdvancesTable();
+    }
+  } catch (e) {}
+}
+
+// جلب أسماء الموظفين من صفحة الموظفون عند بدء التشغيل لربطها بدفتر اليومية
+fetch('/api/modules/employees')
+  .then(r => r.ok ? r.json() : null)
+  .then(emps => {
+    if (Array.isArray(emps)) {
+      syncEmployeesPageToDailyDropdown(emps);
+    }
+  })
+  .catch(() => {});
+
 async function loadEmployeesTab() {
   try {
     const res = await fetch('/api/modules/employees');
@@ -491,6 +514,7 @@ async function loadEmployeesTab() {
       return aId.localeCompare(bId, undefined, { numeric: true, sensitivity: 'base' });
     });
     currentEmployeesList = employees;
+    syncEmployeesPageToDailyDropdown(employees);
 
     document.getElementById('empKpiTotal').textContent = String(employees.length);
     let sumSales = 0;

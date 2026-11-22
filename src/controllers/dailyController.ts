@@ -785,21 +785,28 @@ window.onInternalExpensePaymentChannelChange = onInternalExpensePaymentChannelCh
 
 function getConfiguredEmployeeNames() {
   try {
-    const raw = localStorage.getItem('erp_expense_settings_v1');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed.employees)) {
-        const seen = new Set();
-        const list = [];
-        parsed.employees.forEach(emp => {
-          const val = String(emp?.name || '').trim();
-          if (val && !seen.has(val)) {
-            seen.add(val);
-            list.push(val);
-          }
-        });
-        return list.sort((a, b) => a.localeCompare(b, 'ar'));
+    const seen = new Set();
+    const list = [];
+    const fromWindow = Array.isArray((window as any).erpEmployeesPageNames)
+      ? (window as any).erpEmployeesPageNames
+      : null;
+    let source = fromWindow;
+    if (!source) {
+      const rawCache = localStorage.getItem('erp_employees_page_names_v1');
+      if (rawCache) {
+        const parsedCache = JSON.parse(rawCache);
+        if (Array.isArray(parsedCache)) source = parsedCache;
       }
+    }
+    if (Array.isArray(source)) {
+      source.forEach(name => {
+        const val = String(name || '').trim();
+        if (val && !seen.has(val)) {
+          seen.add(val);
+          list.push(val);
+        }
+      });
+      return list.sort((a, b) => a.localeCompare(b, 'ar'));
     }
   } catch (e) {}
   return [];
