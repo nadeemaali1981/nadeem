@@ -615,7 +615,9 @@ function getConfiguredExpensesByType(typeLabel) {
     if (raw) {
       const parsed = JSON.parse(raw);
       const list = typeLabel === 'المصاريف الثابتة' ? (parsed.fixed || []) : (parsed.operational || []);
-      return list.map(s => String(s || '').trim()).filter(Boolean);
+      return list
+        .map(item => (typeof item === 'object' && item !== null ? String(item.description || '').trim() : String(item || '').trim()))
+        .filter(Boolean);
     }
   } catch (e) {}
   return [];

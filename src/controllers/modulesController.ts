@@ -1043,18 +1043,49 @@ window.loadSettingsTab = function() {
 // ============================================================================
 // Expense Settings Tables (2. إعدادات المصاريف: المصاريف التشغيلية & المصاريف الثابتة بدون القيمة)
 // ============================================================================
+function normalizeExpenseRows(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return [{ mainCategory: '', description: '' }];
+  }
+  return arr.map(item => {
+    if (typeof item === 'object' && item !== null) {
+      return {
+        mainCategory: String(item.mainCategory || ''),
+        description: String(item.description || '')
+      };
+    }
+    return {
+      mainCategory: '',
+      description: String(item || '')
+    };
+  });
+}
+
+function hasNonEmptyExpenseRow(arr) {
+  if (!Array.isArray(arr)) return false;
+  return arr.some(item => {
+    if (typeof item === 'object' && item !== null) {
+      return Boolean(String(item.mainCategory || '').trim() || String(item.description || '').trim());
+    }
+    return Boolean(String(item || '').trim());
+  });
+}
+
 function getExpenseSettingsData() {
   try {
     const raw = localStorage.getItem('erp_expense_settings_v1');
     if (raw) {
       const parsed = JSON.parse(raw);
       return {
-        operational: Array.isArray(parsed.operational) && parsed.operational.length > 0 ? parsed.operational : [''],
-        fixed: Array.isArray(parsed.fixed) && parsed.fixed.length > 0 ? parsed.fixed : ['']
+        operational: normalizeExpenseRows(parsed.operational),
+        fixed: normalizeExpenseRows(parsed.fixed)
       };
     }
   } catch (e) {}
-  return { operational: [''], fixed: [''] };
+  return {
+    operational: [{ mainCategory: '', description: '' }],
+    fixed: [{ mainCategory: '', description: '' }]
+  };
 }
 
 function saveExpenseSettingsData(data) {
@@ -1078,19 +1109,19 @@ fetch('/api/settings/expense-definitions')
   .then(r => r.ok ? r.json() : null)
   .then(cloudData => {
     if (cloudData && (Array.isArray(cloudData.operational) || Array.isArray(cloudData.fixed))) {
-      const hasOps = Array.isArray(cloudData.operational) && cloudData.operational.some(Boolean);
-      const hasFix = Array.isArray(cloudData.fixed) && cloudData.fixed.some(Boolean);
+      const hasOps = hasNonEmptyExpenseRow(cloudData.operational);
+      const hasFix = hasNonEmptyExpenseRow(cloudData.fixed);
       if (hasOps || hasFix) {
         expenseSettingsState = {
-          operational: hasOps ? cloudData.operational : expenseSettingsState.operational,
-          fixed: hasFix ? cloudData.fixed : expenseSettingsState.fixed
+          operational: hasOps ? normalizeExpenseRows(cloudData.operational) : expenseSettingsState.operational,
+          fixed: hasFix ? normalizeExpenseRows(cloudData.fixed) : expenseSettingsState.fixed
         };
         localStorage.setItem('erp_expense_settings_v1', JSON.stringify(expenseSettingsState));
         if (typeof window.renderExpenseSettingsTables === 'function') window.renderExpenseSettingsTables();
         if (typeof (window as any).renderInternalExpensesTable === 'function') (window as any).renderInternalExpensesTable();
       } else {
-        const localHasOps = Array.isArray(expenseSettingsState.operational) && expenseSettingsState.operational.some(Boolean);
-        const localHasFix = Array.isArray(expenseSettingsState.fixed) && expenseSettingsState.fixed.some(Boolean);
+        const localHasOps = hasNonEmptyExpenseRow(expenseSettingsState.operational);
+        const localHasFix = hasNonEmptyExpenseRow(expenseSettingsState.fixed);
         if (localHasOps || localHasFix) {
           fetch('/api/settings/expense-definitions', {
             method: 'POST',
@@ -1111,18 +1142,26 @@ window.renderExpenseSettingsTables = function() {
     if (rows.length === 0) {
       tbody.innerHTML = `
         <tr class="empty-row-placeholder">
-          <td colspan="2">لا توجد بيانات مسجلة (<span onclick="addExpenseSettingRow('${type}')">+ أضف سطر</span>)</td>
+          <td colspan="3">لا توجد بيانات مسجلة (<span onclick="addExpenseSettingRow('${type}')">+ أضف سطر</span>)</td>
         </tr>
       `;
       return;
     }
-    tbody.innerHTML = rows.map((val, idx) => {
-      const safeVal = String(val || '').replace(/"/g, '&quot;');
+    tbody.innerHTML = rows.map((rowObj, idx) => {
+      const item = typeof rowObj === 'object' && rowObj !== null
+        ? rowObj
+        : { mainCategory: '', description: String(rowObj || '') };
+      const safeMainCat = String(item.mainCategory || '').replace(/"/g, '&quot;');
+      const safeDesc = String(item.description || '').replace(/"/g, '&quot;');
       return `
         <tr>
+          <td style="width: 240px;">
+            <input type="text" class="table-input" value="${safeMainCat}" placeholder="التصنيف الرئيسي"
+                   oninput="updateExpenseSettingRow('${type}', ${idx}, 'mainCategory', this.value)">
+          </td>
           <td>
-            <input type="text" class="table-input" value="${safeVal}" placeholder="بيان المصروف"
-                   oninput="updateExpenseSettingRow('${type}', ${idx}, this.value)">
+            <input type="text" class="table-input" value="${safeDesc}" placeholder="بيان المصروف"
+                   oninput="updateExpenseSettingRow('${type}', ${idx}, 'description', this.value)">
           </td>
           <td style="width: 38px; text-align: center;">
             <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteExpenseSettingRow('${type}', ${idx})">
@@ -1140,14 +1179,23 @@ window.renderExpenseSettingsTables = function() {
 
 window.addExpenseSettingRow = function(type) {
   if (!expenseSettingsState[type]) expenseSettingsState[type] = [];
-  expenseSettingsState[type].push('');
+  expenseSettingsState[type].push({ mainCategory: '', description: '' });
   saveExpenseSettingsData(expenseSettingsState);
   window.renderExpenseSettingsTables();
 };
 
-window.updateExpenseSettingRow = function(type, idx, val) {
+window.updateExpenseSettingRow = function(type, idx, fieldOrVal, maybeVal) {
   if (!expenseSettingsState[type]) return;
-  expenseSettingsState[type][idx] = val;
+  const current = expenseSettingsState[type][idx];
+  const obj = typeof current === 'object' && current !== null
+    ? current
+    : { mainCategory: '', description: String(current || '') };
+  if (maybeVal !== undefined) {
+    obj[fieldOrVal] = maybeVal;
+  } else {
+    obj.description = fieldOrVal;
+  }
+  expenseSettingsState[type][idx] = obj;
   saveExpenseSettingsData(expenseSettingsState);
 };
 
