@@ -1043,11 +1043,41 @@ window.loadSettingsTab = function() {
 // ============================================================================
 // Expense Settings Tables (2. إعدادات المصاريف: المصاريف التشغيلية & المصاريف الثابتة بدون القيمة)
 // ============================================================================
+function sortExpenseRowsArabic(arr) {
+  if (!Array.isArray(arr)) return [];
+  return [...arr].sort((a, b) => {
+    const aCat = String(a?.mainCategory || '').trim();
+    const bCat = String(b?.mainCategory || '').trim();
+    const aDesc = String(a?.description || '').trim();
+    const bDesc = String(b?.description || '').trim();
+    const aEmpty = !aCat && !aDesc;
+    const bEmpty = !bCat && !bDesc;
+    if (aEmpty && bEmpty) return 0;
+    if (aEmpty) return 1;
+    if (bEmpty) return -1;
+    const catCmp = aCat.localeCompare(bCat, 'ar');
+    if (catCmp !== 0) return catCmp;
+    return aDesc.localeCompare(bDesc, 'ar');
+  });
+}
+
+function sortPaymentChannelsArabic(arr) {
+  if (!Array.isArray(arr)) return [];
+  return [...arr].sort((a, b) => {
+    const aVal = String(a || '').trim();
+    const bVal = String(b || '').trim();
+    if (!aVal && !bVal) return 0;
+    if (!aVal) return 1;
+    if (!bVal) return -1;
+    return aVal.localeCompare(bVal, 'ar');
+  });
+}
+
 function normalizeExpenseRows(arr) {
   if (!Array.isArray(arr) || arr.length === 0) {
     return [{ mainCategory: '', description: '' }];
   }
-  return arr.map(item => {
+  const mapped = arr.map(item => {
     if (typeof item === 'object' && item !== null) {
       return {
         mainCategory: String(item.mainCategory || ''),
@@ -1059,6 +1089,7 @@ function normalizeExpenseRows(arr) {
       description: String(item || '')
     };
   });
+  return sortExpenseRowsArabic(mapped);
 }
 
 function hasNonEmptyExpenseRow(arr) {
@@ -1075,7 +1106,7 @@ function normalizePaymentChannels(arr) {
   if (!Array.isArray(arr) || arr.length === 0) {
     return ['صندوق'];
   }
-  return arr.map(item => String(item || ''));
+  return sortPaymentChannelsArabic(arr.map(item => String(item || '')));
 }
 
 function getExpenseSettingsData() {
@@ -1172,11 +1203,13 @@ window.renderExpenseSettingsTables = function() {
         <tr>
           <td style="width: 240px;">
             <input type="text" class="table-input" style="text-align: center;" value="${safeMainCat}" placeholder="التصنيف الفرعي"
-                   oninput="updateExpenseSettingRow('${type}', ${idx}, 'mainCategory', this.value)">
+                   oninput="updateExpenseSettingRow('${type}', ${idx}, 'mainCategory', this.value)"
+                   onblur="onExpenseSettingInputBlur()">
           </td>
           <td>
             <input type="text" class="table-input" style="text-align: center;" value="${safeDesc}" placeholder="بيان المصروف"
-                   oninput="updateExpenseSettingRow('${type}', ${idx}, 'description', this.value)">
+                   oninput="updateExpenseSettingRow('${type}', ${idx}, 'description', this.value)"
+                   onblur="onExpenseSettingInputBlur()">
           </td>
           <td style="width: 38px; text-align: center;">
             <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteExpenseSettingRow('${type}', ${idx})">
@@ -1205,8 +1238,9 @@ window.renderExpenseSettingsTables = function() {
       return `
         <tr>
           <td>
-            <input type="text" class="table-input" value="${safeVal}" placeholder="قناة الدفع (مثلاً: صندوق، بنك، كليك...)"
-                   oninput="updateExpenseSettingRow('paymentChannels', ${idx}, this.value)">
+            <input type="text" class="table-input" style="text-align: center;" value="${safeVal}" placeholder="قناة الدفع (مثلاً: صندوق، بنك، كليك...)"
+                   oninput="updateExpenseSettingRow('paymentChannels', ${idx}, this.value)"
+                   onblur="onExpenseSettingInputBlur()">
           </td>
           <td style="width: 38px; text-align: center;">
             <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteExpenseSettingRow('paymentChannels', ${idx})">
@@ -1222,6 +1256,20 @@ window.renderExpenseSettingsTables = function() {
   renderSection('fixed', 'settingsFixedExpensesBody');
   renderPaymentChannels('settingsPaymentChannelsBody');
   renderPaymentChannels('settingsGeneralPaymentChannelsBody');
+};
+
+window.onExpenseSettingInputBlur = function() {
+  setTimeout(() => {
+    const active = document.activeElement;
+    if (active && active.tagName === 'INPUT' && active.closest('#settingsOperationalExpensesBody, #settingsFixedExpensesBody, #settingsPaymentChannelsBody, #settingsGeneralPaymentChannelsBody')) {
+      return;
+    }
+    expenseSettingsState.operational = sortExpenseRowsArabic(expenseSettingsState.operational);
+    expenseSettingsState.fixed = sortExpenseRowsArabic(expenseSettingsState.fixed);
+    expenseSettingsState.paymentChannels = sortPaymentChannelsArabic(expenseSettingsState.paymentChannels);
+    saveExpenseSettingsData(expenseSettingsState);
+    window.renderExpenseSettingsTables();
+  }, 120);
 };
 
 window.addExpenseSettingRow = function(type) {
