@@ -1227,9 +1227,9 @@ async function getPriorUndepositedCash(sheetDate) {
       SELECT 
         sheet_id,
         COALESCE(SUM(CASE
-          WHEN category IN ('internal_expense', 'internal_expenses') THEN
+          WHEN category IN ('internal_expense', 'internal_expenses', 'employee_advance', 'employee_advances') THEN
             CASE WHEN COALESCE(col4, '') LIKE '%صندوق%' THEN amount1 ELSE 0 END
-          WHEN category IN ('employee_advance', 'employee_advances', 'supplier_payment', 'supplier_payments', 'cash_purchase', 'cash_purchases') THEN amount1
+          WHEN category IN ('supplier_payment', 'supplier_payments', 'cash_purchase', 'cash_purchases') THEN amount1
           ELSE 0
         END), 0) as total_expenses,
         COALESCE(SUM(CASE WHEN category IN ('extra_revenue', 'extra_revenues') THEN amount1 ELSE 0 END), 0) as extra_rev,

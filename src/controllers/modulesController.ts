@@ -1103,6 +1103,9 @@ function saveExpenseSettingsData(data) {
     if (typeof (window as any).renderInternalExpensesTable === 'function') {
       (window as any).renderInternalExpensesTable();
     }
+    if (typeof (window as any).renderEmployeeAdvancesTable === 'function') {
+      (window as any).renderEmployeeAdvancesTable();
+    }
     fetch('/api/settings/expense-definitions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

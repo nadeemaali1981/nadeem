@@ -551,7 +551,7 @@ function renderUI() {
 
   // Render Tables
   renderInternalExpensesTable();
-  renderSimpleTable('employee_advances', 'employeeAdvancesBody', 'الرقم الوظيفي / اسم الموظف');
+  renderEmployeeAdvancesTable();
   renderSimpleTable('supplier_payments', 'supplierPaymentsBody', 'اسم المورد');
   renderSimpleTable('cash_purchases', 'cashPurchasesBody', 'بيان المشتريات');
   renderPerfumeSalesTable();
@@ -666,9 +666,9 @@ function getConfiguredExpensesByType(typeLabel, selectedMainCategory = '') {
   return result.sort((a, b) => a.localeCompare(b, 'ar'));
 }
 
-function onInternalExpenseCategoryChange(idx, newType) {
-  if (!state.items.internal_expenses || !state.items.internal_expenses[idx]) return;
-  const row = state.items.internal_expenses[idx];
+function onCategorizedRowMainTypeChange(categoryKey, idx, newType) {
+  if (!state.items[categoryKey] || !state.items[categoryKey][idx]) return;
+  const row = state.items[categoryKey][idx];
   row.col2 = newType;
   const validMainCats = getConfiguredMainCategoriesByType(newType);
   if (!validMainCats.includes(row.col3)) {
@@ -679,13 +679,22 @@ function onInternalExpenseCategoryChange(idx, newType) {
     row.col1 = '';
   }
   markUnsaved();
-  renderInternalExpensesTable();
+  if (categoryKey === 'employee_advances') {
+    renderEmployeeAdvancesTable();
+  } else {
+    renderInternalExpensesTable();
+  }
+}
+window.onCategorizedRowMainTypeChange = onCategorizedRowMainTypeChange;
+
+function onInternalExpenseCategoryChange(idx, newType) {
+  onCategorizedRowMainTypeChange('internal_expenses', idx, newType);
 }
 window.onInternalExpenseCategoryChange = onInternalExpenseCategoryChange;
 
-function onInternalExpenseMainCategoryChange(idx, newMainCat) {
-  if (!state.items.internal_expenses || !state.items.internal_expenses[idx]) return;
-  const row = state.items.internal_expenses[idx];
+function onCategorizedRowSubCategoryChange(categoryKey, idx, newMainCat) {
+  if (!state.items[categoryKey] || !state.items[categoryKey][idx]) return;
+  const row = state.items[categoryKey][idx];
   row.col3 = newMainCat;
   const selectedType = row.col2 || 'المصاريف التشغيلية';
   const validDescriptions = getConfiguredExpensesByType(selectedType, newMainCat);
@@ -693,13 +702,22 @@ function onInternalExpenseMainCategoryChange(idx, newMainCat) {
     row.col1 = '';
   }
   markUnsaved();
-  renderInternalExpensesTable();
+  if (categoryKey === 'employee_advances') {
+    renderEmployeeAdvancesTable();
+  } else {
+    renderInternalExpensesTable();
+  }
+}
+window.onCategorizedRowSubCategoryChange = onCategorizedRowSubCategoryChange;
+
+function onInternalExpenseMainCategoryChange(idx, newMainCat) {
+  onCategorizedRowSubCategoryChange('internal_expenses', idx, newMainCat);
 }
 window.onInternalExpenseMainCategoryChange = onInternalExpenseMainCategoryChange;
 
-function onInternalExpenseDescriptionChange(idx, newDesc) {
-  if (!state.items.internal_expenses || !state.items.internal_expenses[idx]) return;
-  const row = state.items.internal_expenses[idx];
+function onCategorizedRowDescriptionChange(categoryKey, idx, newDesc) {
+  if (!state.items[categoryKey] || !state.items[categoryKey][idx]) return;
+  const row = state.items[categoryKey][idx];
   row.col1 = newDesc;
   const selectedType = row.col2 || 'المصاريف التشغيلية';
   if (newDesc && !row.col3) {
@@ -708,11 +726,20 @@ function onInternalExpenseDescriptionChange(idx, newDesc) {
     if (match) {
       row.col3 = match.mainCategory;
       markUnsaved();
-      renderInternalExpensesTable();
+      if (categoryKey === 'employee_advances') {
+        renderEmployeeAdvancesTable();
+      } else {
+        renderInternalExpensesTable();
+      }
       return;
     }
   }
   markUnsaved();
+}
+window.onCategorizedRowDescriptionChange = onCategorizedRowDescriptionChange;
+
+function onInternalExpenseDescriptionChange(idx, newDesc) {
+  onCategorizedRowDescriptionChange('internal_expenses', idx, newDesc);
 }
 window.onInternalExpenseDescriptionChange = onInternalExpenseDescriptionChange;
 
@@ -740,23 +767,28 @@ function getConfiguredPaymentChannels() {
   return ['صندوق'];
 }
 
-function onInternalExpensePaymentChannelChange(idx, newChannel) {
-  if (!state.items.internal_expenses || !state.items.internal_expenses[idx]) return;
-  state.items.internal_expenses[idx].col4 = newChannel;
+function onCategorizedRowPaymentChannelChange(categoryKey, idx, newChannel) {
+  if (!state.items[categoryKey] || !state.items[categoryKey][idx]) return;
+  state.items[categoryKey][idx].col4 = newChannel;
   recalculateAll();
   markUnsaved();
 }
+window.onCategorizedRowPaymentChannelChange = onCategorizedRowPaymentChannelChange;
+
+function onInternalExpensePaymentChannelChange(idx, newChannel) {
+  onCategorizedRowPaymentChannelChange('internal_expenses', idx, newChannel);
+}
 window.onInternalExpensePaymentChannelChange = onInternalExpensePaymentChannelChange;
 
-function renderInternalExpensesTable() {
-  const tbody = document.getElementById('internalExpensesBody');
+function renderCategorizedExpenseTable(categoryKey, tbodyId) {
+  const tbody = document.getElementById(tbodyId);
   if (!tbody) return;
   tbody.innerHTML = '';
 
-  if (!state.items.internal_expenses || state.items.internal_expenses.length === 0) {
+  if (!state.items[categoryKey] || state.items[categoryKey].length === 0) {
     tbody.innerHTML = `
       <tr class="empty-row-placeholder">
-        <td colspan="6">لا توجد بيانات مسجلة (<span onclick="addRow('internal_expenses')">+ أضف سطر</span>)</td>
+        <td colspan="6">لا توجد بيانات مسجلة (<span onclick="addRow('${categoryKey}')">+ أضف سطر</span>)</td>
       </tr>
     `;
     return;
@@ -764,7 +796,7 @@ function renderInternalExpensesTable() {
 
   const mainTypeList = ['المصاريف التشغيلية', 'المصاريف الثابتة'].sort((a, b) => a.localeCompare(b, 'ar'));
 
-  state.items.internal_expenses.forEach((row, idx) => {
+  state.items[categoryKey].forEach((row, idx) => {
     const selectedType = row.col2 || 'المصاريف التشغيلية';
     row.col2 = selectedType;
     const currentMainCat = (row.col3 || '').trim();
@@ -810,35 +842,35 @@ function renderInternalExpensesTable() {
     tr.innerHTML = `
       <td style="width: 18%; min-width: 175px;">
         <select class="table-input" style="font-weight: 600; text-align: center;"
-                onchange="onInternalExpenseCategoryChange(${idx}, this.value)">
+                onchange="onCategorizedRowMainTypeChange('${categoryKey}', ${idx}, this.value)">
           ${mainTypeOptionsHtml}
         </select>
       </td>
       <td style="width: 19%; min-width: 175px;">
         <select class="table-input" style="font-weight: 600; text-align: center;"
-                onchange="onInternalExpenseMainCategoryChange(${idx}, this.value)">
+                onchange="onCategorizedRowSubCategoryChange('${categoryKey}', ${idx}, this.value)">
           ${mainCatOptionsHtml}
         </select>
       </td>
       <td style="width: 16%; min-width: 145px;">
         <select class="table-input" style="font-weight: 600; text-align: center;"
-                onchange="onInternalExpensePaymentChannelChange(${idx}, this.value)">
+                onchange="onCategorizedRowPaymentChannelChange('${categoryKey}', ${idx}, this.value)">
           ${paymentOptionsHtml}
         </select>
       </td>
       <td style="width: 31%; min-width: 220px;">
         <select class="table-input" style="font-weight: 600; text-align: center;"
-                onchange="onInternalExpenseDescriptionChange(${idx}, this.value)">
+                onchange="onCategorizedRowDescriptionChange('${categoryKey}', ${idx}, this.value)">
           ${optionsHtml}
         </select>
       </td>
       <td style="width: 12%; min-width: 120px;">
         <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
-               oninput="updateRowAmount('internal_expenses', ${idx}, 'amount1', this.value)"
+               oninput="updateRowAmount('${categoryKey}', ${idx}, 'amount1', this.value)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
       <td style="width: 40px; text-align: center;">
-        <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteRow('internal_expenses', ${idx})">
+        <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteRow('${categoryKey}', ${idx})">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
         </button>
       </td>
@@ -850,7 +882,16 @@ function renderInternalExpensesTable() {
     setSheetLockedState(true);
   }
 }
+
+function renderInternalExpensesTable() {
+  renderCategorizedExpenseTable('internal_expenses', 'internalExpensesBody');
+}
 window.renderInternalExpensesTable = renderInternalExpensesTable;
+
+function renderEmployeeAdvancesTable() {
+  renderCategorizedExpenseTable('employee_advances', 'employeeAdvancesBody');
+}
+window.renderEmployeeAdvancesTable = renderEmployeeAdvancesTable;
 
 // Render Standard 2-Column Table (Description & Amount)
 function renderSimpleTable(categoryKey, tbodyId, placeholder) {
@@ -1284,8 +1325,16 @@ function recalculateAll() {
   setText('kpiTotalPerfumeSales', formatMoney(totalPerfumes));
 
   // 1. معادلة الصندوق الحالي لليوم:
-  // يخصم من المصاريف الداخلية فقط ما كانت جهة الدفع فيه "صندوق"
+  // يخصم من المصاريف الداخلية وسحوبات الموظفين فقط ما كانت جهة الدفع فيه "صندوق"
   const sumCashInternalExpenses = (state.items.internal_expenses || []).reduce((acc, r) => {
+    const paySource = String(r.col4 || '').trim();
+    if (paySource.includes('صندوق')) {
+      return acc + (parseFloat(r.amount1) || 0);
+    }
+    return acc;
+  }, 0);
+
+  const sumCashEmployeeAdvances = (state.items.employee_advances || []).reduce((acc, r) => {
     const paySource = String(r.col4 || '').trim();
     if (paySource.includes('صندوق')) {
       return acc + (parseFloat(r.amount1) || 0);
@@ -1295,7 +1344,7 @@ function recalculateAll() {
 
   const salesCash = state.sales.cash || 0;
   const salesDelivery = state.sales.delivery || 0;
-  const netCashRemaining = (salesCash + salesDelivery + sumExtraRevenues) - (sumCashInternalExpenses + sumEmployeeAdvances + sumSupplierPayments + sumCashPurchases + sumPerfumeCredit);
+  const netCashRemaining = (salesCash + salesDelivery + sumExtraRevenues) - (sumCashInternalExpenses + sumCashEmployeeAdvances + sumSupplierPayments + sumCashPurchases + sumPerfumeCredit);
 
   setText('kpiNetCash', formatMoney(netCashRemaining));
   const kpiNetCard = document.getElementById('kpiNetCashCard');
