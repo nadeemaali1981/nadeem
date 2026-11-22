@@ -1718,26 +1718,67 @@ async function deleteExpenseRecord(id) {
 async function getSuppliersList() {
   await initSchema();
   const contacts = await all("SELECT * FROM contacts WHERE type = 'supplier' ORDER BY name ASC");
+  const allPayments = await all(`
+    SELECT
+      i.id as payment_id,
+      i.col1 as supplier_name,
+      i.col4 as payment_channel,
+      i.amount1 as amount,
+      s.sheet_date,
+      s.day_name
+    FROM daily_sheet_items i
+    JOIN daily_sheets s ON s.id = i.sheet_id
+    WHERE i.category IN ('supplier_payment', 'supplier_payments')
+      AND COALESCE(i.amount1, 0) > 0
+    ORDER BY s.sheet_date DESC, i.id DESC
+  `);
+
   const suppliersWithTotals = [];
+  const handledSupplierNames = new Set();
 
   for (const c of contacts) {
-    const payRows = await all(`
-      SELECT SUM(i.amount1) as total_paid
-      FROM daily_sheet_items i
-      JOIN daily_sheets s ON s.id = i.sheet_id
-      WHERE i.category IN ('supplier_payment', 'supplier_payments') AND i.col1 = ?
-    `, [c.name]);
+    const trimmedName = String(c.name || '').trim();
+    handledSupplierNames.add(trimmedName);
+    const matchingPayments = allPayments.filter(p => String(p.supplier_name || '').trim() === trimmedName);
 
-    const totalPaid = Number(payRows[0]?.total_paid || 0);
-    suppliersWithTotals.push({
-      id: c.id,
-      name: c.name,
-      phone: c.phone || '',
-      email: c.email || '',
-      tax_number: c.tax_number || '',
-      address: c.address || '',
-      total_paid: Math.round(totalPaid * 100) / 100
-    });
+    if (matchingPayments.length > 0) {
+      for (const p of matchingPayments) {
+        suppliersWithTotals.push({
+          id: c.id,
+          payment_id: p.payment_id,
+          name: c.name,
+          payment_date: p.sheet_date || '-',
+          day_name: p.day_name || '',
+          payment_channel: p.payment_channel || '-',
+          total_paid: Math.round(Number(p.amount || 0) * 100) / 100
+        });
+      }
+    } else {
+      suppliersWithTotals.push({
+        id: c.id,
+        payment_id: null,
+        name: c.name,
+        payment_date: '-',
+        day_name: '',
+        payment_channel: '-',
+        total_paid: 0
+      });
+    }
+  }
+
+  for (const p of allPayments) {
+    const sName = String(p.supplier_name || '').trim();
+    if (sName && !handledSupplierNames.has(sName)) {
+      suppliersWithTotals.push({
+        id: p.payment_id,
+        payment_id: p.payment_id,
+        name: sName,
+        payment_date: p.sheet_date || '-',
+        day_name: p.day_name || '',
+        payment_channel: p.payment_channel || '-',
+        total_paid: Math.round(Number(p.amount || 0) * 100) / 100
+      });
+    }
   }
 
   return suppliersWithTotals;
@@ -1749,6 +1790,7 @@ async function createSupplier(data) {
 
 async function deleteSupplier(id) {
   await initSchema();
+  await run('DELETE FROM daily_sheet_items WHERE id = ? AND category IN (?, ?)', [id, 'supplier_payment', 'supplier_payments']);
   await run('DELETE FROM contacts WHERE id = ? AND type = ?', [id, 'supplier']);
   return { success: true };
 }
