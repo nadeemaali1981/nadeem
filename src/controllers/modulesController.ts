@@ -493,7 +493,7 @@ async function loadEmployeesTab() {
     const tbody = document.getElementById('employeesTableBody');
     if (!tbody) return;
     if (employees.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:1.5rem;">لا يوجد موظفون مسجلون. انقر فوق (+ إضافة موظف جديد)</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem;">لا يوجد موظفون مسجلون. انقر فوق (+ إضافة موظف جديد)</td></tr>';
       return;
     }
 
@@ -501,13 +501,12 @@ async function loadEmployeesTab() {
     employees.forEach(e => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td style="font-weight:700; color:#0f766e;">${e.employee_id}</td>
-        <td style="font-weight:700;">${e.name}</td>
-        <td>${e.job_title || 'موظف مبيعات'}</td>
-        <td>${e.phone || '-'}</td>
-        <td style="text-align:center;">${formatCurrency(e.salary)}</td>
+        <td style="text-align:center; font-weight:700; color:#0f766e;">${e.employee_id || '-'}</td>
+        <td style="text-align:center; font-weight:700;">${e.name}</td>
+        <td style="text-align:center;">${e.phone || '-'}</td>
+        <td style="text-align:center; font-weight:600;">${formatCurrency(e.salary)}</td>
         <td style="text-align:center; font-weight:700; color:#059669;">${formatCurrency(e.total_sales)}</td>
-        <td style="text-align:center; color:#dc2626;">${formatCurrency(e.total_advances)}</td>
+        <td style="text-align:center; font-weight:700; color:#dc2626;">${formatCurrency(e.total_advances)}</td>
         <td style="text-align:center;">
           <button class="btn-del-row" title="حذف الموظف" onclick="deleteModuleItem('/api/modules/employees/${e.id}', loadEmployeesTab)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
