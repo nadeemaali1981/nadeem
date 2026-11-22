@@ -1086,45 +1086,15 @@ window.loadSettingsTab = function() {
 // ============================================================================
 // Expense Settings Tables (2. إعدادات المصاريف: المصاريف التشغيلية & المصاريف الثابتة بدون القيمة)
 // ============================================================================
-function sortDescriptionsArabic(descArr) {
-  if (!Array.isArray(descArr) || descArr.length === 0) return [''];
-  return [...descArr].sort((a, b) => {
-    const aVal = String(a || '').trim();
-    const bVal = String(b || '').trim();
-    if (!aVal && !bVal) return 0;
-    if (!aVal) return 1;
-    if (!bVal) return -1;
-    return aVal.localeCompare(bVal, 'ar');
-  });
-}
-
 function sortExpenseRowsArabic(arr) {
   if (!Array.isArray(arr)) return [];
-  const normalized = arr.map(r => {
-    const descs = Array.isArray(r?.descriptions)
-      ? sortDescriptionsArabic(r.descriptions)
-      : sortDescriptionsArabic([r?.description || '']);
-    return {
-      mainCategory: String(r?.mainCategory || ''),
-      descriptions: descs,
-      description: descs[0] || ''
-    };
-  });
-  return normalized.sort((a, b) => {
-    const aCat = String(a.mainCategory || '').trim();
-    const bCat = String(b.mainCategory || '').trim();
-    const aFirstDesc = String((a.descriptions && a.descriptions[0]) || '').trim();
-    const bFirstDesc = String((b.descriptions && b.descriptions[0]) || '').trim();
-    const aEmpty = !aCat && !aFirstDesc;
-    const bEmpty = !bCat && !bFirstDesc;
-    if (aEmpty && bEmpty) return 0;
-    if (aEmpty) return 1;
-    if (bEmpty) return -1;
-    if (!aCat && bCat) return 1;
-    if (aCat && !bCat) return -1;
-    const catCmp = aCat.localeCompare(bCat, 'ar');
-    if (catCmp !== 0) return catCmp;
-    return aFirstDesc.localeCompare(bFirstDesc, 'ar');
+  return [...arr].sort((a, b) => {
+    const aCat = String(typeof a === 'object' && a !== null ? (a.mainCategory || '') : (a || '')).trim();
+    const bCat = String(typeof b === 'object' && b !== null ? (b.mainCategory || '') : (b || '')).trim();
+    if (!aCat && !bCat) return 0;
+    if (!aCat) return 1;
+    if (!bCat) return -1;
+    return aCat.localeCompare(bCat, 'ar');
   });
 }
 
@@ -1142,66 +1112,44 @@ function sortPaymentChannelsArabic(arr) {
 
 function normalizeExpenseRows(arr) {
   if (!Array.isArray(arr) || arr.length === 0) {
-    return [{ mainCategory: '', descriptions: [''], description: '' }];
+    return [{ mainCategory: '' }];
   }
-  const groupedMap = new Map();
-  const ungrouped = [];
+  const seen = new Set();
+  const result = [];
 
   arr.forEach(item => {
     if (typeof item === 'object' && item !== null) {
-      const mainCat = String(item.mainCategory || '');
-      const trimmedCat = mainCat.trim();
-      const rawDescs = Array.isArray(item.descriptions)
-        ? item.descriptions.map(d => String(d || ''))
-        : [String(item.description || '')];
-
-      if (trimmedCat) {
-        if (!groupedMap.has(trimmedCat)) {
-          groupedMap.set(trimmedCat, { mainCategory: mainCat, descriptions: [] });
+      const mainCat = String(item.mainCategory || '').trim();
+      if (mainCat) {
+        if (!seen.has(mainCat)) {
+          seen.add(mainCat);
+          result.push({ mainCategory: mainCat });
         }
-        const entry = groupedMap.get(trimmedCat);
-        rawDescs.forEach(d => {
-          const td = String(d || '').trim();
-          if (td) {
-            if (!entry.descriptions.some(ex => String(ex || '').trim() === td)) {
-              entry.descriptions.push(d);
-            }
-          }
-        });
-      } else {
-        ungrouped.push({
-          mainCategory: '',
-          descriptions: rawDescs.length > 0 ? rawDescs : ['']
-        });
+      } else if (!item.description && (!Array.isArray(item.descriptions) || !item.descriptions.some(Boolean))) {
+        result.push({ mainCategory: '' });
       }
     } else {
-      ungrouped.push({
-        mainCategory: '',
-        descriptions: [String(item || '')]
-      });
+      const strVal = String(item || '').trim();
+      if (strVal && !seen.has(strVal)) {
+        seen.add(strVal);
+        result.push({ mainCategory: strVal });
+      } else if (!strVal) {
+        result.push({ mainCategory: '' });
+      }
     }
   });
 
-  const combined = [...Array.from(groupedMap.values()), ...ungrouped].map(r => {
-    const descs = r.descriptions && r.descriptions.length > 0 ? r.descriptions : [''];
-    return {
-      mainCategory: r.mainCategory,
-      descriptions: descs,
-      description: descs[0] || ''
-    };
-  });
-
-  return sortExpenseRowsArabic(combined.length > 0 ? combined : [{ mainCategory: '', descriptions: [''], description: '' }]);
+  if (result.length === 0) {
+    return [{ mainCategory: '' }];
+  }
+  return sortExpenseRowsArabic(result);
 }
 
 function hasNonEmptyExpenseRow(arr) {
   if (!Array.isArray(arr)) return false;
   return arr.some(item => {
     if (typeof item === 'object' && item !== null) {
-      const hasCat = Boolean(String(item.mainCategory || '').trim());
-      const hasDescs = Array.isArray(item.descriptions) && item.descriptions.some(d => Boolean(String(d || '').trim()));
-      const hasDesc = Boolean(String(item.description || '').trim());
-      return hasCat || hasDescs || hasDesc;
+      return Boolean(String(item.mainCategory || '').trim());
     }
     return Boolean(String(item || '').trim());
   });
@@ -1293,7 +1241,7 @@ window.renderExpenseSettingsTables = function() {
     if (rows.length === 0) {
       tbody.innerHTML = `
         <tr class="empty-row-placeholder">
-          <td colspan="3">لا توجد بيانات مسجلة (<span onclick="addExpenseSettingRow('${type}')">+ أضف سطر</span>)</td>
+          <td colspan="2">لا توجد بيانات مسجلة (<span onclick="addExpenseSettingRow('${type}')">+ أضف سطر</span>)</td>
         </tr>
       `;
       return;
@@ -1301,49 +1249,19 @@ window.renderExpenseSettingsTables = function() {
     tbody.innerHTML = rows.map((rowObj, idx) => {
       const item = typeof rowObj === 'object' && rowObj !== null
         ? rowObj
-        : { mainCategory: '', descriptions: [String(rowObj || '')] };
-      const descs = Array.isArray(item.descriptions) && item.descriptions.length > 0
-        ? item.descriptions
-        : [String(item.description || '')];
+        : { mainCategory: String(rowObj || '') };
       const safeMainCat = String(item.mainCategory || '').replace(/"/g, '&quot;');
-
-      const descriptionsHtml = descs.map((dVal, dIdx) => {
-        const safeDesc = String(dVal || '').replace(/"/g, '&quot;');
-        const removeStmtBtn = descs.length > 1
-          ? `<button type="button" class="btn-del-row" style="padding: 2px 5px; color: #ef4444;" title="حذف هذا البيان" onclick="deleteExpenseStatementFromRow('${type}', ${idx}, ${dIdx})">✕</button>`
-          : '';
-        return `
-          <div style="display: flex; align-items: center; gap: 4px; ${dIdx > 0 ? 'margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e2e8f0;' : ''}">
-            <input type="text" id="expDescInput_${type}_${idx}_${dIdx}" class="table-input" style="text-align: center; flex: 1;" value="${safeDesc}" placeholder="بيان المصروف ${descs.length > 1 ? '(' + (dIdx + 1) + ')' : ''}"
-                   oninput="updateExpenseStatementInRow('${type}', ${idx}, ${dIdx}, this.value)"
-                   onblur="onExpenseSettingInputBlur()">
-            ${removeStmtBtn}
-          </div>
-        `;
-      }).join('');
-
       return `
         <tr>
-          <td style="width: 240px; vertical-align: middle;">
+          <td>
             <input type="text" class="table-input" style="text-align: center; font-weight: 700;" value="${safeMainCat}" placeholder="التصنيف الرئيسي"
                    oninput="updateExpenseSettingRow('${type}', ${idx}, 'mainCategory', this.value)"
                    onblur="onExpenseSettingInputBlur()">
           </td>
-          <td style="vertical-align: middle;">
-            ${descriptionsHtml}
-          </td>
-          <td style="width: 175px; text-align: center; white-space: nowrap; vertical-align: middle;">
-            <div style="display: inline-flex; align-items: center; gap: 6px; justify-content: center;">
-              <button type="button" class="btn btn-secondary btn-sm"
-                      style="padding: 3px 10px; font-size: 0.76rem; font-weight: 700; color: #b91c1c; border-color: #fecaca; background: #fef2f2; white-space: nowrap;"
-                      title="إضافة بيان جديد على نفس التصنيف الرئيسي"
-                      onclick="addExpenseStatementOnRow('${type}', ${idx})">
-                + إضافة بيان جديد
-              </button>
-              <button type="button" class="btn-del-row" title="حذف التصنيف بالكامل" onclick="deleteExpenseSettingRow('${type}', ${idx})">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-              </button>
-            </div>
+          <td style="width: 38px; text-align: center;">
+            <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteExpenseSettingRow('${type}', ${idx})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
           </td>
         </tr>
       `;

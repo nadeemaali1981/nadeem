@@ -872,10 +872,8 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
         </select>
       </td>
       <td style="width: 31%; min-width: 220px;">
-        <select class="table-input" style="font-weight: 600; text-align: center;"
-                onchange="onCategorizedRowDescriptionChange('${categoryKey}', ${idx}, this.value)">
-          ${optionsHtml}
-        </select>
+        <input type="text" class="table-input" style="font-weight: 600; text-align: center;" value="${escapeHtml(currentDesc)}" placeholder="بيان المصروف"
+               oninput="updateRowCol('${categoryKey}', ${idx}, 'col1', this.value)">
       </td>
       <td style="width: 12%; min-width: 120px;">
         <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
