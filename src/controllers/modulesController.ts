@@ -1100,6 +1100,9 @@ function sortExpenseRowsArabic(arr) {
     if (bEmpty) return -1;
     const catCmp = aCat.localeCompare(bCat, 'ar');
     if (catCmp !== 0) return catCmp;
+    if (!aDesc && !bDesc) return 0;
+    if (!aDesc) return 1;
+    if (!bDesc) return -1;
     return aDesc.localeCompare(bDesc, 'ar');
   });
 }
@@ -1250,14 +1253,22 @@ window.renderExpenseSettingsTables = function() {
                    onblur="onExpenseSettingInputBlur()">
           </td>
           <td>
-            <input type="text" class="table-input" style="text-align: center;" value="${safeDesc}" placeholder="بيان المصروف"
+            <input type="text" id="expDescInput_${type}_${idx}" class="table-input" style="text-align: center;" value="${safeDesc}" placeholder="بيان المصروف"
                    oninput="updateExpenseSettingRow('${type}', ${idx}, 'description', this.value)"
                    onblur="onExpenseSettingInputBlur()">
           </td>
-          <td style="width: 38px; text-align: center;">
-            <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteExpenseSettingRow('${type}', ${idx})">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-            </button>
+          <td style="width: 175px; text-align: center; white-space: nowrap;">
+            <div style="display: inline-flex; align-items: center; gap: 6px; justify-content: center;">
+              <button type="button" class="btn btn-secondary btn-sm"
+                      style="padding: 3px 10px; font-size: 0.76rem; font-weight: 700; color: #b91c1c; border-color: #fecaca; background: #fef2f2; white-space: nowrap;"
+                      title="إضافة بيان جديد تحت نفس التصنيف"
+                      onclick="addExpenseStatementOnRow('${type}', ${idx})">
+                + إضافة بيان جديد
+              </button>
+              <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteExpenseSettingRow('${type}', ${idx})">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -1324,6 +1335,25 @@ window.addExpenseSettingRow = function(type) {
   }
   saveExpenseSettingsData(expenseSettingsState);
   window.renderExpenseSettingsTables();
+};
+
+window.addExpenseStatementOnRow = function(type, idx) {
+  if (!expenseSettingsState[type]) expenseSettingsState[type] = [];
+  const current = expenseSettingsState[type][idx];
+  const currentMainCat = typeof current === 'object' && current !== null
+    ? String(current.mainCategory || '')
+    : '';
+  const insertIdx = idx + 1;
+  expenseSettingsState[type].splice(insertIdx, 0, {
+    mainCategory: currentMainCat,
+    description: ''
+  });
+  saveExpenseSettingsData(expenseSettingsState);
+  window.renderExpenseSettingsTables();
+  setTimeout(() => {
+    const input = document.getElementById(`expDescInput_${type}_${insertIdx}`) as HTMLInputElement;
+    if (input) input.focus();
+  }, 30);
 };
 
 window.updateExpenseSettingRow = function(type, idx, fieldOrVal, maybeVal) {
