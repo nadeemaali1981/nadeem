@@ -642,7 +642,7 @@ function getConfiguredMainCategoriesByType(typeLabel) {
       result.push(r.mainCategory);
     }
   });
-  return result;
+  return result.sort((a, b) => a.localeCompare(b, 'ar'));
 }
 
 function getConfiguredExpensesByType(typeLabel, selectedMainCategory = '') {
@@ -663,7 +663,7 @@ function getConfiguredExpensesByType(typeLabel, selectedMainCategory = '') {
       result.push(r.description);
     }
   });
-  return result;
+  return result.sort((a, b) => a.localeCompare(b, 'ar'));
 }
 
 function onInternalExpenseCategoryChange(idx, newType) {
@@ -722,8 +722,18 @@ function getConfiguredPaymentChannels() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed.paymentChannels)) {
-        const list = parsed.paymentChannels.map(s => String(s || '').trim()).filter(Boolean);
-        if (list.length > 0) return list;
+        const seen = new Set();
+        const list = [];
+        parsed.paymentChannels.forEach(s => {
+          const val = String(s || '').trim();
+          if (val && !seen.has(val)) {
+            seen.add(val);
+            list.push(val);
+          }
+        });
+        if (list.length > 0) {
+          return list.sort((a, b) => a.localeCompare(b, 'ar'));
+        }
       }
     }
   } catch (e) {}
@@ -752,6 +762,8 @@ function renderInternalExpensesTable() {
     return;
   }
 
+  const mainTypeList = ['المصاريف التشغيلية', 'المصاريف الثابتة'].sort((a, b) => a.localeCompare(b, 'ar'));
+
   state.items.internal_expenses.forEach((row, idx) => {
     const selectedType = row.col2 || 'المصاريف التشغيلية';
     row.col2 = selectedType;
@@ -759,8 +771,13 @@ function renderInternalExpensesTable() {
     const currentPaymentSource = (row.col4 || '').trim();
     const currentDesc = (row.col1 || '').trim();
 
+    const mainTypeOptionsHtml = mainTypeList.map(t => {
+      const isSelected = selectedType === t ? 'selected' : '';
+      return `<option value="${escapeHtml(t)}" ${isSelected}>${escapeHtml(t)}</option>`;
+    }).join('');
+
     const configuredMainCats = getConfiguredMainCategoriesByType(selectedType);
-    let mainCatOptionsHtml = `<option value="">-- اختر التصنيف الرئيسي --</option>`;
+    let mainCatOptionsHtml = `<option value="">-- اختر التصنيف الفرعي --</option>`;
     if (currentMainCat && !configuredMainCats.includes(currentMainCat)) {
       mainCatOptionsHtml += `<option value="${escapeHtml(currentMainCat)}" selected>${escapeHtml(currentMainCat)}</option>`;
     }
@@ -791,37 +808,36 @@ function renderInternalExpensesTable() {
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="width: 145px;">
-        <select class="table-input" style="font-weight: 600;"
+      <td style="width: 18%; min-width: 175px;">
+        <select class="table-input" style="font-weight: 600; text-align: center;"
                 onchange="onInternalExpenseCategoryChange(${idx}, this.value)">
-          <option value="المصاريف التشغيلية" ${selectedType === 'المصاريف التشغيلية' ? 'selected' : ''}>المصاريف التشغيلية</option>
-          <option value="المصاريف الثابتة" ${selectedType === 'المصاريف الثابتة' ? 'selected' : ''}>المصاريف الثابتة</option>
+          ${mainTypeOptionsHtml}
         </select>
       </td>
-      <td style="width: 155px;">
-        <select class="table-input" style="font-weight: 600;"
+      <td style="width: 19%; min-width: 175px;">
+        <select class="table-input" style="font-weight: 600; text-align: center;"
                 onchange="onInternalExpenseMainCategoryChange(${idx}, this.value)">
           ${mainCatOptionsHtml}
         </select>
       </td>
-      <td style="width: 140px;">
-        <select class="table-input" style="font-weight: 600;"
+      <td style="width: 16%; min-width: 145px;">
+        <select class="table-input" style="font-weight: 600; text-align: center;"
                 onchange="onInternalExpensePaymentChannelChange(${idx}, this.value)">
           ${paymentOptionsHtml}
         </select>
       </td>
-      <td>
-        <select class="table-input" style="font-weight: 600;"
+      <td style="width: 31%; min-width: 220px;">
+        <select class="table-input" style="font-weight: 600; text-align: center;"
                 onchange="onInternalExpenseDescriptionChange(${idx}, this.value)">
           ${optionsHtml}
         </select>
       </td>
-      <td style="width: 115px;">
-        <input type="text" inputmode="decimal" class="table-input num" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
+      <td style="width: 12%; min-width: 120px;">
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
                oninput="updateRowAmount('internal_expenses', ${idx}, 'amount1', this.value)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
-      <td style="width: 38px; text-align: center;">
+      <td style="width: 40px; text-align: center;">
         <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteRow('internal_expenses', ${idx})">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
         </button>

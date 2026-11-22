@@ -1168,11 +1168,11 @@ window.renderExpenseSettingsTables = function() {
       return `
         <tr>
           <td style="width: 240px;">
-            <input type="text" class="table-input" value="${safeMainCat}" placeholder="التصنيف الرئيسي"
+            <input type="text" class="table-input" style="text-align: center;" value="${safeMainCat}" placeholder="التصنيف الفرعي"
                    oninput="updateExpenseSettingRow('${type}', ${idx}, 'mainCategory', this.value)">
           </td>
           <td>
-            <input type="text" class="table-input" value="${safeDesc}" placeholder="بيان المصروف"
+            <input type="text" class="table-input" style="text-align: center;" value="${safeDesc}" placeholder="بيان المصروف"
                    oninput="updateExpenseSettingRow('${type}', ${idx}, 'description', this.value)">
           </td>
           <td style="width: 38px; text-align: center;">
