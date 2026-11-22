@@ -608,32 +608,113 @@ function renderPerfumeSalesTable() {
   });
 }
 
-// Render Internal Expenses Table (تصنيف المصروف، بيان المصروف من إعدادات المصاريف، القيمة)
-function getConfiguredExpensesByType(typeLabel) {
+// Render Internal Expenses Table (تصنيف المصروف، التصنيف الرئيسي، بيان المصروف من إعدادات المصاريف، القيمة)
+function getConfiguredExpenseRowsByType(typeLabel) {
   try {
     const raw = localStorage.getItem('erp_expense_settings_v1');
     if (raw) {
       const parsed = JSON.parse(raw);
       const list = typeLabel === 'المصاريف الثابتة' ? (parsed.fixed || []) : (parsed.operational || []);
-      return list
-        .map(item => (typeof item === 'object' && item !== null ? String(item.description || '').trim() : String(item || '').trim()))
-        .filter(Boolean);
+      return list.map(item => {
+        if (typeof item === 'object' && item !== null) {
+          return {
+            mainCategory: String(item.mainCategory || '').trim(),
+            description: String(item.description || '').trim()
+          };
+        }
+        return {
+          mainCategory: '',
+          description: String(item || '').trim()
+        };
+      });
     }
   } catch (e) {}
   return [];
 }
 
+function getConfiguredMainCategoriesByType(typeLabel) {
+  const rows = getConfiguredExpenseRowsByType(typeLabel);
+  const seen = new Set();
+  const result = [];
+  rows.forEach(r => {
+    if (r.mainCategory && !seen.has(r.mainCategory)) {
+      seen.add(r.mainCategory);
+      result.push(r.mainCategory);
+    }
+  });
+  return result;
+}
+
+function getConfiguredExpensesByType(typeLabel, selectedMainCategory = '') {
+  const rows = getConfiguredExpenseRowsByType(typeLabel);
+  const mainCat = String(selectedMainCategory || '').trim();
+  let filtered = rows;
+  if (mainCat) {
+    const matching = rows.filter(r => r.mainCategory === mainCat && r.description);
+    if (matching.length > 0) {
+      filtered = matching;
+    }
+  }
+  const seen = new Set();
+  const result = [];
+  filtered.forEach(r => {
+    if (r.description && !seen.has(r.description)) {
+      seen.add(r.description);
+      result.push(r.description);
+    }
+  });
+  return result;
+}
+
 function onInternalExpenseCategoryChange(idx, newType) {
   if (!state.items.internal_expenses || !state.items.internal_expenses[idx]) return;
-  state.items.internal_expenses[idx].col2 = newType;
-  const validOptions = getConfiguredExpensesByType(newType);
-  if (!validOptions.includes(state.items.internal_expenses[idx].col1)) {
-    state.items.internal_expenses[idx].col1 = '';
+  const row = state.items.internal_expenses[idx];
+  row.col2 = newType;
+  const validMainCats = getConfiguredMainCategoriesByType(newType);
+  if (!validMainCats.includes(row.col3)) {
+    row.col3 = '';
+  }
+  const validDescriptions = getConfiguredExpensesByType(newType, row.col3);
+  if (!validDescriptions.includes(row.col1)) {
+    row.col1 = '';
   }
   markUnsaved();
   renderInternalExpensesTable();
 }
 window.onInternalExpenseCategoryChange = onInternalExpenseCategoryChange;
+
+function onInternalExpenseMainCategoryChange(idx, newMainCat) {
+  if (!state.items.internal_expenses || !state.items.internal_expenses[idx]) return;
+  const row = state.items.internal_expenses[idx];
+  row.col3 = newMainCat;
+  const selectedType = row.col2 || 'المصاريف التشغيلية';
+  const validDescriptions = getConfiguredExpensesByType(selectedType, newMainCat);
+  if (newMainCat && !validDescriptions.includes(row.col1)) {
+    row.col1 = '';
+  }
+  markUnsaved();
+  renderInternalExpensesTable();
+}
+window.onInternalExpenseMainCategoryChange = onInternalExpenseMainCategoryChange;
+
+function onInternalExpenseDescriptionChange(idx, newDesc) {
+  if (!state.items.internal_expenses || !state.items.internal_expenses[idx]) return;
+  const row = state.items.internal_expenses[idx];
+  row.col1 = newDesc;
+  const selectedType = row.col2 || 'المصاريف التشغيلية';
+  if (newDesc && !row.col3) {
+    const configuredRows = getConfiguredExpenseRowsByType(selectedType);
+    const match = configuredRows.find(r => r.description === newDesc && r.mainCategory);
+    if (match) {
+      row.col3 = match.mainCategory;
+      markUnsaved();
+      renderInternalExpensesTable();
+      return;
+    }
+  }
+  markUnsaved();
+}
+window.onInternalExpenseDescriptionChange = onInternalExpenseDescriptionChange;
 
 function renderInternalExpensesTable() {
   const tbody = document.getElementById('internalExpensesBody');
@@ -643,7 +724,7 @@ function renderInternalExpensesTable() {
   if (!state.items.internal_expenses || state.items.internal_expenses.length === 0) {
     tbody.innerHTML = `
       <tr class="empty-row-placeholder">
-        <td colspan="4">لا توجد بيانات مسجلة (<span onclick="addRow('internal_expenses')">+ أضف سطر</span>)</td>
+        <td colspan="5">لا توجد بيانات مسجلة (<span onclick="addRow('internal_expenses')">+ أضف سطر</span>)</td>
       </tr>
     `;
     return;
@@ -652,9 +733,20 @@ function renderInternalExpensesTable() {
   state.items.internal_expenses.forEach((row, idx) => {
     const selectedType = row.col2 || 'المصاريف التشغيلية';
     row.col2 = selectedType;
+    const currentMainCat = (row.col3 || '').trim();
     const currentDesc = (row.col1 || '').trim();
-    const configuredList = getConfiguredExpensesByType(selectedType);
 
+    const configuredMainCats = getConfiguredMainCategoriesByType(selectedType);
+    let mainCatOptionsHtml = `<option value="">-- اختر التصنيف الرئيسي --</option>`;
+    if (currentMainCat && !configuredMainCats.includes(currentMainCat)) {
+      mainCatOptionsHtml += `<option value="${escapeHtml(currentMainCat)}" selected>${escapeHtml(currentMainCat)}</option>`;
+    }
+    configuredMainCats.forEach(cat => {
+      const isSelected = currentMainCat === cat ? 'selected' : '';
+      mainCatOptionsHtml += `<option value="${escapeHtml(cat)}" ${isSelected}>${escapeHtml(cat)}</option>`;
+    });
+
+    const configuredList = getConfiguredExpensesByType(selectedType, currentMainCat);
     let optionsHtml = `<option value="">-- اختر بيان المصروف --</option>`;
     if (currentDesc && !configuredList.includes(currentDesc)) {
       optionsHtml += `<option value="${escapeHtml(currentDesc)}" selected>${escapeHtml(currentDesc)}</option>`;
@@ -666,20 +758,26 @@ function renderInternalExpensesTable() {
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="width: 170px;">
+      <td style="width: 155px;">
         <select class="table-input" style="font-weight: 600;"
                 onchange="onInternalExpenseCategoryChange(${idx}, this.value)">
           <option value="المصاريف التشغيلية" ${selectedType === 'المصاريف التشغيلية' ? 'selected' : ''}>المصاريف التشغيلية</option>
           <option value="المصاريف الثابتة" ${selectedType === 'المصاريف الثابتة' ? 'selected' : ''}>المصاريف الثابتة</option>
         </select>
       </td>
+      <td style="width: 170px;">
+        <select class="table-input" style="font-weight: 600;"
+                onchange="onInternalExpenseMainCategoryChange(${idx}, this.value)">
+          ${mainCatOptionsHtml}
+        </select>
+      </td>
       <td>
         <select class="table-input" style="font-weight: 600;"
-                onchange="updateRowCol('internal_expenses', ${idx}, 'col1', this.value)">
+                onchange="onInternalExpenseDescriptionChange(${idx}, this.value)">
           ${optionsHtml}
         </select>
       </td>
-      <td style="width: 130px;">
+      <td style="width: 120px;">
         <input type="text" inputmode="decimal" class="table-input num" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
                oninput="updateRowAmount('internal_expenses', ${idx}, 'amount1', this.value)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
