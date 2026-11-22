@@ -480,7 +480,15 @@ let editingEmployeeId: number | null = null;
 
 function syncEmployeesPageToDailyDropdown(employeesList: any[]) {
   try {
-    const records = (Array.isArray(employeesList) ? employeesList : [])
+    const sorted = (Array.isArray(employeesList) ? [...employeesList] : []).sort((a, b) => {
+      const aId = String(a?.employee_id || '').trim();
+      const bId = String(b?.employee_id || '').trim();
+      if (!aId && !bId) return 0;
+      if (!aId) return 1;
+      if (!bId) return -1;
+      return aId.localeCompare(bId, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    const records = sorted
       .map(e => ({
         name: String(e?.name || '').trim(),
         employee_id: String(e?.employee_id || '').trim()
@@ -499,6 +507,7 @@ function syncEmployeesPageToDailyDropdown(employeesList: any[]) {
     }
   } catch (e) {}
 }
+(window as any).syncEmployeesPageToDailyDropdown = syncEmployeesPageToDailyDropdown;
 
 // جلب أسماء الموظفين من صفحة الموظفون عند بدء التشغيل لربطها بدفتر اليومية
 fetch('/api/modules/employees')

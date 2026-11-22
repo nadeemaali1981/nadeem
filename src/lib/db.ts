@@ -1822,6 +1822,14 @@ async function getEmployeesList() {
       net_remaining_salary: Math.round((Number(e.salary || 0) - totalAdv) * 100) / 100
     });
   }
+  result.sort((a, b) => {
+    const aId = String(a?.employee_id || '').trim();
+    const bId = String(b?.employee_id || '').trim();
+    if (!aId && !bId) return 0;
+    if (!aId) return 1;
+    if (!bId) return -1;
+    return aId.localeCompare(bId, undefined, { numeric: true, sensitivity: 'base' });
+  });
   return result;
 }
 

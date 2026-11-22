@@ -806,7 +806,7 @@ function getConfiguredEmployeeNames() {
           list.push(val);
         }
       });
-      return list.sort((a, b) => a.localeCompare(b, 'ar'));
+      return list;
     }
   } catch (e) {}
   return [];
@@ -1181,14 +1181,29 @@ function renderEmployeeSalesTable() {
   }
 
   const records = getConfiguredEmployeeRecords();
-  const namesList = Array.from(new Set([
-    ...getConfiguredEmployeeNames(),
-    ...records.map(r => r.name).filter(Boolean)
-  ])).sort((a, b) => a.localeCompare(b, 'ar'));
+  const namesList: string[] = [];
+  const seenNames = new Set<string>();
+  records.forEach(r => {
+    if (r.name && !seenNames.has(r.name)) {
+      seenNames.add(r.name);
+      namesList.push(r.name);
+    }
+  });
+  getConfiguredEmployeeNames().forEach(n => {
+    if (n && !seenNames.has(n)) {
+      seenNames.add(n);
+      namesList.push(n);
+    }
+  });
 
-  const idsList = Array.from(new Set(
-    records.map(r => r.employee_id).filter(Boolean)
-  )).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+  const idsList: string[] = [];
+  const seenIds = new Set<string>();
+  records.forEach(r => {
+    if (r.employee_id && !seenIds.has(r.employee_id)) {
+      seenIds.add(r.employee_id);
+      idsList.push(r.employee_id);
+    }
+  });
 
   state.items.employee_sales.forEach((row, idx) => {
     const currentName = String(row.col1 || '').trim();
