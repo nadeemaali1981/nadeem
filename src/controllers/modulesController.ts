@@ -1338,24 +1338,89 @@ window.renderExpenseSettingsTables = function() {
     }).join('');
   };
 
+  const renderEmployeesSettings = () => {
+    const tbody = document.getElementById('settingsEmployeesBody');
+    if (!tbody) return;
+    const rows = expenseSettingsState.employees || [];
+    if (rows.length === 0) {
+      tbody.innerHTML = `
+        <tr class="empty-row-placeholder">
+          <td colspan="4">لا توجد بيانات موظفين مسجلة (<span onclick="addEmployeeSettingRow()">+ أضف سطر</span>)</td>
+        </tr>
+      `;
+      return;
+    }
+    tbody.innerHTML = rows.map((emp, idx) => {
+      const safeName = String(emp?.name || '').replace(/"/g, '&quot;');
+      const safeId = String(emp?.employeeId || '').replace(/"/g, '&quot;');
+      const safeSalary = String(emp?.basicSalary || '').replace(/"/g, '&quot;');
+      return `
+        <tr>
+          <td>
+            <input type="text" class="table-input" style="text-align: center; font-weight: 700;" value="${safeName}" placeholder="اسم الموظف"
+                   oninput="updateEmployeeSettingRow(${idx}, 'name', this.value)"
+                   onblur="onExpenseSettingInputBlur()">
+          </td>
+          <td style="width: 240px;">
+            <input type="text" class="table-input" style="text-align: center; font-weight: 600;" value="${safeId}" placeholder="الرقم الوظيفي"
+                   oninput="updateEmployeeSettingRow(${idx}, 'employeeId', this.value)"
+                   onblur="onExpenseSettingInputBlur()">
+          </td>
+          <td style="width: 220px;">
+            <input type="text" inputmode="decimal" class="table-input num" style="text-align: center; font-weight: 700;" value="${safeSalary}" placeholder="الراتب الأساسي"
+                   oninput="updateEmployeeSettingRow(${idx}, 'basicSalary', this.value)"
+                   onblur="onExpenseSettingInputBlur()">
+          </td>
+          <td style="width: 38px; text-align: center;">
+            <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteEmployeeSettingRow(${idx})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  };
+
   renderSection('operational', 'settingsOperationalExpensesBody');
   renderSection('fixed', 'settingsFixedExpensesBody');
   renderPaymentChannels('settingsPaymentChannelsBody');
   renderPaymentChannels('settingsGeneralPaymentChannelsBody');
+  renderEmployeesSettings();
 };
 
 window.onExpenseSettingInputBlur = function() {
   setTimeout(() => {
     const active = document.activeElement;
-    if (active && active.tagName === 'INPUT' && active.closest('#settingsOperationalExpensesBody, #settingsFixedExpensesBody, #settingsPaymentChannelsBody, #settingsGeneralPaymentChannelsBody')) {
+    if (active && active.tagName === 'INPUT' && active.closest('#settingsOperationalExpensesBody, #settingsFixedExpensesBody, #settingsPaymentChannelsBody, #settingsGeneralPaymentChannelsBody, #settingsEmployeesBody')) {
       return;
     }
     expenseSettingsState.operational = sortExpenseRowsArabic(expenseSettingsState.operational);
     expenseSettingsState.fixed = sortExpenseRowsArabic(expenseSettingsState.fixed);
     expenseSettingsState.paymentChannels = sortPaymentChannelsArabic(expenseSettingsState.paymentChannels);
+    expenseSettingsState.employees = sortEmployeesSettingsArabic(expenseSettingsState.employees);
     saveExpenseSettingsData(expenseSettingsState);
     window.renderExpenseSettingsTables();
   }, 120);
+};
+
+window.addEmployeeSettingRow = function() {
+  if (!Array.isArray(expenseSettingsState.employees)) expenseSettingsState.employees = [];
+  expenseSettingsState.employees.push({ name: '', employeeId: '', basicSalary: '' });
+  saveExpenseSettingsData(expenseSettingsState);
+  window.renderExpenseSettingsTables();
+};
+
+window.updateEmployeeSettingRow = function(idx, field, val) {
+  if (!Array.isArray(expenseSettingsState.employees) || !expenseSettingsState.employees[idx]) return;
+  expenseSettingsState.employees[idx][field] = val;
+  saveExpenseSettingsData(expenseSettingsState);
+};
+
+window.deleteEmployeeSettingRow = function(idx) {
+  if (!Array.isArray(expenseSettingsState.employees)) return;
+  expenseSettingsState.employees.splice(idx, 1);
+  saveExpenseSettingsData(expenseSettingsState);
+  window.renderExpenseSettingsTables();
 };
 
 window.addExpenseSettingRow = function(type) {
