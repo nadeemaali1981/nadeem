@@ -683,9 +683,13 @@ function onCategorizedRowMainTypeChange(categoryKey, idx, newType) {
   if (!state.items[categoryKey] || !state.items[categoryKey][idx]) return;
   const row = state.items[categoryKey][idx];
   row.col2 = newType;
-  const validMainCats = getConfiguredMainCategoriesByType(newType);
-  if (!validMainCats.includes(row.col3)) {
-    row.col3 = '';
+  if (categoryKey === 'employee_advances') {
+    row.col3 = 'الرواتب';
+  } else {
+    const validMainCats = getConfiguredMainCategoriesByType(newType);
+    if (!validMainCats.includes(row.col3)) {
+      row.col3 = '';
+    }
   }
   markUnsaved();
   if (categoryKey === 'employee_advances') {
@@ -779,6 +783,28 @@ function onInternalExpensePaymentChannelChange(idx, newChannel) {
 }
 window.onInternalExpensePaymentChannelChange = onInternalExpensePaymentChannelChange;
 
+function getConfiguredEmployeeNames() {
+  try {
+    const raw = localStorage.getItem('erp_expense_settings_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed.employees)) {
+        const seen = new Set();
+        const list = [];
+        parsed.employees.forEach(emp => {
+          const val = String(emp?.name || '').trim();
+          if (val && !seen.has(val)) {
+            seen.add(val);
+            list.push(val);
+          }
+        });
+        return list.sort((a, b) => a.localeCompare(b, 'ar'));
+      }
+    }
+  } catch (e) {}
+  return [];
+}
+
 function renderCategorizedExpenseTable(categoryKey, tbodyId) {
   const tbody = document.getElementById(tbodyId);
   if (!tbody) return;
@@ -794,10 +820,14 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
   }
 
   const mainTypeList = ['المصاريف التشغيلية', 'المصاريف الثابتة'];
+  const isEmployeeAdvances = categoryKey === 'employee_advances';
 
   state.items[categoryKey].forEach((row, idx) => {
     const selectedType = row.col2 || 'المصاريف التشغيلية';
     row.col2 = selectedType;
+    if (isEmployeeAdvances) {
+      row.col3 = 'الرواتب';
+    }
     const currentMainCat = (row.col3 || '').trim();
     const currentPaymentSource = (row.col4 || '').trim();
     const currentDesc = (row.col1 || '').trim();
@@ -807,15 +837,20 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
       return `<option value="${escapeHtml(t)}" ${isSelected}>${escapeHtml(t)}</option>`;
     }).join('');
 
-    const configuredMainCats = getConfiguredMainCategoriesByType(selectedType);
-    let mainCatOptionsHtml = `<option value="">-- اختر التصنيف الرئيسي --</option>`;
-    if (currentMainCat && !configuredMainCats.includes(currentMainCat)) {
-      mainCatOptionsHtml += `<option value="${escapeHtml(currentMainCat)}" selected>${escapeHtml(currentMainCat)}</option>`;
+    let mainCatOptionsHtml = '';
+    if (isEmployeeAdvances) {
+      mainCatOptionsHtml = `<option value="الرواتب" selected>الرواتب</option>`;
+    } else {
+      const configuredMainCats = getConfiguredMainCategoriesByType(selectedType);
+      mainCatOptionsHtml = `<option value="">-- اختر التصنيف الرئيسي --</option>`;
+      if (currentMainCat && !configuredMainCats.includes(currentMainCat)) {
+        mainCatOptionsHtml += `<option value="${escapeHtml(currentMainCat)}" selected>${escapeHtml(currentMainCat)}</option>`;
+      }
+      configuredMainCats.forEach(cat => {
+        const isSelected = currentMainCat === cat ? 'selected' : '';
+        mainCatOptionsHtml += `<option value="${escapeHtml(cat)}" ${isSelected}>${escapeHtml(cat)}</option>`;
+      });
     }
-    configuredMainCats.forEach(cat => {
-      const isSelected = currentMainCat === cat ? 'selected' : '';
-      mainCatOptionsHtml += `<option value="${escapeHtml(cat)}" ${isSelected}>${escapeHtml(cat)}</option>`;
-    });
 
     const configuredChannels = getConfiguredPaymentChannels();
     let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع --</option>`;
@@ -827,15 +862,29 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
       paymentOptionsHtml += `<option value="${escapeHtml(ch)}" ${isSelected}>${escapeHtml(ch)}</option>`;
     });
 
-    const configuredList = getConfiguredExpensesByType(selectedType, currentMainCat);
-    let optionsHtml = `<option value="">-- اختر بيان المصروف --</option>`;
-    if (currentDesc && !configuredList.includes(currentDesc)) {
-      optionsHtml += `<option value="${escapeHtml(currentDesc)}" selected>${escapeHtml(currentDesc)}</option>`;
+    let descriptionCellHtml = '';
+    if (isEmployeeAdvances) {
+      const employeeNames = getConfiguredEmployeeNames();
+      let empOptionsHtml = `<option value="">-- اختر اسم الموظف --</option>`;
+      if (currentDesc && !employeeNames.includes(currentDesc)) {
+        empOptionsHtml += `<option value="${escapeHtml(currentDesc)}" selected>${escapeHtml(currentDesc)}</option>`;
+      }
+      employeeNames.forEach(empName => {
+        const isSelected = currentDesc === empName ? 'selected' : '';
+        empOptionsHtml += `<option value="${escapeHtml(empName)}" ${isSelected}>${escapeHtml(empName)}</option>`;
+      });
+      descriptionCellHtml = `
+        <select class="table-input" style="font-weight: 600; text-align: center;"
+                onchange="updateRowCol('${categoryKey}', ${idx}, 'col1', this.value)">
+          ${empOptionsHtml}
+        </select>
+      `;
+    } else {
+      descriptionCellHtml = `
+        <input type="text" class="table-input" style="font-weight: 600; text-align: center;" value="${escapeHtml(currentDesc)}" placeholder="بيان المصروف"
+               oninput="updateRowCol('${categoryKey}', ${idx}, 'col1', this.value)">
+      `;
     }
-    configuredList.forEach(item => {
-      const isSelected = currentDesc === item ? 'selected' : '';
-      optionsHtml += `<option value="${escapeHtml(item)}" ${isSelected}>${escapeHtml(item)}</option>`;
-    });
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -858,8 +907,7 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
         </select>
       </td>
       <td style="width: 31%; min-width: 220px;">
-        <input type="text" class="table-input" style="font-weight: 600; text-align: center;" value="${escapeHtml(currentDesc)}" placeholder="بيان المصروف"
-               oninput="updateRowCol('${categoryKey}', ${idx}, 'col1', this.value)">
+        ${descriptionCellHtml}
       </td>
       <td style="width: 12%; min-width: 120px;">
         <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
