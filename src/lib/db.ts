@@ -1605,12 +1605,23 @@ async function getExpensesSummary() {
       s.day_name,
       i.category,
       i.col1 as description,
+      i.col2 as main_category,
+      i.col3 as sub_category,
+      i.col4 as payment_channel,
       i.amount1 as amount,
       i.col2 as note
     FROM daily_sheet_items i
     JOIN daily_sheets s ON s.id = i.sheet_id
-    WHERE i.category IN ('internal_expense', 'internal_expenses', 'operational_expense', 'fixed_expense', 'fixed_expenses')
-    ORDER BY s.sheet_date DESC, i.id DESC
+    WHERE i.category IN ('internal_expense', 'internal_expenses', 'employee_advance', 'employee_advances', 'operational_expense', 'fixed_expense', 'fixed_expenses')
+      AND COALESCE(i.amount1, 0) > 0
+    ORDER BY
+      s.sheet_date DESC,
+      CASE
+        WHEN i.category IN ('internal_expense', 'internal_expenses', 'operational_expense', 'fixed_expense', 'fixed_expenses') THEN 1
+        WHEN i.category IN ('employee_advance', 'employee_advances') THEN 2
+        ELSE 3
+      END ASC,
+      i.id ASC
   `);
 
   let totalOperational = 0;
@@ -1620,7 +1631,15 @@ async function getExpensesSummary() {
 
   for (const r of rows) {
     const amt = Number(r.amount || 0);
-    if (r.category === 'fixed_expense' || r.category === 'fixed_expenses' || r.note === 'المصاريف الثابتة') {
+    const isEmployeeAdvance = r.category === 'employee_advance' || r.category === 'employee_advances';
+    const isFixed = r.category === 'fixed_expense' || r.category === 'fixed_expenses' || r.main_category === 'المصاريف الثابتة';
+    r.source_table = isEmployeeAdvance ? 'سحوبات موظفين' : 'مصاريف داخلية';
+    r.main_category = isFixed ? 'المصاريف الثابتة' : (r.main_category || 'المصاريف التشغيلية');
+    r.sub_category = r.sub_category || '';
+    r.payment_channel = r.payment_channel || '';
+    r.description = r.description || '';
+
+    if (isFixed) {
       totalFixed += amt;
       r.expense_type = 'fixed';
       fixedItems.push(r);

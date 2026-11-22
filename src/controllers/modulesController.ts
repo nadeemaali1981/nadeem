@@ -288,20 +288,53 @@ window.resetSalesFilters = function() {
   applySalesFilters();
 };
 
-// 2. Expenses Module (سجل المصاريف: 1- المصاريف التشغيلية | 2- المصاريف الثابتة)
+// 2. Expenses Module (سجل المصاريف: ترحيل تلقائي من دفتر اليومية لجدولي مصاريف داخلية وسحوبات موظفين فقط)
 async function loadExpensesTab() {
   try {
-    const dateEl = document.getElementById('quickExpDate') as HTMLInputElement;
-    if (dateEl && !dateEl.value) {
-      dateEl.value = new Date().toISOString().split('T')[0];
-    }
-
     const res = await fetch('/api/modules/expenses-summary');
     const data = await res.json();
 
-    const opTotal = Number(data?.totals?.operational_expenses ?? data?.categories?.operational_expenses ?? 0);
-    const fixTotal = Number(data?.totals?.fixed_expenses ?? data?.categories?.fixed_expenses ?? 0);
-    const grandTotal = Number(data?.totals?.grand_total ?? data?.grand_total ?? (opTotal + fixTotal));
+    let allItems: any[] = Array.isArray(data.items) ? [...data.items] : [];
+
+    // دمج أي مصاريف مدخلة حالياً في دفتر اليومية (جدول مصاريف داخلية + جدول سحوبات موظفين) لم تُحفظ بعد
+    if (typeof (window as any).getDailyJournalLiveExpenses === 'function') {
+      const live = (window as any).getDailyJournalLiveExpenses();
+      if (live && live.sheet_date && Array.isArray(live.items)) {
+        // استبدال سجلات اليوم المفتوح حالياً بالنسخة الحية من شاشة دفتر اليومية
+        allItems = allItems.filter((it: any) => it.sheet_date !== live.sheet_date);
+        allItems = [...live.items, ...allItems];
+      }
+    }
+
+    // ترتيب بحسب التاريخ ثم ترتيب جداول دفتر اليومية (1- مصاريف داخلية ثم 2- سحوبات موظفين)
+    allItems.sort((a: any, b: any) => {
+      const dCmp = String(b.sheet_date || '').localeCompare(String(a.sheet_date || ''));
+      if (dCmp !== 0) return dCmp;
+      const aOrder = (a.category === 'employee_advance' || a.category === 'employee_advances' || a.source_table === 'سحوبات موظفين') ? 2 : 1;
+      const bOrder = (b.category === 'employee_advance' || b.category === 'employee_advances' || b.source_table === 'سحوبات موظفين') ? 2 : 1;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      return (Number(a.id) || 0) - (Number(b.id) || 0);
+    });
+
+    const opItems: any[] = [];
+    const fixItems: any[] = [];
+    let opTotal = 0;
+    let fixTotal = 0;
+
+    allItems.forEach((it: any) => {
+      const amt = Number(it.amount || 0);
+      if (!(amt > 0)) return;
+      const isFixed = it.expense_type === 'fixed' || it.category === 'fixed_expense' || it.category === 'fixed_expenses' || it.main_category === 'المصاريف الثابتة';
+      if (isFixed) {
+        fixTotal += amt;
+        fixItems.push(it);
+      } else {
+        opTotal += amt;
+        opItems.push(it);
+      }
+    });
+
+    const grandTotal = opTotal + fixTotal;
 
     const setElText = (id: string, val: string) => {
       const el = document.getElementById(id);
@@ -314,35 +347,45 @@ async function loadExpensesTab() {
     setElText('expOpSubTotal', formatCurrency(opTotal));
     setElText('expFixedSubTotal', formatCurrency(fixTotal));
 
-    const opItems = Array.isArray(data.operational_items)
-      ? data.operational_items
-      : (data.items || []).filter((i: any) => i.category !== 'fixed_expense' && i.category !== 'fixed_expenses');
-    const fixItems = Array.isArray(data.fixed_items)
-      ? data.fixed_items
-      : (data.items || []).filter((i: any) => i.category === 'fixed_expense' || i.category === 'fixed_expenses');
-
     const renderExpenseSection = (tbodyId: string, list: any[], emptyMsg: string) => {
       const tbody = document.getElementById(tbodyId);
       if (!tbody) return;
       if (!list || list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:1.5rem; color:#64748b;">${emptyMsg}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:1.5rem; color:#64748b;">${emptyMsg}</td></tr>`;
         return;
       }
-      tbody.innerHTML = list.map((it: any) => `
-        <tr>
-          <td style="font-weight:600; white-space:nowrap;">${it.sheet_date} <span style="color:#64748b; font-size:0.78rem;">(${it.day_name || ''})</span></td>
-          <td style="font-weight:600;">${it.description || '-'}</td>
-          <td style="text-align:center; font-weight:700; color:#b91c1c;">${formatCurrency(it.amount)}</td>
-          <td style="text-align:center; white-space:nowrap;">
-            <button type="button" class="btn btn-secondary btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="selectHistoryDay('${it.sheet_date}'); switchTab('daily');" title="فتح دفتر اليومية">اليومية</button>
-            <button type="button" class="btn btn-danger btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="deleteExpenseItem(${it.id})" title="حذف المصروف">✕</button>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = list.map((it: any) => {
+        const isEmp = it.category === 'employee_advance' || it.category === 'employee_advances' || it.source_table === 'سحوبات موظفين';
+        const sourceBadge = isEmp
+          ? `<span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:6px; font-size:0.76rem; font-weight:700;">سحوبات موظفين</span>`
+          : `<span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:6px; font-size:0.76rem; font-weight:700;">مصاريف داخلية</span>`;
+        const mainCat = it.main_category || (it.expense_type === 'fixed' ? 'المصاريف الثابتة' : 'المصاريف التشغيلية');
+        const subCat = it.sub_category || '-';
+        const payChannel = it.payment_channel || '-';
+        const desc = it.description || '-';
+        const delBtn = it.id
+          ? `<button type="button" class="btn btn-danger btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="deleteExpenseItem(${it.id})" title="حذف المصروف">✕</button>`
+          : '';
+        return `
+          <tr>
+            <td style="font-weight:600; white-space:nowrap; text-align:center;">${it.sheet_date} <span style="color:#64748b; font-size:0.78rem;">(${it.day_name || ''})</span></td>
+            <td style="text-align:center; white-space:nowrap;">${sourceBadge}</td>
+            <td style="text-align:center; font-weight:600;">${mainCat}</td>
+            <td style="text-align:center; font-weight:600;">${subCat}</td>
+            <td style="text-align:center; font-weight:600;">${payChannel}</td>
+            <td style="text-align:center; font-weight:700;">${desc}</td>
+            <td style="text-align:center; font-weight:800; color:#b91c1c;">${formatCurrency(it.amount)}</td>
+            <td style="text-align:center; white-space:nowrap;">
+              <button type="button" class="btn btn-secondary btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="selectHistoryDay('${it.sheet_date}'); switchTab('daily');" title="فتح دفتر اليومية">اليومية</button>
+              ${delBtn}
+            </td>
+          </tr>
+        `;
+      }).join('');
     };
 
-    renderExpenseSection('expensesOperationalBody', opItems, 'لا توجد مصاريف تشغيلية مسجلة');
-    renderExpenseSection('expensesFixedBody', fixItems, 'لا توجد مصاريف ثابتة مسجلة');
+    renderExpenseSection('expensesOperationalBody', opItems, 'لا توجد مصاريف تشغيلية مرحلة من دفتر اليومية');
+    renderExpenseSection('expensesFixedBody', fixItems, 'لا توجد مصاريف ثابتة مرحلة من دفتر اليومية');
   } catch (err) {
     console.error('Error loading expenses:', err);
   }

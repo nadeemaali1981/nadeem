@@ -893,6 +893,40 @@ function renderEmployeeAdvancesTable() {
 }
 window.renderEmployeeAdvancesTable = renderEmployeeAdvancesTable;
 
+window.getDailyJournalLiveExpenses = function() {
+  const result = [];
+  const pushCategory = (catKey, singularCat, sourceLabel) => {
+    const list = (state.items && state.items[catKey]) || [];
+    list.forEach((r, idx) => {
+      const amt = parseMoney(r.amount1);
+      if (amt > 0 || (r.col1 && String(r.col1).trim()) || (r.col3 && String(r.col3).trim())) {
+        const mainCat = r.col2 || 'المصاريف التشغيلية';
+        result.push({
+          id: r.id || 0,
+          sheet_date: state.date,
+          day_name: state.dayName,
+          category: singularCat,
+          source_table: sourceLabel,
+          main_category: mainCat,
+          sub_category: r.col3 || '',
+          payment_channel: r.col4 || '',
+          description: r.col1 || '',
+          amount: amt,
+          expense_type: mainCat === 'المصاريف الثابتة' ? 'fixed' : 'operational',
+          _order: idx
+        });
+      }
+    });
+  };
+  pushCategory('internal_expenses', 'internal_expense', 'مصاريف داخلية');
+  pushCategory('employee_advances', 'employee_advance', 'سحوبات موظفين');
+  return {
+    sheet_date: state.date,
+    day_name: state.dayName,
+    items: result
+  };
+};
+
 // Render Standard 2-Column Table (Description & Amount)
 function renderSimpleTable(categoryKey, tbodyId, placeholder) {
   const tbody = document.getElementById(tbodyId);
