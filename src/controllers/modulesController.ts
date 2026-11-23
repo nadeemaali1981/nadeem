@@ -338,45 +338,7 @@ async function loadExpensesTab() {
 // تعبئة القوائم المنسدلة للفلاتر بناءً على البيانات المتوفرة
 function populateExpenseFilterDropdowns(items: any[]) {
   const catSelect = document.getElementById('expFilterCategory') as HTMLSelectElement | null;
-  const paySelect = document.getElementById('expFilterPaymentChannel') as HTMLSelectElement | null;
-
-  if (catSelect) {
-    const currentCat = catSelect.value || 'all';
-    const categories = new Set<string>();
-    items.forEach(it => {
-      const mainCat = String(it.main_category || '').trim();
-      const subCat = String(it.sub_category || '').trim();
-      if (mainCat && mainCat !== '-' && mainCat !== 'المصاريف التشغيلية' && mainCat !== 'المصاريف الثابتة') {
-        categories.add(mainCat);
-      }
-      if (subCat && subCat !== '-') {
-        categories.add(subCat);
-      }
-    });
-
-    let catHtml = '<option value="all">كل التصنيفات</option>';
-    Array.from(categories).sort().forEach(cat => {
-      const isSel = cat === currentCat ? 'selected' : '';
-      catHtml += `<option value="${escapeHtml(cat)}" ${isSel}>${escapeHtml(cat)}</option>`;
-    });
-    catSelect.innerHTML = catHtml;
-  }
-
-  if (paySelect) {
-    const currentPay = paySelect.value || 'all';
-    const channels = new Set<string>();
-    items.forEach(it => {
-      const ch = String(it.payment_channel || '').trim();
-      if (ch && ch !== '-') channels.add(ch);
-    });
-
-    let payHtml = '<option value="all">كل جهات الدفع</option>';
-    Array.from(channels).sort().forEach(ch => {
-      const isSel = ch === currentPay ? 'selected' : '';
-      payHtml += `<option value="${escapeHtml(ch)}" ${isSel}>${escapeHtml(ch)}</option>`;
-    });
-    paySelect.innerHTML = payHtml;
-  }
+  
 }
 
 // تطبيق فلاتر المصاريف وتحديث الجداول والـ KPIs
@@ -388,10 +350,9 @@ function applyExpensesFilters() {
   const expType = (document.getElementById('expFilterType') as HTMLSelectElement)?.value || 'all';
   const source = (document.getElementById('expFilterSource') as HTMLSelectElement)?.value || 'all';
   const catFilter = (document.getElementById('expFilterCategory') as HTMLSelectElement)?.value || 'all';
-  const payChannel = (document.getElementById('expFilterPaymentChannel') as HTMLSelectElement)?.value || 'all';
   const searchQuery = ((document.getElementById('expFilterSearch') as HTMLInputElement)?.value || '').trim().toLowerCase();
 
-  const isAnyFilterActive = !!(fromDate || toDate || expType !== 'all' || source !== 'all' || catFilter !== 'all' || payChannel !== 'all' || searchQuery);
+  const isAnyFilterActive = !!(fromDate || toDate || expType !== 'all' || source !== 'all' || catFilter !== 'all' || searchQuery);
 
   const filtered = expensesDataCache.filter(it => {
     const rDate = String(it.sheet_date || '').trim();
@@ -411,11 +372,6 @@ function applyExpensesFilters() {
       const mainCat = String(it.main_category || '').trim();
       const subCat = String(it.sub_category || '').trim();
       if (mainCat !== catFilter && subCat !== catFilter) return false;
-    }
-
-    if (payChannel !== 'all') {
-      const ch = String(it.payment_channel || '').trim();
-      if (ch !== payChannel) return false;
     }
 
     if (searchQuery) {
@@ -476,7 +432,7 @@ function applyExpensesFilters() {
     const tbody = document.getElementById(tbodyId);
     if (!tbody) return;
     if (!list || list.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:1.5rem; color:#64748b;">${emptyMsg}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:#64748b;">${emptyMsg}</td></tr>`;
       return;
     }
     tbody.innerHTML = list.map((it: any) => {
@@ -497,7 +453,6 @@ function applyExpensesFilters() {
           <td style="text-align:center; white-space:nowrap;">${sourceBadge}</td>
           <td style="text-align:center; font-weight:600;">${mainCat}</td>
           <td style="text-align:center; font-weight:600;">${subCat}</td>
-          <td style="text-align:center; font-weight:600;">${payChannelVal}</td>
           <td style="text-align:center; font-weight:700;">${desc}</td>
           <td style="text-align:center; font-weight:800; color:#b91c1c;">${formatCurrency(it.amount)}</td>
           <td style="text-align:center; white-space:nowrap;">
@@ -560,7 +515,6 @@ function resetExpensesFilters() {
   const typeEl = document.getElementById('expFilterType') as HTMLSelectElement | null;
   const srcEl = document.getElementById('expFilterSource') as HTMLSelectElement | null;
   const catEl = document.getElementById('expFilterCategory') as HTMLSelectElement | null;
-  const payEl = document.getElementById('expFilterPaymentChannel') as HTMLSelectElement | null;
   const searchEl = document.getElementById('expFilterSearch') as HTMLInputElement | null;
 
   if (fromEl) fromEl.value = '';
@@ -568,7 +522,6 @@ function resetExpensesFilters() {
   if (typeEl) typeEl.value = 'all';
   if (srcEl) srcEl.value = 'all';
   if (catEl) catEl.value = 'all';
-  if (payEl) payEl.value = 'all';
   if (searchEl) searchEl.value = '';
 
   applyExpensesFilters();
@@ -639,29 +592,6 @@ async function loadSuppliersTab() {
 
 function populateSuppliersFilterDropdowns(list: any[]) {
   const suppSelect = document.getElementById('suppFilterSupplier') as HTMLSelectElement;
-  const channelSelect = document.getElementById('suppFilterPaymentChannel') as HTMLSelectElement;
-
-  if (suppSelect) {
-    const currentVal = suppSelect.value || 'all';
-    const names = Array.from(new Set(list.map((s: any) => String(s?.name || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ar'));
-    let html = '<option value="all">كل الموردين والشركات</option>';
-    names.forEach(name => {
-      const selected = name === currentVal ? 'selected' : '';
-      html += `<option value="${escapeHtml(name)}" ${selected}>${escapeHtml(name)}</option>`;
-    });
-    suppSelect.innerHTML = html;
-  }
-
-  if (channelSelect) {
-    const currentVal = channelSelect.value || 'all';
-    const channels = Array.from(new Set(list.map((s: any) => String(s?.payment_channel || '').trim()).filter(c => c && c !== '-'))).sort((a, b) => a.localeCompare(b, 'ar'));
-    let html = '<option value="all">كل جهات الدفع</option>';
-    channels.forEach(ch => {
-      const selected = ch === currentVal ? 'selected' : '';
-      html += `<option value="${escapeHtml(ch)}" ${selected}>${escapeHtml(ch)}</option>`;
-    });
-    channelSelect.innerHTML = html;
-  }
 }
 
 function setSuppliersQuickDate(period: string, btnEl?: HTMLElement) {
@@ -711,13 +641,11 @@ function resetSuppliersFilters() {
   const fromInput = document.getElementById('suppFilterFrom') as HTMLInputElement;
   const toInput = document.getElementById('suppFilterTo') as HTMLInputElement;
   const suppSelect = document.getElementById('suppFilterSupplier') as HTMLSelectElement;
-  const channelSelect = document.getElementById('suppFilterPaymentChannel') as HTMLSelectElement;
   const searchInput = document.getElementById('suppFilterSearch') as HTMLInputElement;
 
   if (fromInput) fromInput.value = '';
   if (toInput) toInput.value = '';
   if (suppSelect) suppSelect.value = 'all';
-  if (channelSelect) channelSelect.value = 'all';
   if (searchInput) searchInput.value = '';
 
   document.querySelectorAll('.btn-quick-date[data-suppperiod]').forEach(b => {
@@ -733,7 +661,6 @@ function applySuppliersFilters() {
   const fromVal = (document.getElementById('suppFilterFrom') as HTMLInputElement)?.value || '';
   const toVal = (document.getElementById('suppFilterTo') as HTMLInputElement)?.value || '';
   const suppVal = (document.getElementById('suppFilterSupplier') as HTMLSelectElement)?.value || 'all';
-  const channelVal = (document.getElementById('suppFilterPaymentChannel') as HTMLSelectElement)?.value || 'all';
   const searchVal = ((document.getElementById('suppFilterSearch') as HTMLInputElement)?.value || '').trim().toLowerCase();
 
   const filtered = rawSuppliersData.filter(s => {
@@ -746,11 +673,6 @@ function applySuppliersFilters() {
     // Supplier dropdown
     if (suppVal !== 'all') {
       if (String(s.name || '').trim() !== suppVal) return false;
-    }
-
-    // Payment channel
-    if (channelVal !== 'all') {
-      if (String(s.payment_channel || '').trim() !== channelVal) return false;
     }
 
     // Date range
@@ -819,7 +741,7 @@ function renderSuppliersFilteredView(filtered: any[]) {
   if (!tbody) return;
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#64748b; font-weight:700;">لا توجد سجلات موردين مطابقة للفلاتر الحالية. (<span style="color:#2563eb; cursor:pointer;" onclick="resetSuppliersFilters()">إلغاء الفلاتر</span>)</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem; color:#64748b; font-weight:700;">لا توجد سجلات موردين مطابقة للفلاتر الحالية. (<span style="color:#2563eb; cursor:pointer;" onclick="resetSuppliersFilters()">إلغاء الفلاتر</span>)</td></tr>';
     return;
   }
 
@@ -848,7 +770,6 @@ function renderSuppliersFilteredView(filtered: any[]) {
       <td style="text-align:center; font-weight:800; color:#1e293b; font-size:0.92rem;">${s.name}</td>
       <td style="text-align:center;">${openingInputHtml}</td>
       <td style="text-align:center; font-weight:600; white-space:nowrap;">${dateDisplay}</td>
-      <td style="text-align:center;">${channelDisplay}</td>
       <td style="text-align:center; font-weight:800; color:#2563eb; font-size:0.95rem;">${formatCurrency(s.total_paid)}</td>
       <td style="text-align:center;">
         <button class="btn-del-row" title="حذف" onclick="deleteModuleItem('/api/modules/suppliers/${deleteId}', loadSuppliersTab)">
@@ -1367,7 +1288,7 @@ async function loadChecksTab() {
     const tbody = document.getElementById('checksTableBody');
     if (!tbody) return;
     if (checks.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:1.5rem;">لا توجد شيكات مسجلة. انقر فوق (+ إضافة شيك جديد)</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem;">لا توجد شيكات مسجلة. انقر فوق (+ إضافة شيك جديد)</td></tr>';
       return;
     }
 
@@ -1495,7 +1416,7 @@ async function loadInvestmentsTab() {
     const tbody = document.getElementById('investmentsTableBody');
     if (!tbody) return;
     if (investments.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:1.5rem;">لا توجد استثمارات مسجلة. انقر فوق (+ إضافة استثمار جديد)</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem;">لا توجد استثمارات مسجلة. انقر فوق (+ إضافة استثمار جديد)</td></tr>';
       return;
     }
 
@@ -2264,8 +2185,6 @@ window.renderExpenseSettingsTables = function() {
 
   renderSection('operational', 'settingsOperationalExpensesBody');
   renderSection('fixed', 'settingsFixedExpensesBody');
-  renderPaymentChannels('settingsPaymentChannelsBody');
-  renderPaymentChannels('settingsGeneralPaymentChannelsBody');
   renderEmployeesSettings();
   renderSuppliersSettings('settingsSuppliersBody');
 };

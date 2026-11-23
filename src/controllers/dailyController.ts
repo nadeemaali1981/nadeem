@@ -888,15 +888,6 @@ function checkPaymentChannelBeforeAmount(categoryKey: string, idx: number, input
 (window as any).checkPaymentChannelBeforeAmount = checkPaymentChannelBeforeAmount;
 
 function handleRowAmountInput(categoryKey: string, idx: number, amountKey: string, inputEl: HTMLInputElement) {
-  if (['internal_expenses', 'employee_advances', 'supplier_payments', 'cash_purchases'].includes(categoryKey)) {
-    const row = state.items[categoryKey] && state.items[categoryKey][idx];
-    const paymentChannel = row ? String(row.col4 || '').trim() : '';
-    if (!paymentChannel) {
-      inputEl.value = '';
-      checkPaymentChannelBeforeAmount(categoryKey, idx, inputEl);
-      return;
-    }
-  }
   (window as any).updateRowAmount(categoryKey, idx, amountKey, inputEl.value);
 }
 (window as any).handleRowAmountInput = handleRowAmountInput;
@@ -2021,7 +2012,7 @@ function recalculateAll() {
   // يخصم من المصاريف الداخلية وسحوبات الموظفين فقط ما كانت جهة الدفع فيه "صندوق"
   const sumCashInternalExpenses = (state.items.internal_expenses || []).reduce((acc, r) => {
     const paySource = String(r.col4 || '').trim();
-    if ((paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد'))) {
+    if (!paySource || paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد')) {
       return acc + (parseFloat(r.amount1) || 0);
     }
     return acc;
