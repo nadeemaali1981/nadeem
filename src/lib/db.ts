@@ -2051,6 +2051,21 @@ async function getProfitLossStatement() {
   const sales = await getSalesSummary();
   const totalRevenues = Number(sales.totals.grand_total || 0);
 
+  const salesCash = Number(sales.totals.cash || 0);
+  const salesDelivery = Number(sales.totals.delivery || 0);
+  const salesVisa = Number(sales.totals.visa || 0);
+  const salesIttihad = Number(sales.totals.ittihad || 0);
+  const salesIttihadQr = Number(sales.totals.ittihad_qr || 0);
+  const salesCliq = Number(sales.totals.cliq || 0);
+  const salesChannels = salesCash + salesDelivery + salesVisa + salesIttihad + salesIttihadQr + salesCliq;
+  const perfumeSales = Number(sales.totals.perfume_credit || 0);
+  const extraRevenues = 0;
+
+  // احتساب مجمل الربح على نسبة 40% وتكلفة البضاعة المباعة على نسبة 60%
+  const grossProfitMarginRate = 0.40;
+  const grossProfit = Math.round(totalRevenues * grossProfitMarginRate * 100) / 100;
+  const costOfGoods = Math.round(totalRevenues * (1 - grossProfitMarginRate) * 100) / 100;
+
   const exp = await getExpensesSummary();
   const internalExp = Number(exp.totals.internal_expenses || 0);
   const purchasesExp = Number(exp.totals.cash_purchases || 0);
@@ -2058,21 +2073,34 @@ async function getProfitLossStatement() {
   const emps = await getEmployeesList();
   let employeeExp = 0;
   for (const e of emps) {
-    employeeExp += Number(e.salary || 0);
+    employeeExp += Number(e.total_advances || e.salary || 0);
   }
 
   const otherExp = 0;
-  const totalExpenses = internalExp + purchasesExp + employeeExp + otherExp;
-  const netProfit = totalRevenues - totalExpenses;
+  const operatingExpenses = Math.round((internalExp + employeeExp + otherExp) * 100) / 100;
+
+  // صافي الربح = مجمل الربح (40%) - المصاريف التشغيلية
+  const netProfit = Math.round((grossProfit - operatingExpenses) * 100) / 100;
+  const netProfitMarginPercent = totalRevenues > 0
+    ? Math.round((netProfit / totalRevenues) * 100 * 10) / 10
+    : 0;
 
   return {
     total_revenues: Math.round(totalRevenues * 100) / 100,
-    total_expenses: Math.round(totalExpenses * 100) / 100,
-    net_profit: Math.round(netProfit * 100) / 100,
-    profit_margin_percent: totalRevenues > 0 ? Math.round((netProfit / totalRevenues) * 100 * 10) / 10 : 0,
+    cost_of_goods: costOfGoods,
+    gross_profit: grossProfit,
+    gross_margin_percent: 40,
+    operating_expenses: operatingExpenses,
+    net_profit: netProfit,
+    profit_margin: 40,
+    net_profit_margin: netProfitMarginPercent,
+    profit_margin_percent: netProfitMarginPercent,
     breakdown: {
-      sales_revenue: Math.round(totalRevenues * 100) / 100,
-      purchases_cogs: Math.round(purchasesExp * 100) / 100,
+      sales_channels: Math.round(salesChannels * 100) / 100,
+      perfumes: Math.round(perfumeSales * 100) / 100,
+      extra_revenues: Math.round(extraRevenues * 100) / 100,
+      cash_purchases: costOfGoods,
+      actual_cash_purchases: Math.round(purchasesExp * 100) / 100,
       internal_expenses: Math.round(internalExp * 100) / 100,
       employee_expenses: Math.round(employeeExp * 100) / 100,
       other_expenses: Math.round(otherExp * 100) / 100

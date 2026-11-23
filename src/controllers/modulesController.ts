@@ -614,49 +614,204 @@ window.deleteExpenseItem = async function(id: number) {
 };
 
 // 3. Suppliers Module
+let rawSuppliersData: any[] = [];
+let suppliersFilterPeriod: string = 'all';
+
 async function loadSuppliersTab() {
   try {
     const res = await fetch('/api/modules/suppliers');
     const suppliers = await res.json();
+    rawSuppliersData = Array.isArray(suppliers) ? suppliers : [];
 
-    const uniqueNames = new Set(suppliers.map((s: any) => String(s.name || '').trim()).filter(Boolean));
-    document.getElementById('suppKpiTotal').textContent = String(uniqueNames.size || suppliers.length);
-    let totalPaid = 0;
-    suppliers.forEach(s => totalPaid += (s.total_paid || 0));
-    document.getElementById('suppKpiTotalPaid').textContent = formatCurrency(totalPaid);
-
-    syncSuppliersPageToDailyDropdown(suppliers);
-
-    const tbody = document.getElementById('suppliersTableBody');
-    if (!tbody) return;
-    if (suppliers.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:1.5rem;">لا يوجد موردون مسجلون. انقر فوق (+ إضافة مورد جديد)</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = '';
-    suppliers.forEach(s => {
-      const tr = document.createElement('tr');
-      const deleteId = s.payment_id || s.id;
-      const dateDisplay = s.payment_date && s.payment_date !== '-'
-        ? `${s.payment_date}${s.day_name ? ` <span style="color:#64748b; font-size:0.78rem;">(${s.day_name})</span>` : ''}`
-        : '-';
-      tr.innerHTML = `
-        <td style="text-align:center; font-weight:700; color:#1e293b;">${s.name}</td>
-        <td style="text-align:center; font-weight:600; white-space:nowrap;">${dateDisplay}</td>
-        <td style="text-align:center; font-weight:600;">${s.payment_channel || '-'}</td>
-        <td style="text-align:center; font-weight:700; color:#2563eb;">${formatCurrency(s.total_paid)}</td>
-        <td style="text-align:center;">
-          <button class="btn-del-row" title="حذف المورد" onclick="deleteModuleItem('/api/modules/suppliers/${deleteId}', loadSuppliersTab)">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-          </button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
+    syncSuppliersPageToDailyDropdown(rawSuppliersData);
+    populateSuppliersFilterDropdowns(rawSuppliersData);
+    applySuppliersFilters();
   } catch (err) {
     console.error('Error loading suppliers:', err);
   }
+}
+
+function populateSuppliersFilterDropdowns(list: any[]) {
+  const suppSelect = document.getElementById('suppFilterSupplier') as HTMLSelectElement;
+  const channelSelect = document.getElementById('suppFilterPaymentChannel') as HTMLSelectElement;
+
+  if (suppSelect) {
+    const currentVal = suppSelect.value || 'all';
+    const names = Array.from(new Set(list.map((s: any) => String(s?.name || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ar'));
+    let html = '<option value="all">كل الموردين والشركات</option>';
+    names.forEach(name => {
+      const selected = name === currentVal ? 'selected' : '';
+      html += `<option value="${escapeHtml(name)}" ${selected}>${escapeHtml(name)}</option>`;
+    });
+    suppSelect.innerHTML = html;
+  }
+
+  if (channelSelect) {
+    const currentVal = channelSelect.value || 'all';
+    const channels = Array.from(new Set(list.map((s: any) => String(s?.payment_channel || '').trim()).filter(c => c && c !== '-'))).sort((a, b) => a.localeCompare(b, 'ar'));
+    let html = '<option value="all">كل جهات الدفع</option>';
+    channels.forEach(ch => {
+      const selected = ch === currentVal ? 'selected' : '';
+      html += `<option value="${escapeHtml(ch)}" ${selected}>${escapeHtml(ch)}</option>`;
+    });
+    channelSelect.innerHTML = html;
+  }
+}
+
+function setSuppliersQuickDate(period: string, btnEl?: HTMLElement) {
+  suppliersFilterPeriod = period;
+  if (btnEl) {
+    document.querySelectorAll('.btn-quick-date[data-suppperiod]').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+  }
+
+  const fromInput = document.getElementById('suppFilterFrom') as HTMLInputElement;
+  const toInput = document.getElementById('suppFilterTo') as HTMLInputElement;
+  if (!fromInput || !toInput) return;
+
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+
+  if (period === 'all') {
+    fromInput.value = '';
+    toInput.value = '';
+  } else if (period === 'this_month') {
+    fromInput.value = `${y}-${String(m + 1).padStart(2, '0')}-01`;
+    const lastDay = new Date(y, m + 1, 0).getDate();
+    toInput.value = `${y}-${String(m + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+  } else if (period === 'last_month') {
+    const prevM = m === 0 ? 11 : m - 1;
+    const prevY = m === 0 ? y - 1 : y;
+    fromInput.value = `${prevY}-${String(prevM + 1).padStart(2, '0')}-01`;
+    const lastDay = new Date(prevY, prevM + 1, 0).getDate();
+    toInput.value = `${prevY}-${String(prevM + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+  } else if (period === 'last_30') {
+    const past = new Date();
+    past.setDate(past.getDate() - 30);
+    fromInput.value = formatLocalDate(past);
+    toInput.value = formatLocalDate(now);
+  } else if (period === 'this_year') {
+    fromInput.value = `${y}-01-01`;
+    toInput.value = `${y}-12-31`;
+  }
+
+  applySuppliersFilters();
+}
+(window as any).setSuppliersQuickDate = setSuppliersQuickDate;
+
+function resetSuppliersFilters() {
+  suppliersFilterPeriod = 'all';
+  const fromInput = document.getElementById('suppFilterFrom') as HTMLInputElement;
+  const toInput = document.getElementById('suppFilterTo') as HTMLInputElement;
+  const suppSelect = document.getElementById('suppFilterSupplier') as HTMLSelectElement;
+  const channelSelect = document.getElementById('suppFilterPaymentChannel') as HTMLSelectElement;
+  const searchInput = document.getElementById('suppFilterSearch') as HTMLInputElement;
+
+  if (fromInput) fromInput.value = '';
+  if (toInput) toInput.value = '';
+  if (suppSelect) suppSelect.value = 'all';
+  if (channelSelect) channelSelect.value = 'all';
+  if (searchInput) searchInput.value = '';
+
+  document.querySelectorAll('.btn-quick-date[data-suppperiod]').forEach(b => {
+    if (b.getAttribute('data-suppperiod') === 'all') b.classList.add('active');
+    else b.classList.remove('active');
+  });
+
+  applySuppliersFilters();
+}
+(window as any).resetSuppliersFilters = resetSuppliersFilters;
+
+function applySuppliersFilters() {
+  const fromVal = (document.getElementById('suppFilterFrom') as HTMLInputElement)?.value || '';
+  const toVal = (document.getElementById('suppFilterTo') as HTMLInputElement)?.value || '';
+  const suppVal = (document.getElementById('suppFilterSupplier') as HTMLSelectElement)?.value || 'all';
+  const channelVal = (document.getElementById('suppFilterPaymentChannel') as HTMLSelectElement)?.value || 'all';
+  const searchVal = ((document.getElementById('suppFilterSearch') as HTMLInputElement)?.value || '').trim().toLowerCase();
+
+  const filtered = rawSuppliersData.filter(s => {
+    // Search query
+    if (searchVal) {
+      const name = String(s.name || '').toLowerCase();
+      if (!name.includes(searchVal)) return false;
+    }
+
+    // Supplier dropdown
+    if (suppVal !== 'all') {
+      if (String(s.name || '').trim() !== suppVal) return false;
+    }
+
+    // Payment channel
+    if (channelVal !== 'all') {
+      if (String(s.payment_channel || '').trim() !== channelVal) return false;
+    }
+
+    // Date range
+    const payDate = s.payment_date && s.payment_date !== '-' ? s.payment_date : '';
+    if (fromVal && payDate && payDate < fromVal) return false;
+    if (toVal && payDate && payDate > toVal) return false;
+
+    return true;
+  });
+
+  renderSuppliersFilteredView(filtered);
+}
+(window as any).applySuppliersFilters = applySuppliersFilters;
+
+function renderSuppliersFilteredView(filtered: any[]) {
+  const uniqueSuppliers = new Set(filtered.map((s: any) => String(s.name || '').trim()).filter(Boolean));
+  let totalPaid = 0;
+  let paymentsCount = 0;
+
+  filtered.forEach(s => {
+    const paid = Number(s.total_paid || 0);
+    totalPaid += paid;
+    if (paid > 0 || (s.payment_date && s.payment_date !== '-')) {
+      paymentsCount++;
+    }
+  });
+
+  const kpiTotalEl = document.getElementById('suppKpiTotal');
+  const kpiCountEl = document.getElementById('suppKpiCount');
+  const kpiPaidEl = document.getElementById('suppKpiTotalPaid');
+
+  if (kpiTotalEl) kpiTotalEl.textContent = String(uniqueSuppliers.size);
+  if (kpiCountEl) kpiCountEl.textContent = String(paymentsCount);
+  if (kpiPaidEl) kpiPaidEl.textContent = formatCurrency(totalPaid);
+
+  const tbody = document.getElementById('suppliersTableBody');
+  if (!tbody) return;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem; color:#64748b; font-weight:700;">لا توجد سجلات موردين مطابقة للفلاتر الحالية. (<span style="color:#2563eb; cursor:pointer;" onclick="resetSuppliersFilters()">إلغاء الفلاتر</span>)</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '';
+  filtered.forEach(s => {
+    const tr = document.createElement('tr');
+    const deleteId = s.payment_id || s.id;
+    const dateDisplay = s.payment_date && s.payment_date !== '-'
+      ? `${s.payment_date}${s.day_name ? ` <span style="color:#64748b; font-size:0.78rem;">(${s.day_name})</span>` : ''}`
+      : '<span style="color:#94a3b8;">-</span>';
+    const channelDisplay = s.payment_channel && s.payment_channel !== '-'
+      ? `<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">${s.payment_channel}</span>`
+      : '<span style="color:#94a3b8;">-</span>';
+
+    tr.innerHTML = `
+      <td style="text-align:center; font-weight:800; color:#1e293b; font-size:0.92rem;">${s.name}</td>
+      <td style="text-align:center; font-weight:600; white-space:nowrap;">${dateDisplay}</td>
+      <td style="text-align:center;">${channelDisplay}</td>
+      <td style="text-align:center; font-weight:800; color:#2563eb; font-size:0.95rem;">${formatCurrency(s.total_paid)}</td>
+      <td style="text-align:center;">
+        <button class="btn-del-row" title="حذف" onclick="deleteModuleItem('/api/modules/suppliers/${deleteId}', loadSuppliersTab)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
 function syncSuppliersPageToDailyDropdown(suppliersList: any[]) {
@@ -1218,7 +1373,10 @@ async function loadProfitLossTab() {
     netEl.textContent = formatCurrency(pl.net_profit);
     netEl.style.color = pl.net_profit >= 0 ? '#059669' : '#dc2626';
 
-    document.getElementById('plMarginVal').textContent = `${pl.profit_margin}%`;
+    const marginEl = document.getElementById('plMarginVal');
+    if (marginEl) {
+      marginEl.textContent = `${pl.net_profit_margin || 0}%`;
+    }
 
     // Populate detailed breakdown rows
     document.getElementById('plValSalesChannels').textContent = formatCurrency(pl.breakdown.sales_channels);
@@ -1226,7 +1384,7 @@ async function loadProfitLossTab() {
     document.getElementById('plValExtraRev').textContent = formatCurrency(pl.breakdown.extra_revenues);
     document.getElementById('plValTotalRev').textContent = formatCurrency(pl.total_revenues);
 
-    document.getElementById('plValPurchases').textContent = formatCurrency(pl.breakdown.cash_purchases);
+    document.getElementById('plValPurchases').textContent = formatCurrency(pl.cost_of_goods);
     document.getElementById('plValGross').textContent = formatCurrency(pl.gross_profit);
 
     document.getElementById('plValInternalExp').textContent = formatCurrency(pl.breakdown.internal_expenses);
