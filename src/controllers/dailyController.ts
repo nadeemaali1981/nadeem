@@ -553,7 +553,7 @@ function renderUI() {
   renderInternalExpensesTable();
   renderEmployeeAdvancesTable();
   renderSupplierPaymentsTable();
-  renderSimpleTable('cash_purchases', 'cashPurchasesBody', 'بيان المشتريات');
+  renderCashPurchasesTable();
   renderPerfumeSalesTable();
   renderExtraRevenuesTable();
   renderEmployeeSalesTable();
@@ -874,7 +874,7 @@ window.onCategorizedRowPaymentChannelChange = onCategorizedRowPaymentChannelChan
 
 // التحقق من اختيار جهة الدفع قبل السماح بكتابة القيمة في الجدول
 function checkPaymentChannelBeforeAmount(categoryKey: string, idx: number, inputEl: HTMLInputElement, e?: any) {
-  if (!['internal_expenses', 'employee_advances', 'supplier_payments'].includes(categoryKey)) return true;
+  if (!['internal_expenses', 'employee_advances', 'supplier_payments', 'cash_purchases'].includes(categoryKey)) return true;
   const row = state.items[categoryKey] && state.items[categoryKey][idx];
   if (!row) return true;
 
@@ -906,7 +906,7 @@ function checkPaymentChannelBeforeAmount(categoryKey: string, idx: number, input
 (window as any).checkPaymentChannelBeforeAmount = checkPaymentChannelBeforeAmount;
 
 function handleRowAmountInput(categoryKey: string, idx: number, amountKey: string, inputEl: HTMLInputElement) {
-  if (['internal_expenses', 'employee_advances', 'supplier_payments'].includes(categoryKey)) {
+  if (['internal_expenses', 'employee_advances', 'supplier_payments', 'cash_purchases'].includes(categoryKey)) {
     const row = state.items[categoryKey] && state.items[categoryKey][idx];
     const paymentChannel = row ? String(row.col4 || '').trim() : '';
     if (!paymentChannel) {
@@ -1224,6 +1224,75 @@ window.getDailyJournalLiveExpenses = function() {
     items: result
   };
 };
+
+// Render Cash Purchases Table with Payment Channel (مشتريات نقدية)
+function renderCashPurchasesTable() {
+  const tbody = document.getElementById('cashPurchasesBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!state.items.cash_purchases || state.items.cash_purchases.length === 0) {
+    tbody.innerHTML = `
+      <tr class="empty-row-placeholder">
+        <td colspan="4">لا توجد بيانات مسجلة (<span onclick="addRow('cash_purchases')">+ أضف سطر</span>)</td>
+      </tr>
+    `;
+    return;
+  }
+
+  const configuredChannels = getConfiguredPaymentChannels();
+
+  state.items.cash_purchases.forEach((row, idx) => {
+    const currentDesc = (row.col1 || '').trim();
+    const currentPaymentSource = (row.col4 || '').trim();
+
+    let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع (إجباري *) --</option>`;
+    if (currentPaymentSource && !configuredChannels.includes(currentPaymentSource)) {
+      paymentOptionsHtml += `<option value="${escapeHtml(currentPaymentSource)}" selected>${escapeHtml(currentPaymentSource)}</option>`;
+    }
+    configuredChannels.forEach(ch => {
+      const isSelected = currentPaymentSource === ch ? 'selected' : '';
+      paymentOptionsHtml += `<option value="${escapeHtml(ch)}" ${isSelected}>${escapeHtml(ch)}</option>`;
+    });
+
+    const isChannelMissing = !currentPaymentSource && (row.amount1 > 0 || currentDesc);
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <input type="text" class="table-input" value="${escapeHtml(currentDesc)}" placeholder="بيان المشتريات"
+               oninput="updateRowCol('cash_purchases', ${idx}, 'col1', this.value)">
+      </td>
+      <td style="width: 22%; min-width: 155px;">
+        <select class="table-input" data-payment-channel="true" style="font-weight: 600; text-align: center; ${isChannelMissing ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}"
+                onchange="onCategorizedRowPaymentChannelChange('cash_purchases', ${idx}, this.value, this)">
+          ${paymentOptionsHtml}
+        </select>
+      </td>
+      <td style="width: 130px;">
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center; ${!currentPaymentSource ? 'background: #f8fafc; cursor: pointer;' : ''}" 
+               value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
+               placeholder="${!currentPaymentSource ? 'اختر جهة الدفع أولاً' : '0:00'}"
+               title="${!currentPaymentSource ? '⚠️ يجب اختيار جهة الدفع قبل كتابة القيمة' : ''}"
+               onfocus="checkPaymentChannelBeforeAmount('cash_purchases', ${idx}, this)"
+               onkeydown="checkPaymentChannelBeforeAmount('cash_purchases', ${idx}, this, event)"
+               oninput="handleRowAmountInput('cash_purchases', ${idx}, 'amount1', this)"
+               onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
+      </td>
+      <td style="width: 38px; text-align: center;">
+        <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteRow('cash_purchases', ${idx})">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (state.isLocked) {
+    setSheetLockedState(true);
+  }
+}
+window.renderCashPurchasesTable = renderCashPurchasesTable;
 
 // Render Standard 2-Column Table (Description & Amount)
 function renderSimpleTable(categoryKey, tbodyId, placeholder) {
@@ -1707,7 +1776,7 @@ window.updateRowCol = function(categoryKey, idx, colKey, val) {
 
 window.updateRowAmount = function(categoryKey, idx, amountKey, val) {
   if (state.items[categoryKey] && state.items[categoryKey][idx]) {
-    if (['internal_expenses', 'employee_advances', 'supplier_payments'].includes(categoryKey)) {
+    if (['internal_expenses', 'employee_advances', 'supplier_payments', 'cash_purchases'].includes(categoryKey)) {
       const channel = String(state.items[categoryKey][idx].col4 || '').trim();
       if (!channel && parseMoney(val) > 0) {
         state.items[categoryKey][idx][amountKey] = 0;
@@ -1974,9 +2043,17 @@ function recalculateAll() {
     return acc;
   }, 0);
 
+  const sumCashFromPurchases = (state.items.cash_purchases || []).reduce((acc, r) => {
+    const paySource = String(r.col4 || '').trim();
+    if (paySource.includes('صندوق') || !paySource) {
+      return acc + (parseFloat(r.amount1) || 0);
+    }
+    return acc;
+  }, 0);
+
   const salesCash = state.sales.cash || 0;
   const salesDelivery = state.sales.delivery || 0;
-  const netCashRemaining = (salesCash + salesDelivery + sumExtraRevenues) - (sumCashInternalExpenses + sumCashEmployeeAdvances + sumCashSupplierPayments + sumCashPurchases + sumPerfumeCredit);
+  const netCashRemaining = (salesCash + salesDelivery + sumExtraRevenues) - (sumCashInternalExpenses + sumCashEmployeeAdvances + sumCashSupplierPayments + sumCashFromPurchases + sumPerfumeCredit);
 
   setText('kpiNetCash', formatMoney(netCashRemaining));
   const kpiNetCard = document.getElementById('kpiNetCashCard');
@@ -2060,7 +2137,8 @@ async function saveSheet(isManual = true) {
   const paymentChannelTables: Array<{ key: string; name: string }> = [
     { key: 'internal_expenses', name: 'مصاريف داخلية' },
     { key: 'employee_advances', name: 'سحوبات موظفين' },
-    { key: 'supplier_payments', name: 'دفعات موردين' }
+    { key: 'supplier_payments', name: 'دفعات موردين' },
+    { key: 'cash_purchases', name: 'مشتريات نقدية' }
   ];
 
   for (const tbl of paymentChannelTables) {
@@ -2083,6 +2161,7 @@ async function saveSheet(isManual = true) {
           if (tbl.key === 'internal_expenses') renderInternalExpensesTable();
           else if (tbl.key === 'employee_advances') renderEmployeeAdvancesTable();
           else if (tbl.key === 'supplier_payments') renderSupplierPaymentsTable();
+          else if (tbl.key === 'cash_purchases') renderCashPurchasesTable();
           return false;
         }
       }
