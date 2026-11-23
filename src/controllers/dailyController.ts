@@ -394,6 +394,7 @@ async function loadSheet(dateStr) {
       ittihad: data.sales_ittihad || 0,
       ittihad_qr: data.sales_ittihad_qr || 0,
       cliq: data.sales_cliq || 0,
+      other: data.sales_other || 0,
       items_count: (data.sales_items_count !== undefined && data.sales_items_count !== null && data.sales_items_count !== '') ? data.sales_items_count : 0
     };
 
@@ -882,33 +883,6 @@ window.onCategorizedRowPaymentChannelChange = onCategorizedRowPaymentChannelChan
 
 // التحقق من اختيار جهة الدفع قبل السماح بكتابة القيمة في الجدول
 function checkPaymentChannelBeforeAmount(categoryKey: string, idx: number, inputEl: HTMLInputElement, e?: any) {
-  if (!['internal_expenses', 'employee_advances', 'supplier_payments', 'cash_purchases'].includes(categoryKey)) return true;
-  const row = state.items[categoryKey] && state.items[categoryKey][idx];
-  if (!row) return true;
-
-  const paymentChannel = String(row.col4 || '').trim();
-  if (!paymentChannel) {
-    if (e && typeof e.preventDefault === 'function') {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    inputEl.value = '';
-    inputEl.blur();
-
-    const tr = inputEl.closest('tr');
-    if (tr) {
-      const select = tr.querySelector('select[data-payment-channel="true"]') as HTMLSelectElement | null;
-      if (select) {
-        select.style.border = '2px solid #ef4444';
-        select.style.backgroundColor = '#fff1f2';
-        select.focus();
-      }
-    }
-
-    alert('⚠️ قم باختيار جهة الدفع أولاً لتتمكن من كتابة القيمة!');
-    showToast('⚠️ قم باختيار جهة الدفع');
-    return false;
-  }
   return true;
 }
 (window as any).checkPaymentChannelBeforeAmount = checkPaymentChannelBeforeAmount;
@@ -969,7 +943,7 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
   if (!state.items[categoryKey] || state.items[categoryKey].length === 0) {
     tbody.innerHTML = `
       <tr class="empty-row-placeholder">
-        <td colspan="6">لا توجد بيانات مسجلة (<span onclick="addRow('${categoryKey}')">+ أضف سطر</span>)</td>
+        <td colspan="5">لا توجد بيانات مسجلة (<span onclick="addRow('${categoryKey}')">+ أضف سطر</span>)</td>
       </tr>
     `;
     return;
@@ -1044,34 +1018,25 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="width: 18%; min-width: 175px;">
+      <td style="width: 20%; min-width: 175px;">
         <select class="table-input" style="font-weight: 600; text-align: center;"
                 onchange="onCategorizedRowMainTypeChange('${categoryKey}', ${idx}, this.value)">
           ${mainTypeOptionsHtml}
         </select>
       </td>
-      <td style="width: 19%; min-width: 175px;">
+      <td style="width: 22%; min-width: 175px;">
         <select class="table-input" style="font-weight: 600; text-align: center;"
                 onchange="onCategorizedRowSubCategoryChange('${categoryKey}', ${idx}, this.value)">
           ${mainCatOptionsHtml}
         </select>
       </td>
-      <td style="width: 16%; min-width: 145px;">
-        <select class="table-input" data-payment-channel="true" style="font-weight: 600; text-align: center; ${(!currentPaymentSource && (row.amount1 > 0 || (row.col1 && String(row.col1).trim()))) ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}"
-                onchange="onCategorizedRowPaymentChannelChange('${categoryKey}', ${idx}, this.value, this)">
-          ${paymentOptionsHtml}
-        </select>
-      </td>
-      <td style="width: 31%; min-width: 220px;">
+      <td style="width: 44%; min-width: 220px;">
         ${descriptionCellHtml}
       </td>
-      <td style="width: 12%; min-width: 120px;">
-        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center; ${!currentPaymentSource ? 'background: #f8fafc; cursor: pointer;' : ''}" 
+      <td style="width: 14%; min-width: 120px;">
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" 
                value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
-               placeholder="${!currentPaymentSource ? 'اختر جهة الدفع أولاً' : '0:00'}"
-               title="${!currentPaymentSource ? '⚠️ يجب اختيار جهة الدفع قبل كتابة القيمة' : ''}"
-               onfocus="checkPaymentChannelBeforeAmount('${categoryKey}', ${idx}, this)"
-               onkeydown="checkPaymentChannelBeforeAmount('${categoryKey}', ${idx}, this, event)"
+               placeholder="0:00"
                oninput="handleRowAmountInput('${categoryKey}', ${idx}, 'amount1', this)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
@@ -1212,19 +1177,10 @@ function renderSupplierPaymentsTable() {
           ${supplierOptionsHtml}
         </select>
       </td>
-      <td style="width: 22%; min-width: 155px;">
-        <select class="table-input" data-payment-channel="true" style="font-weight: 600; text-align: center; ${(!currentPaymentSource && (row.amount1 > 0 || (row.col1 && String(row.col1).trim()))) ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}"
-                onchange="onCategorizedRowPaymentChannelChange('supplier_payments', ${idx}, this.value, this)">
-          ${paymentOptionsHtml}
-        </select>
-      </td>
-      <td style="width: 15%; min-width: 125px;">
-        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center; ${!currentPaymentSource ? 'background: #f8fafc; cursor: pointer;' : ''}" 
+      <td style="width: 140px;">
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" 
                value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
-               placeholder="${!currentPaymentSource ? 'اختر جهة الدفع أولاً' : '0:00'}"
-               title="${!currentPaymentSource ? '⚠️ يجب اختيار جهة الدفع قبل كتابة القيمة' : ''}"
-               onfocus="checkPaymentChannelBeforeAmount('supplier_payments', ${idx}, this)"
-               onkeydown="checkPaymentChannelBeforeAmount('supplier_payments', ${idx}, this, event)"
+               placeholder="0:00"
                oninput="handleRowAmountInput('supplier_payments', ${idx}, 'amount1', this)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
@@ -1286,7 +1242,7 @@ function renderCashPurchasesTable() {
   if (!state.items.cash_purchases || state.items.cash_purchases.length === 0) {
     tbody.innerHTML = `
       <tr class="empty-row-placeholder">
-        <td colspan="4">لا توجد بيانات مسجلة (<span onclick="addRow('cash_purchases')">+ أضف سطر</span>)</td>
+        <td colspan="3">لا توجد بيانات مسجلة (<span onclick="addRow('cash_purchases')">+ أضف سطر</span>)</td>
       </tr>
     `;
     return;
@@ -1315,19 +1271,10 @@ function renderCashPurchasesTable() {
         <input type="text" class="table-input" value="${escapeHtml(currentDesc)}" placeholder="بيان المشتريات"
                oninput="updateRowCol('cash_purchases', ${idx}, 'col1', this.value)">
       </td>
-      <td style="width: 22%; min-width: 155px;">
-        <select class="table-input" data-payment-channel="true" style="font-weight: 600; text-align: center; ${isChannelMissing ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}"
-                onchange="onCategorizedRowPaymentChannelChange('cash_purchases', ${idx}, this.value, this)">
-          ${paymentOptionsHtml}
-        </select>
-      </td>
       <td style="width: 130px;">
-        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center; ${!currentPaymentSource ? 'background: #f8fafc; cursor: pointer;' : ''}" 
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" 
                value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
-               placeholder="${!currentPaymentSource ? 'اختر جهة الدفع أولاً' : '0:00'}"
-               title="${!currentPaymentSource ? '⚠️ يجب اختيار جهة الدفع قبل كتابة القيمة' : ''}"
-               onfocus="checkPaymentChannelBeforeAmount('cash_purchases', ${idx}, this)"
-               onkeydown="checkPaymentChannelBeforeAmount('cash_purchases', ${idx}, this, event)"
+               placeholder="0:00"
                oninput="handleRowAmountInput('cash_purchases', ${idx}, 'amount1', this)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
@@ -1969,7 +1916,8 @@ function recalculateAll() {
                      (state.sales.visa || 0) +
                      (state.sales.ittihad || 0) +
                      (state.sales.ittihad_qr || 0) +
-                     (state.sales.cliq || 0);
+                     (state.sales.cliq || 0) +
+                     (state.sales.other || 0);
 
   setText('totalSalesVal', formatMoney(totalSales));
 
@@ -2185,40 +2133,6 @@ function markUnsaved() {
 }
 
 async function saveSheet(isManual = true) {
-  // 1. التحقق الصارم من أن جهة الدفع إجبارية في كل الجداول
-  const paymentChannelTables: Array<{ key: string; name: string }> = [
-    { key: 'internal_expenses', name: 'مصاريف داخلية' },
-    { key: 'employee_advances', name: 'سحوبات موظفين' },
-    { key: 'supplier_payments', name: 'دفعات موردين' },
-    { key: 'cash_purchases', name: 'مشتريات نقدية' }
-  ];
-
-  for (const tbl of paymentChannelTables) {
-    const rows = state.items[tbl.key] || [];
-    for (let i = 0; i < rows.length; i++) {
-      const r = rows[i];
-      const hasContent = (parseMoney(r.amount1) > 0) ||
-                         (r.col1 && String(r.col1).trim() !== '') ||
-                         (r.col3 && String(r.col3).trim() !== '');
-      if (hasContent) {
-        const channel = String(r.col4 || '').trim();
-        if (!channel) {
-          alert(`⚠️ لا يمكن حفظ اليومية:\n\nيرجى تحديد "جهة الدفع" في جدول [${tbl.name}] للسطر رقم (${i + 1})!\nجهة الدفع إجبارية في جميع الجداول.`);
-          showToast(`⚠️ جهة الدفع إجبارية في جدول [${tbl.name}]`);
-          const statusEl = document.getElementById('autoSaveBadge');
-          if (statusEl) {
-            statusEl.textContent = `مطلوب تحديد جهة الدفع في ${tbl.name}`;
-            statusEl.style.color = '#ef4444';
-          }
-          if (tbl.key === 'internal_expenses') renderInternalExpensesTable();
-          else if (tbl.key === 'employee_advances') renderEmployeeAdvancesTable();
-          else if (tbl.key === 'supplier_payments') renderSupplierPaymentsTable();
-          else if (tbl.key === 'cash_purchases') renderCashPurchasesTable();
-          return false;
-        }
-      }
-    }
-  }
   // 1. التحقق الصارم من عدم تكرار اسم الموظف أو الرقم الوظيفي في أكثر من سطر
   const empSalesList = state.items.employee_sales || [];
   const seenEmpNamesForSave = new Set<string>();
@@ -2250,7 +2164,8 @@ async function saveSheet(isManual = true) {
                              (state.sales.visa || 0) +
                              (state.sales.ittihad || 0) +
                              (state.sales.ittihad_qr || 0) +
-                             (state.sales.cliq || 0);
+                             (state.sales.cliq || 0) +
+                             (state.sales.other || 0);
   const sumEmpSalesForCheck = sumCategory('employee_sales', 'amount1');
   const salesDiff = Math.round(Math.abs(totalSalesForCheck - sumEmpSalesForCheck) * 100) / 100;
   if (isManual && salesDiff > 0.01 && (totalSalesForCheck > 0 || sumEmpSalesForCheck > 0)) {
@@ -2326,6 +2241,7 @@ async function saveSheet(isManual = true) {
       sales_ittihad: state.sales.ittihad,
       sales_ittihad_qr: state.sales.ittihad_qr,
       sales_cliq: state.sales.cliq,
+      sales_other: state.sales.other,
       sales_items_count: parsedCount,
       deposit_personal: state.deposits.personal,
       deposit_business: state.deposits.business,
@@ -2426,7 +2342,7 @@ function clearCurrentSheetFields() {
   );
   if (!confirmed) return;
 
-  state.sales = { cash: 0, delivery: 0, visa: 0, ittihad: 0, ittihad_qr: 0, cliq: 0, items_count: '' };
+  state.sales = { cash: 0, delivery: 0, visa: 0, ittihad: 0, ittihad_qr: 0, cliq: 0, other: 0, items_count: '' };
   state.deposits = { personal: 0, business: 0, owner_hand: 0, personal_date: '', business_date: '', owner_hand_date: '' };
   state.notes = '';
   state.perfume = { desc: '', debit: 0, credit: 0 };

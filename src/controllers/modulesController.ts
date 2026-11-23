@@ -87,6 +87,7 @@ window.applySalesFilters = function() {
   let sumIttihad = 0;
   let sumIttihadQr = 0;
   let sumCliq = 0;
+  let sumOther = 0;
   let sumGrandTotal = 0;
   let sumItemsCount = 0;
   let salesDaysCount = 0;
@@ -101,8 +102,9 @@ window.applySalesFilters = function() {
     const cIttihad = parseFloat(r.sales_ittihad) || 0;
     const cIttihadQr = parseFloat(r.sales_ittihad_qr) || 0;
     const cCliq = parseFloat(r.sales_cliq) || 0;
+    const cOther = parseFloat(r.sales_other) || 0;
     const cItems = parseInt(r.sales_items_count, 10) || 0;
-    const cTotal = parseFloat(r.day_total) || (cCash + cDelivery + cVisa + cIttihad + cIttihadQr + cCliq);
+    const cTotal = parseFloat(r.day_total) || (cCash + cDelivery + cVisa + cIttihad + cIttihadQr + cCliq + cOther);
 
     sumCash += cCash;
     sumDelivery += cDelivery;
@@ -110,6 +112,7 @@ window.applySalesFilters = function() {
     sumIttihad += cIttihad;
     sumIttihadQr += cIttihadQr;
     sumCliq += cCliq;
+    sumOther += cOther;
     sumItemsCount += cItems;
     sumGrandTotal += cTotal;
 
@@ -138,6 +141,7 @@ window.applySalesFilters = function() {
   setKpi('salesKpiIttihad', formatCurrency(sumIttihad));
   setKpi('salesKpiIttihadQr', formatCurrency(sumIttihadQr));
   setKpi('salesKpiCliq', formatCurrency(sumCliq));
+  setKpi('salesKpiOther', formatCurrency(sumOther));
 
   // رسم جدول المبيعات مطابق تماماً لترتيب الأعمدة في الصورة:
   // اليوم | التاريخ | صندوق | توصيل | فيزا / NETWORK | فيزا / الاتحاد | الاتحاد / QR | كليك | الإجمالي | عدد القطع | ملاحظات
@@ -148,7 +152,7 @@ window.applySalesFilters = function() {
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="11" style="text-align: center; padding: 2rem; color: #64748b;">
+        <td colspan="12" style="text-align: center; padding: 2rem; color: #64748b;">
           لا توجد سجلات مبيعات تطابق الفلاتر المحددة
         </td>
       </tr>
@@ -182,6 +186,7 @@ window.applySalesFilters = function() {
         <td style="text-align: center; ${cIttihad > 0 ? 'font-weight:600;' : 'color:#94a3b8;'}">${formatCurrency(cIttihad)}</td>
         <td style="text-align: center; ${cIttihadQr > 0 ? 'font-weight:600;' : 'color:#94a3b8;'}">${formatCurrency(cIttihadQr)}</td>
         <td style="text-align: center; ${cCliq > 0 ? 'font-weight:600;' : 'color:#94a3b8;'}">${formatCurrency(cCliq)}</td>
+        <td style="text-align: center; ${cOther > 0 ? 'font-weight:600;' : 'color:#94a3b8;'}">${formatCurrency(cOther)}</td>
         <td style="text-align: center; font-weight: 800; color: #1e40af; background: #f0f7ff;">${formatCurrency(cTotal)}</td>
         <td style="text-align: center; font-weight: 700; color: #be185d; background: #fdf2f8;">${cItems.toLocaleString()}</td>
         <td style="text-align: center; font-size: 0.8rem; color: #475569; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${r.notes || ''}">
@@ -1740,6 +1745,7 @@ const DEFAULT_SALES_FIELD_NAMES = {
   sales_ittihad: { name: 'فيزا / الاتحاد', icon: '🏦' },
   sales_ittihad_qr: { name: 'الاتحاد / QR', icon: '📱' },
   sales_cliq: { name: 'كليك', icon: '⚡' },
+  sales_other: { name: 'مبيعات أخرى', icon: '🌐' },
   sales_items_count: { name: 'عدد القطع المباعة', icon: '📦' }
 };
 
@@ -1832,6 +1838,7 @@ window.applyCustomFieldNames = function() {
   const ittihadName = custom.sales_ittihad || 'فيزا / الاتحاد';
   const ittihadQrName = custom.sales_ittihad_qr || 'الاتحاد / QR';
   const cliqName = custom.sales_cliq || 'كليك';
+  const otherName = custom.sales_other || 'مبيعات أخرى';
   const itemsCountName = custom.sales_items_count || 'عدد القطع المباعة';
 
   // 1. Daily Journal labels
@@ -1847,6 +1854,8 @@ window.applyCustomFieldNames = function() {
   if (lblIttQr) lblIttQr.textContent = `📱 ${ittihadQrName}`;
   const lblCliq = document.getElementById('label_sales_cliq');
   if (lblCliq) lblCliq.textContent = `⚡ ${cliqName}`;
+  const lblOther = document.getElementById('label_sales_other');
+  if (lblOther) lblOther.textContent = `🌐 ${otherName}`;
   const lblItems = document.getElementById('label_sales_items_count');
   if (lblItems) {
     lblItems.innerHTML = `📦 ${itemsCountName}`;
