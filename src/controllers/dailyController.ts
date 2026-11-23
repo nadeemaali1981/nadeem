@@ -1573,6 +1573,82 @@ function setKpiMode(mode) {
 window.setKpiMode = setKpiMode;
 
 // Calculate all Totals and KPIs
+// تحديث إنذار تطابق إجمالي المبيعات مع مجموع مبيعات الموظفين
+function updateSalesMismatchAlert(totalSales: number, sumEmployeeSales: number) {
+  const diff = Math.round(Math.abs(totalSales - sumEmployeeSales) * 100) / 100;
+  const isMismatch = diff > 0.01 && (totalSales > 0 || sumEmployeeSales > 0);
+  const isMatch = diff <= 0.01 && (totalSales > 0 || sumEmployeeSales > 0);
+
+  const banner = document.getElementById('salesMismatchBanner');
+  const bannerText = document.getElementById('salesMismatchText');
+  const footerAlert = document.getElementById('employeeSalesMismatchAlert');
+  const channelAlert = document.getElementById('salesChannelMismatchAlert');
+  const sumEmpSalesEl = document.getElementById('sumEmployeeSales');
+  const totalSalesEl = document.getElementById('totalSalesVal');
+
+  if (isMismatch) {
+    if (banner) {
+      banner.style.display = 'block';
+      if (bannerText) {
+        bannerText.innerHTML = `⚠️ <b>إنذار عدم تطابق المبيعات:</b> إجمالي مبيعات القنوات (<b>${formatMoney(totalSales)}</b>) غير مطابق لمجموع سطر إجمالي مبيعات الموظفين (<b>${formatMoney(sumEmployeeSales)}</b>). <span style="background: #fee2e2; padding: 2px 8px; border-radius: 4px; border: 1px solid #f87171; margin-right: 6px; display: inline-block;">الفارق: ${formatMoney(diff)}</span>`;
+      }
+    }
+    if (footerAlert) {
+      footerAlert.style.display = 'inline-flex';
+      footerAlert.style.background = '#fef2f2';
+      footerAlert.style.border = '1.5px solid #ef4444';
+      footerAlert.style.color = '#b91c1c';
+      footerAlert.innerHTML = `⚠️ غير مطابق لإجمالي المبيعات (${formatMoney(totalSales)}) — فارق: ${formatMoney(diff)}`;
+    }
+    if (channelAlert) {
+      channelAlert.style.display = 'block';
+      channelAlert.style.background = '#fef2f2';
+      channelAlert.style.border = '1px solid #ef4444';
+      channelAlert.style.color = '#b91c1c';
+      channelAlert.innerHTML = `⚠️ غير مطابق لمبيعات الموظفين (${formatMoney(sumEmployeeSales)}) بفارق: ${formatMoney(diff)}`;
+    }
+    if (sumEmpSalesEl) {
+      sumEmpSalesEl.style.color = '#dc2626';
+    }
+    if (totalSalesEl) {
+      totalSalesEl.style.color = '#dc2626';
+    }
+  } else if (isMatch) {
+    if (banner) banner.style.display = 'none';
+    if (footerAlert) {
+      footerAlert.style.display = 'inline-flex';
+      footerAlert.style.background = '#ecfdf5';
+      footerAlert.style.border = '1px solid #10b981';
+      footerAlert.style.color = '#047857';
+      footerAlert.innerHTML = `✅ متطابق تماماً مع إجمالي المبيعات (${formatMoney(totalSales)})`;
+    }
+    if (channelAlert) {
+      channelAlert.style.display = 'block';
+      channelAlert.style.background = '#ecfdf5';
+      channelAlert.style.border = '1px solid #10b981';
+      channelAlert.style.color = '#047857';
+      channelAlert.innerHTML = `✅ متطابق مع مبيعات الموظفين`;
+    }
+    if (sumEmpSalesEl) {
+      sumEmpSalesEl.style.color = '#0f766e';
+    }
+    if (totalSalesEl) {
+      totalSalesEl.style.color = '#2563eb';
+    }
+  } else {
+    // كلاهما صفر (أو فارغ)
+    if (banner) banner.style.display = 'none';
+    if (footerAlert) footerAlert.style.display = 'none';
+    if (channelAlert) channelAlert.style.display = 'none';
+    if (sumEmpSalesEl) {
+      sumEmpSalesEl.style.color = '#0f766e';
+    }
+    if (totalSalesEl) {
+      totalSalesEl.style.color = '#2563eb';
+    }
+  }
+}
+
 function recalculateAll() {
   // 1. Sales Total
   const totalSales = (state.sales.cash || 0) +
