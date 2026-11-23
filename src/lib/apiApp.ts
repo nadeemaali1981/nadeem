@@ -115,6 +115,13 @@ app.delete('/api/modules/expenses/:id', async (c) => c.json(await db.deleteExpen
 app.get('/api/modules/suppliers', async (c) => c.json(await db.getSuppliersList()));
 app.post('/api/modules/suppliers', async (c) => c.json(await db.createSupplier(await c.req.json()), 201));
 app.put('/api/modules/suppliers/:id', async (c) => c.json(await db.updateSupplier(parseInt(c.req.param('id'), 10), await c.req.json())));
+app.get('/api/modules/suppliers/:id/statement', async (c) => {
+  const id = parseInt(c.req.param('id'), 10);
+  const name = c.req.query('name') || '';
+  return c.json(await db.getSupplierStatement(id, name));
+});
+app.post('/api/modules/suppliers/invoices', async (c) => c.json(await db.createSupplierInvoice(await c.req.json()), 201));
+app.delete('/api/modules/suppliers/invoices/:id', async (c) => c.json(await db.deleteSupplierInvoice(parseInt(c.req.param('id'), 10))));
 app.delete('/api/modules/suppliers/:id', async (c) => c.json(await db.deleteSupplier(parseInt(c.req.param('id'), 10))));
 app.get('/api/modules/employees', async (c) => c.json(await db.getEmployeesList()));
 app.post('/api/modules/employees', async (c) => c.json(await db.createEmployee(await c.req.json()), 201));

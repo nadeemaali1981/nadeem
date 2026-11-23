@@ -157,6 +157,22 @@ async function initSchema() {
         email TEXT,
         tax_number TEXT,
         address TEXT,
+        opening_balance NUMERIC DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS supplier_invoices (
+        id SERIAL PRIMARY KEY,
+        supplier_id INTEGER,
+        supplier_name TEXT NOT NULL,
+        invoice_date TEXT NOT NULL,
+        invoice_number TEXT DEFAULT '',
+        invoice_amount NUMERIC DEFAULT 0,
+        discount_amount NUMERIC DEFAULT 0,
+        return_amount NUMERIC DEFAULT 0,
+        opening_balance NUMERIC DEFAULT 0,
+        paid_amount NUMERIC DEFAULT 0,
+        notes TEXT DEFAULT '',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -1816,6 +1832,181 @@ async function updateSupplier(id, data) {
   return { success: true };
 }
 
+
+// ----------------------------------------------------
+// Supplier Ledger / Statement & Invoices
+// ----------------------------------------------------
+async function getSupplierStatement(id, name) {
+  await initSchema();
+  let contact = null;
+  if (id && Number(id) > 0) {
+    contact = await get("SELECT * FROM contacts WHERE id = ? AND type = 'supplier'", [id]);
+  }
+  if (!contact && name) {
+    contact = await get("SELECT * FROM contacts WHERE TRIM(LOWER(name)) = TRIM(LOWER(?)) AND type = 'supplier'", [name]);
+  }
+  if (!contact && name) {
+    contact = await createSupplier({ name });
+  }
+
+  const supplierId = contact?.id || id;
+  const supplierName = contact?.name || name || '';
+  const openingBalance = Number(contact?.opening_balance || 0);
+
+  // Invoices & manual entries
+  const invoices = await all(
+    "SELECT * FROM supplier_invoices WHERE (supplier_id = ? OR supplier_name = ?) ORDER BY invoice_date ASC, id ASC",
+    [supplierId, supplierName]
+  );
+
+  // Daily sheet payments
+  const payments = await all(`
+    SELECT
+      i.id as payment_id,
+      i.col1 as supplier_name,
+      i.col4 as payment_channel,
+      i.amount1 as amount,
+      s.sheet_date as date,
+      s.day_name
+    FROM daily_sheet_items i
+    JOIN daily_sheets s ON s.id = i.sheet_id
+    WHERE i.category IN ('supplier_payment', 'supplier_payments')
+      AND TRIM(LOWER(i.col1)) = TRIM(LOWER(?))
+      AND COALESCE(i.amount1, 0) > 0
+    ORDER BY s.sheet_date ASC, i.id ASC
+  `, [supplierName]);
+
+  const transactions = [];
+
+  // 1. Initial Opening balance entry
+  if (openingBalance !== 0) {
+    transactions.push({
+      id: 'op_' + supplierId,
+      date: '-',
+      type: 'opening',
+      invoice_number: '-',
+      opening_balance: openingBalance,
+      invoice_amount: 0,
+      discount_amount: 0,
+      return_amount: 0,
+      paid_amount: 0,
+      notes: 'رصيد مدور من سنوات سابقة (ذمة سابقة)',
+      can_delete: false
+    });
+  }
+
+  // 2. Invoices entries
+  for (const inv of invoices) {
+    transactions.push({
+      id: inv.id,
+      date: inv.invoice_date || '-',
+      type: 'invoice',
+      invoice_number: inv.invoice_number || '-',
+      opening_balance: 0,
+      invoice_amount: Number(inv.invoice_amount || 0),
+      discount_amount: Number(inv.discount_amount || 0),
+      return_amount: Number(inv.return_amount || 0),
+      paid_amount: Number(inv.paid_amount || 0),
+      notes: inv.notes || '',
+      can_delete: true
+    });
+  }
+
+  // 3. Daily journal payment entries
+  for (const p of payments) {
+    transactions.push({
+      id: 'pay_' + p.payment_id,
+      date: p.date || '-',
+      type: 'payment',
+      invoice_number: '-',
+      opening_balance: 0,
+      invoice_amount: 0,
+      discount_amount: 0,
+      return_amount: 0,
+      paid_amount: Number(p.amount || 0),
+      notes: `دفعة مسددة من دفتر اليومية (${p.payment_channel || 'صندوق'}${p.day_name ? ` - ${p.day_name}` : ''})`,
+      can_delete: false
+    });
+  }
+
+  // Sort transactions chronologically
+  transactions.sort((a, b) => {
+    if (a.type === 'opening') return -1;
+    if (b.type === 'opening') return 1;
+    return (a.date || '').localeCompare(b.date || '');
+  });
+
+  // Calculate running balance and totals
+  let running = 0;
+  let totalInvoices = 0;
+  let totalDiscounts = 0;
+  let totalReturns = 0;
+  let totalPaid = 0;
+  let invoiceCount = 0;
+
+  for (const tx of transactions) {
+    if (tx.type === 'opening') {
+      running += tx.opening_balance;
+    } else {
+      if (tx.invoice_amount > 0 || (tx.invoice_number && tx.invoice_number !== '-')) {
+        invoiceCount++;
+      }
+      totalInvoices += tx.invoice_amount;
+      totalDiscounts += tx.discount_amount;
+      totalReturns += tx.return_amount;
+      totalPaid += tx.paid_amount;
+      running += (tx.invoice_amount - tx.discount_amount - tx.return_amount - tx.paid_amount);
+    }
+    tx.running_balance = Math.round(running * 100) / 100;
+  }
+
+  const netBalance = Math.round((openingBalance + totalInvoices - totalDiscounts - totalReturns - totalPaid) * 100) / 100;
+
+  return {
+    supplier: {
+      id: supplierId,
+      name: supplierName,
+      opening_balance: openingBalance
+    },
+    kpis: {
+      opening_balance: openingBalance,
+      total_invoices: Math.round(totalInvoices * 100) / 100,
+      invoice_count: invoiceCount,
+      total_discounts: Math.round(totalDiscounts * 100) / 100,
+      total_returns: Math.round(totalReturns * 100) / 100,
+      total_paid: Math.round(totalPaid * 100) / 100,
+      net_balance: netBalance
+    },
+    transactions
+  };
+}
+
+async function createSupplierInvoice(data) {
+  await initSchema();
+  const supplierId = data.supplier_id ? parseInt(data.supplier_id, 10) : null;
+  const supplierName = String(data.supplier_name || '').trim();
+  const invoiceDate = String(data.invoice_date || '').trim() || new Date().toISOString().split('T')[0];
+  const invoiceNumber = String(data.invoice_number || '').trim();
+  const invoiceAmount = Number(data.invoice_amount || 0);
+  const discountAmount = Number(data.discount_amount || 0);
+  const returnAmount = Number(data.return_amount || 0);
+  const paidAmount = Number(data.paid_amount || 0);
+  const notes = String(data.notes || '').trim();
+
+  const res = await run(
+    `INSERT INTO supplier_invoices (supplier_id, supplier_name, invoice_date, invoice_number, invoice_amount, discount_amount, return_amount, paid_amount, notes)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [supplierId, supplierName, invoiceDate, invoiceNumber, invoiceAmount, discountAmount, returnAmount, paidAmount, notes]
+  );
+  return { id: res.lastInsertRowid, ...data };
+}
+
+async function deleteSupplierInvoice(id) {
+  await initSchema();
+  await run("DELETE FROM supplier_invoices WHERE id = ?", [id]);
+  return { success: true };
+}
+
 async function deleteSupplier(id) {
   await initSchema();
   // Check if it's a contact
@@ -2359,6 +2550,10 @@ const db = {
   deleteExpenseRecord,
   getSuppliersList,
   createSupplier,
+  updateSupplier,
+  getSupplierStatement,
+  createSupplierInvoice,
+  deleteSupplierInvoice,
   updateSupplier,
   deleteSupplier,
   getEmployeesList,
