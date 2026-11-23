@@ -657,6 +657,64 @@ async function loadSuppliersTab() {
   }
 }
 
+function syncSuppliersPageToDailyDropdown(suppliersList: any[]) {
+  try {
+    const names = Array.from(
+      new Set(
+        (Array.isArray(suppliersList) ? suppliersList : [])
+          .map((s: any) => String(s?.name || '').trim())
+          .filter(Boolean)
+      )
+    ).sort((a, b) => a.localeCompare(b, 'ar'));
+    (window as any).erpSuppliersPageNames = names;
+    localStorage.setItem('erp_suppliers_page_names_v1', JSON.stringify(names));
+    if (typeof (window as any).renderSupplierPaymentsTable === 'function') {
+      (window as any).renderSupplierPaymentsTable();
+    }
+  } catch (e) {
+    console.error('Failed to sync suppliers to daily dropdown:', e);
+  }
+}
+(window as any).syncSuppliersPageToDailyDropdown = syncSuppliersPageToDailyDropdown;
+
+// جلب أسماء الموردين من صفحة الموردون عند بدء التشغيل لربطها بدفتر اليومية وترحيل أي موردين قدامى
+fetch('/api/modules/suppliers')
+  .then(res => res.json())
+  .then(async (sups) => {
+    if (Array.isArray(sups)) {
+      syncSuppliersPageToDailyDropdown(sups);
+
+      try {
+        const rawLegacy = localStorage.getItem('erp_expense_settings_v1');
+        if (rawLegacy) {
+          const parsed = JSON.parse(rawLegacy);
+          if (Array.isArray(parsed?.suppliers) && parsed.suppliers.length > 0) {
+            const currentNames = new Set(sups.map((s: any) => String(s?.name || '').trim()));
+            let newlyAdded = false;
+            for (const leg of parsed.suppliers) {
+              const name = String(leg || '').trim();
+              if (name && !currentNames.has(name)) {
+                currentNames.add(name);
+                try {
+                  await fetch('/api/modules/suppliers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                  });
+                  newlyAdded = true;
+                } catch (e) {}
+              }
+            }
+            if (newlyAdded && typeof loadSuppliersTab === 'function') {
+              loadSuppliersTab();
+            }
+          }
+        }
+      } catch (e) {}
+    }
+  })
+  .catch(() => {});
+
 // 4. Employees Module
 let currentEmployeesList: any[] = [];
 let editingEmployeeId: number | null = null;

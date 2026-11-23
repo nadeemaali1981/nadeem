@@ -1093,12 +1093,56 @@ window.renderEmployeeAdvancesTable = renderEmployeeAdvancesTable;
 
 function getConfiguredSuppliers() {
   try {
+    const seen = new Set();
+    const list = [];
+    const fromWindow = Array.isArray((window as any).erpSuppliersPageNames)
+      ? (window as any).erpSuppliersPageNames
+      : null;
+    let source = fromWindow;
+    if (!source || source.length === 0) {
+      const rawCache = localStorage.getItem('erp_suppliers_page_names_v1');
+      if (rawCache) {
+        const parsedCache = JSON.parse(rawCache);
+        if (Array.isArray(parsedCache) && parsedCache.length > 0) source = parsedCache;
+      }
+    }
+    if (Array.isArray(source) && source.length > 0) {
+      source.forEach(s => {
+        const val = String(s || '').trim();
+        if (val && !seen.has(val)) {
+          seen.add(val);
+          list.push(val);
+        }
+      });
+      return list.sort((a, b) => a.localeCompare(b, 'ar'));
+    }
+
+    // Trigger background fetch if not yet loaded
+    if (typeof fetch === 'function' && !(window as any).__fetchingSuppliers) {
+      (window as any).__fetchingSuppliers = true;
+      fetch('/api/modules/suppliers')
+        .then(r => r.json())
+        .then(data => {
+          (window as any).__fetchingSuppliers = false;
+          if (Array.isArray(data) && data.length > 0) {
+            const names = Array.from(new Set(data.map(s => String(s?.name || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ar'));
+            (window as any).erpSuppliersPageNames = names;
+            localStorage.setItem('erp_suppliers_page_names_v1', JSON.stringify(names));
+            if (typeof renderSupplierPaymentsTable === 'function') {
+              renderSupplierPaymentsTable();
+            }
+          }
+        })
+        .catch(() => {
+          (window as any).__fetchingSuppliers = false;
+        });
+    }
+
+    // Fallback to legacy settings if any
     const raw = localStorage.getItem('erp_expense_settings_v1');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed.suppliers)) {
-        const seen = new Set();
-        const list = [];
+      if (Array.isArray(parsed?.suppliers)) {
         parsed.suppliers.forEach(s => {
           const val = String(s || '').trim();
           if (val && !seen.has(val)) {
