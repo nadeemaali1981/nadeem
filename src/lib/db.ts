@@ -1785,13 +1785,29 @@ async function getSuppliersList() {
 }
 
 async function createSupplier(data) {
-  return await createContact({ ...data, type: 'supplier' });
+  await initSchema();
+  const name = String(data?.name || '').trim();
+  if (!name) throw new Error('Supplier name is required');
+  const existing = await get("SELECT * FROM contacts WHERE type = 'supplier' AND LOWER(TRIM(name)) = LOWER(?)", [name]);
+  if (existing) return existing;
+  return await createContact({ ...data, name, type: 'supplier' });
 }
 
 async function deleteSupplier(id) {
   await initSchema();
-  await run('DELETE FROM daily_sheet_items WHERE id = ? AND category IN (?, ?)', [id, 'supplier_payment', 'supplier_payments']);
-  await run('DELETE FROM contacts WHERE id = ? AND type = ?', [id, 'supplier']);
+  // Check if it's a contact
+  const contact = await get("SELECT * FROM contacts WHERE id = ? AND type = 'supplier'", [id]);
+  if (contact) {
+    const trimmed = String(contact.name || '').trim();
+    if (trimmed) {
+      await run("DELETE FROM daily_sheet_items WHERE category IN ('supplier_payment', 'supplier_payments') AND col1 = ?", [trimmed]);
+    }
+    await run("DELETE FROM contacts WHERE id = ? AND type = 'supplier'", [id]);
+    return { success: true };
+  }
+  // If it's a daily sheet payment item
+  await run("DELETE FROM daily_sheet_items WHERE id = ? AND category IN ('supplier_payment', 'supplier_payments')", [id]);
+  await run("DELETE FROM contacts WHERE id = ? AND type = 'supplier'", [id]);
   return { success: true };
 }
 

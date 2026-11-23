@@ -625,6 +625,8 @@ async function loadSuppliersTab() {
     suppliers.forEach(s => totalPaid += (s.total_paid || 0));
     document.getElementById('suppKpiTotalPaid').textContent = formatCurrency(totalPaid);
 
+    syncSuppliersPageToDailyDropdown(suppliers);
+
     const tbody = document.getElementById('suppliersTableBody');
     if (!tbody) return;
     if (suppliers.length === 0) {
