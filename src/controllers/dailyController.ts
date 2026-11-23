@@ -560,11 +560,76 @@ function renderUI() {
   renderMerchantDispatchesTable();
   renderDailyNotesTable();
 
+  // فحص وتحديث شارات فيش الإيداع البنكي
+  checkDepositSlipBadges();
+
   // الحفاظ على حالة القفل بعد إعادة بناء الجداول
   if (state.isLocked) {
     setSheetLockedState(true);
   }
 }
+
+// ----------------------------------------------------
+// Deposit Slip Image Attachments (صور فيش الإيداع البنكي)
+// ----------------------------------------------------
+async function openDepositSlip(accountKey, accountLabel) {
+  const sheetDate = state.date || (document.getElementById('sheetDateInput') as HTMLInputElement)?.value || '';
+  const isAll = (accountKey === 'all');
+  const entityId = isAll ? '' : (sheetDate ? `${sheetDate}_${accountKey}` : accountKey);
+  const title = isAll ? `فياش إيداع اليوم - ${sheetDate}` : `${accountLabel} - ${sheetDate}`;
+
+  if (window.ERPImageEngine && typeof window.ERPImageEngine.openGalleryModal === 'function') {
+    window.ERPImageEngine.openGalleryModal({
+      entity_type: 'deposit_slip',
+      entity_id: entityId,
+      title: title
+    });
+  } else {
+    showToast('جاري تهيئة محرك صور الإيداع...');
+  }
+}
+window.openDepositSlip = openDepositSlip;
+
+async function checkDepositSlipBadges() {
+  const sheetDate = state.date || (document.getElementById('sheetDateInput') as HTMLInputElement)?.value || '';
+  const accounts = [
+    { key: 'deposit_personal', btnId: 'btn_slip_deposit_personal', labelId: 'label_slip_deposit_personal' },
+    { key: 'deposit_business', btnId: 'btn_slip_deposit_business', labelId: 'label_slip_deposit_business' },
+    { key: 'deposit_owner_hand', btnId: 'btn_slip_deposit_owner_hand', labelId: 'label_slip_deposit_owner_hand' }
+  ];
+
+  try {
+    const res = await fetch(`/api/media?entity_type=deposit_slip&limit=200`);
+    const items = await res.json();
+    const mediaList = Array.isArray(items) ? items : [];
+
+    accounts.forEach(acc => {
+      const btn = document.getElementById(acc.btnId);
+      const label = document.getElementById(acc.labelId);
+      if (!btn || !label) return;
+
+      const expectedId = `${sheetDate}_${acc.key}`;
+      const found = mediaList.find(m => m.entity_id === expectedId || (m.entity_id === acc.key && sheetDate === ''));
+
+      if (found) {
+        btn.style.background = '#ecfdf5';
+        btn.style.borderColor = '#10b981';
+        btn.style.color = '#047857';
+        btn.title = `تم إرفاق فيشة الإيداع (${found.title || 'صورة'}) - انقر للاستعراض أو إضافة المزيد`;
+        label.innerHTML = `فيشة الإيداع <span style="background: #10b981; color: #fff; padding: 1px 6px; border-radius: 10px; font-size: 0.72rem; margin-right: 2px;">مرفقة ✓</span>`;
+      } else {
+        btn.style.background = '#f0f9ff';
+        btn.style.borderColor = '#bae6fd';
+        btn.style.color = '#0284c7';
+        btn.title = 'إرفاق أو استعراض صورة فيشة الإيداع';
+        label.textContent = 'صورة فيشة الإيداع';
+      }
+    });
+  } catch (e) {
+    // Background badge check
+  }
+}
+window.checkDepositSlipBadges = checkDepositSlipBadges;
 
 // Render Perfume Sales Table (البيان، دائن، مدين)
 function renderPerfumeSalesTable() {
