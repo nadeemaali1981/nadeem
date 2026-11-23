@@ -2152,4 +2152,6 @@ function showToast(msg) {
   (window as any).filterHistoryList = filterHistoryList;
   (window as any).closeHistoryModal = closeHistoryModal;
   (window as any).showToast = showToast;
+  (window as any).openDepositSlip = openDepositSlip;
+  (window as any).checkDepositSlipBadges = checkDepositSlipBadges;
 }
