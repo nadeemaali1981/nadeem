@@ -10,21 +10,19 @@ async function main() {
 
   const userMsgs = [];
   for await (const line of rl) {
-    if (line.includes('"source"') && line.includes('USER')) {
+    if (line.includes('USER_EXPLICIT')) {
       try {
         const d = JSON.parse(line);
-        if (d.source === 'USER') {
-          userMsgs.push(d);
-        }
+        userMsgs.push(d);
       } catch(e) {}
     }
   }
 
-  console.log('Total USER msgs:', userMsgs.length);
-  const last = userMsgs.slice(-5);
+  console.log('Total USER_EXPLICIT msgs:', userMsgs.length);
+  const last = userMsgs.slice(-4);
   last.forEach((m, idx) => {
-    console.log(`\n--- MSG ${idx} ---`);
-    console.log(JSON.stringify(m).substring(0, 500));
+    console.log(`\n=== MSG ${idx} (step ${m.step_index}, ${m.created_at}) ===`);
+    console.log(m.content);
   });
 }
 
