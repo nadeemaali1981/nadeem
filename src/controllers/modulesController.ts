@@ -625,6 +625,7 @@ async function loadSuppliersTab() {
 
     syncSuppliersPageToDailyDropdown(rawSuppliersData);
     populateSuppliersFilterDropdowns(rawSuppliersData);
+    renderSuppliersNavTabs(rawSuppliersData);
     applySuppliersFilters();
   } catch (err) {
     console.error('Error loading suppliers:', err);
@@ -911,6 +912,238 @@ fetch('/api/modules/suppliers')
     }
   })
   .catch(() => {});
+
+
+// =========================================================================
+// تفاصيل كشف حساب المورد التفصيلي (Supplier Statement & Invoices)
+// =========================================================================
+let activeSupplierStatementId: any = null;
+let activeSupplierStatementName: string = '';
+
+function renderSuppliersNavTabs(suppliers: any[]) {
+  const tabsContainer = document.getElementById('suppliersNavTabs');
+  const countEl = document.getElementById('suppliersNavCount');
+  if (!tabsContainer) return;
+  tabsContainer.innerHTML = '';
+
+  const list = Array.isArray(suppliers) ? suppliers : [];
+  if (countEl) countEl.textContent = `(${list.length} مورد مسجل)`;
+
+  if (list.length === 0) {
+    tabsContainer.innerHTML = '<span style="font-size:0.8rem; color:#94a3b8;">لا يوجد موردون مضافون حالياً.</span>';
+    return;
+  }
+
+  // إضافة زر "جميع الموردين"
+  const allBtn = document.createElement('button');
+  allBtn.type = 'button';
+  allBtn.className = 'btn btn-secondary btn-sm';
+  allBtn.style.cssText = 'padding: 5px 12px; font-size: 0.82rem; font-weight: 700; border-radius: 6px; background: #f8fafc; border: 1px solid #cbd5e1; color: #334155;';
+  allBtn.innerHTML = '📋 جدول جميع الموردين';
+  allBtn.onclick = () => showSuppliersOverview();
+  tabsContainer.appendChild(allBtn);
+
+  list.forEach(s => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-sm';
+    const isCurrent = activeSupplierStatementName === s.name;
+    btn.style.cssText = isCurrent
+      ? 'padding: 5px 12px; font-size: 0.82rem; font-weight: 800; border-radius: 6px; background: #2563eb; color: #fff; border: 1px solid #1d4ed8; box-shadow: 0 1px 3px rgba(37,99,235,0.25);'
+      : 'padding: 5px 12px; font-size: 0.82rem; font-weight: 700; border-radius: 6px; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; transition: all 0.15s;';
+    btn.innerHTML = `🚚 ${escapeHtml(s.name)}`;
+    btn.onclick = () => openSupplierStatementPage(s.id, s.name);
+    tabsContainer.appendChild(btn);
+  });
+}
+(window as any).renderSuppliersNavTabs = renderSuppliersNavTabs;
+
+function showSuppliersOverview() {
+  activeSupplierStatementId = null;
+  activeSupplierStatementName = '';
+  const overviewEl = document.getElementById('suppliersOverviewView');
+  const detailEl = document.getElementById('supplierDetailView');
+  if (overviewEl) overviewEl.style.display = 'block';
+  if (detailEl) detailEl.style.display = 'none';
+
+  if (Array.isArray(rawSuppliersData)) {
+    renderSuppliersNavTabs(rawSuppliersData);
+  }
+}
+(window as any).showSuppliersOverview = showSuppliersOverview;
+
+async function openSupplierStatementPage(supplierId: any, supplierName: string) {
+  activeSupplierStatementId = supplierId;
+  activeSupplierStatementName = supplierName;
+
+  const overviewEl = document.getElementById('suppliersOverviewView');
+  const detailEl = document.getElementById('supplierDetailView');
+  if (overviewEl) overviewEl.style.display = 'none';
+  if (detailEl) detailEl.style.display = 'block';
+
+  const titleEl = document.getElementById('suppDetailTitle');
+  if (titleEl) titleEl.textContent = supplierName;
+
+  if (Array.isArray(rawSuppliersData)) {
+    renderSuppliersNavTabs(rawSuppliersData);
+  }
+
+  await loadSupplierStatement(supplierId, supplierName);
+}
+(window as any).openSupplierStatementPage = openSupplierStatementPage;
+
+async function loadSupplierStatement(supplierId: any, supplierName: string) {
+  const tbody = document.getElementById('suppDetailTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:1.5rem; color:#64748b;">جاري تحميل كشف الحساب والحركات...</td></tr>';
+
+  try {
+    const res = await fetch(`/api/modules/suppliers/${supplierId || 0}/statement?name=${encodeURIComponent(supplierName)}`);
+    const data = await res.json();
+
+    if (!data || !data.statement) {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:1.5rem; color:#dc2626;">تعذر جلب بيانات كشف الحساب</td></tr>';
+      return;
+    }
+
+    const { kpis, transactions } = data.statement;
+
+    // تحديث كروت الـ KPI
+    const openingEl = document.getElementById('suppDetailKpiOpening');
+    const invEl = document.getElementById('suppDetailKpiInvoices');
+    const invCountEl = document.getElementById('suppDetailKpiInvoiceCount');
+    const discEl = document.getElementById('suppDetailKpiDiscounts');
+    const retEl = document.getElementById('suppDetailKpiReturns');
+    const paidEl = document.getElementById('suppDetailKpiPaid');
+    const balEl = document.getElementById('suppDetailKpiBalance');
+    const rowsCountEl = document.getElementById('suppDetailRowsCount');
+
+    if (openingEl) openingEl.textContent = formatCurrency(kpis.opening_balance || 0);
+    if (invEl) invEl.textContent = formatCurrency(kpis.total_invoices || 0);
+    if (invCountEl) invCountEl.textContent = `${kpis.invoice_count || 0} فواتير مسجلة`;
+    if (discEl) discEl.textContent = formatCurrency(kpis.total_discounts || 0);
+    if (retEl) retEl.textContent = formatCurrency(kpis.total_returns || 0);
+    if (paidEl) paidEl.textContent = formatCurrency(kpis.total_paid || 0);
+    if (balEl) {
+      const net = kpis.net_balance || 0;
+      balEl.textContent = formatCurrency(net);
+      balEl.style.color = net > 0 ? '#b91c1c' : (net < 0 ? '#059669' : '#475569');
+    }
+    if (rowsCountEl) rowsCountEl.textContent = `${(transactions || []).length} حركة مسجلة`;
+
+    tbody.innerHTML = '';
+    if (!transactions || transactions.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:1.5rem; color:#94a3b8;">لا توجد أي حركات أو فواتير مسجلة لهذا المورد حتى الآن.</td></tr>';
+      return;
+    }
+
+    transactions.forEach((tx: any) => {
+      const tr = document.createElement('tr');
+      if (tx.type === 'opening') {
+        tr.style.background = '#fefce8';
+      }
+
+      const openingDisplay = tx.opening_balance > 0
+        ? `<span style="font-weight:800; color:#b45309;">${formatCurrency(tx.opening_balance)}</span>`
+        : '<span style="color:#94a3b8;">-</span>';
+
+      const invoiceDisplay = tx.invoice_amount > 0
+        ? `<span style="font-weight:800; color:#1d4ed8;">${formatCurrency(tx.invoice_amount)}</span>`
+        : '<span style="color:#94a3b8;">-</span>';
+
+      const invNumDisplay = tx.invoice_number && tx.invoice_number !== '-'
+        ? `<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">${escapeHtml(tx.invoice_number)}</span>`
+        : '<span style="color:#94a3b8;">-</span>';
+
+      const discountDisplay = tx.discount_amount > 0
+        ? `<span style="font-weight:800; color:#059669;">${formatCurrency(tx.discount_amount)}</span>`
+        : '<span style="color:#94a3b8;">-</span>';
+
+      const returnDisplay = tx.return_amount > 0
+        ? `<span style="font-weight:800; color:#dc2626;">${formatCurrency(tx.return_amount)}</span>`
+        : '<span style="color:#94a3b8;">-</span>';
+
+      const paidDisplay = tx.paid_amount > 0
+        ? `<span style="font-weight:800; color:#0891b2;">${formatCurrency(tx.paid_amount)}</span>`
+        : '<span style="color:#94a3b8;">-</span>';
+
+      const actionHtml = tx.can_delete
+        ? `<button class="btn-del-row" title="حذف الفاتورة" onclick="deleteModuleItem('/api/modules/suppliers/invoices/${tx.id}', () => reloadCurrentSupplierStatement())">
+             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+           </button>`
+        : '';
+
+      tr.innerHTML = `
+        <td style="text-align:center; font-weight:600; white-space:nowrap;">${tx.date}</td>
+        <td style="text-align:center;">${openingDisplay}</td>
+        <td style="text-align:center;">${invoiceDisplay}</td>
+        <td style="text-align:center;">${invNumDisplay}</td>
+        <td style="text-align:center;">${discountDisplay}</td>
+        <td style="text-align:center;">${returnDisplay}</td>
+        <td style="text-align:center;">${paidDisplay}</td>
+        <td style="text-align:right; font-weight:600; color:#334155;">${escapeHtml(tx.notes || '-')}</td>
+        <td style="text-align:center; font-weight:900; color:#1e293b; direction:ltr;">${formatCurrency(tx.running_balance)}</td>
+        <td style="text-align:center;">${actionHtml}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error('Error loading supplier statement:', err);
+  }
+}
+(window as any).loadSupplierStatement = loadSupplierStatement;
+
+function reloadCurrentSupplierStatement() {
+  if (activeSupplierStatementId && activeSupplierStatementName) {
+    loadSupplierStatement(activeSupplierStatementId, activeSupplierStatementName);
+    loadSuppliersTab();
+  }
+}
+(window as any).reloadCurrentSupplierStatement = reloadCurrentSupplierStatement;
+
+function openModalAddSupplierInvoice() {
+  const form = document.getElementById('formAddSupplierInvoice') as HTMLFormElement;
+  if (form) form.reset();
+
+  const idInput = document.getElementById('suppInvFormSupplierId') as HTMLInputElement;
+  const nameInput = document.getElementById('suppInvFormSupplierName') as HTMLInputElement;
+  const dateInput = document.getElementById('suppInvDate') as HTMLInputElement;
+  const titleEl = document.getElementById('modalAddSupplierInvoiceTitle');
+
+  if (idInput) idInput.value = String(activeSupplierStatementId || '');
+  if (nameInput) nameInput.value = activeSupplierStatementName || '';
+  if (dateInput) dateInput.value = formatLocalDate(new Date());
+  if (titleEl) titleEl.textContent = `+ إضافة فاتورة / حركة للمورد (${activeSupplierStatementName})`;
+
+  openModal('modalAddSupplierInvoice');
+}
+(window as any).openModalAddSupplierInvoice = openModalAddSupplierInvoice;
+
+(window as any).submitAddSupplierInvoice = async function(e: any) {
+  e.preventDefault();
+  const form = document.getElementById('formAddSupplierInvoice') as HTMLFormElement;
+  if (!form) return;
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+
+  try {
+    const res = await fetch('/api/modules/suppliers/invoices', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+      closeModal('modalAddSupplierInvoice');
+      showToast('تمت إضافة فاتورة / حركة المورد بنجاح');
+      reloadCurrentSupplierStatement();
+    } else {
+      alert('حدث خطأ أثناء حفظ الفاتورة');
+    }
+  } catch (err) {
+    console.error('Error saving supplier invoice:', err);
+    alert('حدث خطأ أثناء حفظ الفاتورة');
+  }
+};
 
 // 4. Employees Module
 let currentEmployeesList: any[] = [];
