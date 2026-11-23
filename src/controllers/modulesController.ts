@@ -289,6 +289,12 @@ window.resetSalesFilters = function() {
 };
 
 // 2. Expenses Module (سجل المصاريف: ترحيل تلقائي من دفتر اليومية لجدولي مصاريف داخلية وسحوبات موظفين فقط)
+let expensesDataCache: any[] = [];
+
+function escapeHtml(str: any) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 async function loadExpensesTab() {
   try {
     const res = await fetch('/api/modules/expenses-summary');
@@ -316,80 +322,257 @@ async function loadExpensesTab() {
       return (Number(a.id) || 0) - (Number(b.id) || 0);
     });
 
-    const opItems: any[] = [];
-    const fixItems: any[] = [];
-    let opTotal = 0;
-    let fixTotal = 0;
-
-    allItems.forEach((it: any) => {
-      const amt = Number(it.amount || 0);
-      if (!(amt > 0)) return;
-      const isFixed = it.expense_type === 'fixed' || it.category === 'fixed_expense' || it.category === 'fixed_expenses' || it.main_category === 'المصاريف الثابتة';
-      if (isFixed) {
-        fixTotal += amt;
-        fixItems.push(it);
-      } else {
-        opTotal += amt;
-        opItems.push(it);
-      }
-    });
-
-    const grandTotal = opTotal + fixTotal;
-
-    const setElText = (id: string, val: string) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = val;
-    };
-
-    setElText('expKpiGrandTotal', formatCurrency(grandTotal));
-    setElText('expKpiInternal', formatCurrency(opTotal));
-    setElText('expKpiFixed', formatCurrency(fixTotal));
-    setElText('expOpSubTotal', formatCurrency(opTotal));
-    setElText('expFixedSubTotal', formatCurrency(fixTotal));
-
-    const renderExpenseSection = (tbodyId: string, list: any[], emptyMsg: string) => {
-      const tbody = document.getElementById(tbodyId);
-      if (!tbody) return;
-      if (!list || list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:1.5rem; color:#64748b;">${emptyMsg}</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = list.map((it: any) => {
-        const isEmp = it.category === 'employee_advance' || it.category === 'employee_advances' || it.source_table === 'سحوبات موظفين';
-        const sourceBadge = isEmp
-          ? `<span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:6px; font-size:0.76rem; font-weight:700;">سحوبات موظفين</span>`
-          : `<span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:6px; font-size:0.76rem; font-weight:700;">مصاريف داخلية</span>`;
-        const mainCat = it.main_category || (it.expense_type === 'fixed' ? 'المصاريف الثابتة' : 'المصاريف التشغيلية');
-        const subCat = it.sub_category || '-';
-        const payChannel = it.payment_channel || '-';
-        const desc = it.description || '-';
-        const delBtn = it.id
-          ? `<button type="button" class="btn btn-danger btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="deleteExpenseItem(${it.id})" title="حذف المصروف">✕</button>`
-          : '';
-        return `
-          <tr>
-            <td style="font-weight:600; white-space:nowrap; text-align:center;">${it.sheet_date} <span style="color:#64748b; font-size:0.78rem;">(${it.day_name || ''})</span></td>
-            <td style="text-align:center; white-space:nowrap;">${sourceBadge}</td>
-            <td style="text-align:center; font-weight:600;">${mainCat}</td>
-            <td style="text-align:center; font-weight:600;">${subCat}</td>
-            <td style="text-align:center; font-weight:600;">${payChannel}</td>
-            <td style="text-align:center; font-weight:700;">${desc}</td>
-            <td style="text-align:center; font-weight:800; color:#b91c1c;">${formatCurrency(it.amount)}</td>
-            <td style="text-align:center; white-space:nowrap;">
-              <button type="button" class="btn btn-secondary btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="selectHistoryDay('${it.sheet_date}'); switchTab('daily');" title="فتح دفتر اليومية">اليومية</button>
-              ${delBtn}
-            </td>
-          </tr>
-        `;
-      }).join('');
-    };
-
-    renderExpenseSection('expensesOperationalBody', opItems, 'لا توجد مصاريف تشغيلية مرحلة من دفتر اليومية');
-    renderExpenseSection('expensesFixedBody', fixItems, 'لا توجد مصاريف ثابتة مرحلة من دفتر اليومية');
+    expensesDataCache = allItems;
+    populateExpenseFilterDropdowns(allItems);
+    applyExpensesFilters();
   } catch (err) {
     console.error('Error loading expenses:', err);
   }
 }
+
+// تعبئة القوائم المنسدلة للفلاتر بناءً على البيانات المتوفرة
+function populateExpenseFilterDropdowns(items: any[]) {
+  const catSelect = document.getElementById('expFilterCategory') as HTMLSelectElement | null;
+  const paySelect = document.getElementById('expFilterPaymentChannel') as HTMLSelectElement | null;
+
+  if (catSelect) {
+    const currentCat = catSelect.value || 'all';
+    const categories = new Set<string>();
+    items.forEach(it => {
+      const mainCat = String(it.main_category || '').trim();
+      const subCat = String(it.sub_category || '').trim();
+      if (mainCat && mainCat !== '-' && mainCat !== 'المصاريف التشغيلية' && mainCat !== 'المصاريف الثابتة') {
+        categories.add(mainCat);
+      }
+      if (subCat && subCat !== '-') {
+        categories.add(subCat);
+      }
+    });
+
+    let catHtml = '<option value="all">كل التصنيفات</option>';
+    Array.from(categories).sort().forEach(cat => {
+      const isSel = cat === currentCat ? 'selected' : '';
+      catHtml += `<option value="${escapeHtml(cat)}" ${isSel}>${escapeHtml(cat)}</option>`;
+    });
+    catSelect.innerHTML = catHtml;
+  }
+
+  if (paySelect) {
+    const currentPay = paySelect.value || 'all';
+    const channels = new Set<string>();
+    items.forEach(it => {
+      const ch = String(it.payment_channel || '').trim();
+      if (ch && ch !== '-') channels.add(ch);
+    });
+
+    let payHtml = '<option value="all">كل جهات الدفع</option>';
+    Array.from(channels).sort().forEach(ch => {
+      const isSel = ch === currentPay ? 'selected' : '';
+      payHtml += `<option value="${escapeHtml(ch)}" ${isSel}>${escapeHtml(ch)}</option>`;
+    });
+    paySelect.innerHTML = payHtml;
+  }
+}
+
+// تطبيق فلاتر المصاريف وتحديث الجداول والـ KPIs
+function applyExpensesFilters() {
+  if (!expensesDataCache) return;
+
+  const fromDate = (document.getElementById('expFilterFrom') as HTMLInputElement)?.value || '';
+  const toDate = (document.getElementById('expFilterTo') as HTMLInputElement)?.value || '';
+  const expType = (document.getElementById('expFilterType') as HTMLSelectElement)?.value || 'all';
+  const source = (document.getElementById('expFilterSource') as HTMLSelectElement)?.value || 'all';
+  const catFilter = (document.getElementById('expFilterCategory') as HTMLSelectElement)?.value || 'all';
+  const payChannel = (document.getElementById('expFilterPaymentChannel') as HTMLSelectElement)?.value || 'all';
+  const searchQuery = ((document.getElementById('expFilterSearch') as HTMLInputElement)?.value || '').trim().toLowerCase();
+
+  const isAnyFilterActive = !!(fromDate || toDate || expType !== 'all' || source !== 'all' || catFilter !== 'all' || payChannel !== 'all' || searchQuery);
+
+  const filtered = expensesDataCache.filter(it => {
+    const rDate = String(it.sheet_date || '').trim();
+    if (fromDate && rDate < fromDate) return false;
+    if (toDate && rDate > toDate) return false;
+
+    const isEmp = it.category === 'employee_advance' || it.category === 'employee_advances' || it.source_table === 'سحوبات موظفين';
+    const isFixed = it.expense_type === 'fixed' || it.category === 'fixed_expense' || it.category === 'fixed_expenses' || it.main_category === 'المصاريف الثابتة';
+
+    if (expType === 'operational' && isFixed) return false;
+    if (expType === 'fixed' && !isFixed) return false;
+
+    if (source === 'internal' && isEmp) return false;
+    if (source === 'advances' && !isEmp) return false;
+
+    if (catFilter !== 'all') {
+      const mainCat = String(it.main_category || '').trim();
+      const subCat = String(it.sub_category || '').trim();
+      if (mainCat !== catFilter && subCat !== catFilter) return false;
+    }
+
+    if (payChannel !== 'all') {
+      const ch = String(it.payment_channel || '').trim();
+      if (ch !== payChannel) return false;
+    }
+
+    if (searchQuery) {
+      const fullText = [
+        it.description || '',
+        it.main_category || '',
+        it.sub_category || '',
+        it.payment_channel || '',
+        it.sheet_date || '',
+        it.day_name || '',
+        it.source_table || ''
+      ].join(' ').toLowerCase();
+      if (!fullText.includes(searchQuery)) return false;
+    }
+
+    return true;
+  });
+
+  const opItems: any[] = [];
+  const fixItems: any[] = [];
+  let opTotal = 0;
+  let fixTotal = 0;
+
+  filtered.forEach((it: any) => {
+    const amt = Number(it.amount || 0);
+    if (!(amt > 0)) return;
+    const isFixed = it.expense_type === 'fixed' || it.category === 'fixed_expense' || it.category === 'fixed_expenses' || it.main_category === 'المصاريف الثابتة';
+    if (isFixed) {
+      fixTotal += amt;
+      fixItems.push(it);
+    } else {
+      opTotal += amt;
+      opItems.push(it);
+    }
+  });
+
+  const grandTotal = opTotal + fixTotal;
+
+  const setElText = (id: string, val: string) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  setElText('expKpiGrandTotal', formatCurrency(grandTotal));
+  setElText('expKpiInternal', formatCurrency(opTotal));
+  setElText('expKpiFixed', formatCurrency(fixTotal));
+  setElText('expKpiCount', String(filtered.length));
+  setElText('expOpSubTotal', formatCurrency(opTotal));
+  setElText('expFixedSubTotal', formatCurrency(fixTotal));
+
+  // إخفاء أو إظهار البطاقات بحسب فلتر نوع المصروف
+  const opCard = document.getElementById('cardExpensesOperational');
+  const fixCard = document.getElementById('cardExpensesFixed');
+  if (opCard) opCard.style.display = expType === 'fixed' ? 'none' : '';
+  if (fixCard) fixCard.style.display = expType === 'operational' ? 'none' : '';
+
+  const renderExpenseSection = (tbodyId: string, list: any[], emptyMsg: string) => {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    if (!list || list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:1.5rem; color:#64748b;">${emptyMsg}</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map((it: any) => {
+      const isEmp = it.category === 'employee_advance' || it.category === 'employee_advances' || it.source_table === 'سحوبات موظفين';
+      const sourceBadge = isEmp
+        ? `<span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:6px; font-size:0.76rem; font-weight:700;">سحوبات موظفين</span>`
+        : `<span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:6px; font-size:0.76rem; font-weight:700;">مصاريف داخلية</span>`;
+      const mainCat = it.main_category || (it.expense_type === 'fixed' ? 'المصاريف الثابتة' : 'المصاريف التشغيلية');
+      const subCat = it.sub_category || '-';
+      const payChannelVal = it.payment_channel || '-';
+      const desc = it.description || '-';
+      const delBtn = it.id
+        ? `<button type="button" class="btn btn-danger btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="deleteExpenseItem(${it.id})" title="حذف المصروف">✕</button>`
+        : '';
+      return `
+        <tr>
+          <td style="font-weight:600; white-space:nowrap; text-align:center;">${it.sheet_date} <span style="color:#64748b; font-size:0.78rem;">(${it.day_name || ''})</span></td>
+          <td style="text-align:center; white-space:nowrap;">${sourceBadge}</td>
+          <td style="text-align:center; font-weight:600;">${mainCat}</td>
+          <td style="text-align:center; font-weight:600;">${subCat}</td>
+          <td style="text-align:center; font-weight:600;">${payChannelVal}</td>
+          <td style="text-align:center; font-weight:700;">${desc}</td>
+          <td style="text-align:center; font-weight:800; color:#b91c1c;">${formatCurrency(it.amount)}</td>
+          <td style="text-align:center; white-space:nowrap;">
+            <button type="button" class="btn btn-secondary btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="selectHistoryDay('${it.sheet_date}'); switchTab('daily');" title="فتح دفتر اليومية">اليومية</button>
+            ${delBtn}
+          </td>
+        </tr>
+      `;
+    }).join('');
+  };
+
+  const opEmptyMsg = isAnyFilterActive ? 'لا توجد مصاريف تشغيلية مطابقة للفلتر المحدد' : 'لا توجد مصاريف تشغيلية مرحلة من دفتر اليومية';
+  const fixEmptyMsg = isAnyFilterActive ? 'لا توجد مصاريف ثابتة مطابقة للفلتر المحدد' : 'لا توجد مصاريف ثابتة مرحلة من دفتر اليومية';
+
+  renderExpenseSection('expensesOperationalBody', opItems, opEmptyMsg);
+  renderExpenseSection('expensesFixedBody', fixItems, fixEmptyMsg);
+}
+
+// أزرار الفلترة السريعة للتواريخ
+function setExpensesDateQuick(type: string) {
+  const fromEl = document.getElementById('expFilterFrom') as HTMLInputElement | null;
+  const toEl = document.getElementById('expFilterTo') as HTMLInputElement | null;
+  if (!fromEl || !toEl) return;
+
+  const now = new Date();
+  const format = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  if (type === 'today') {
+    fromEl.value = format(now);
+    toEl.value = format(now);
+  } else if (type === 'week') {
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 6 ? 0 : -1);
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(diff);
+    fromEl.value = format(startOfWeek);
+    toEl.value = format(new Date());
+  } else if (type === 'month') {
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    fromEl.value = format(firstDay);
+    toEl.value = format(lastDay);
+  } else if (type === 'all') {
+    fromEl.value = '';
+    toEl.value = '';
+  }
+
+  applyExpensesFilters();
+}
+
+// إعادة ضبط جميع الفلاتر
+function resetExpensesFilters() {
+  const fromEl = document.getElementById('expFilterFrom') as HTMLInputElement | null;
+  const toEl = document.getElementById('expFilterTo') as HTMLInputElement | null;
+  const typeEl = document.getElementById('expFilterType') as HTMLSelectElement | null;
+  const srcEl = document.getElementById('expFilterSource') as HTMLSelectElement | null;
+  const catEl = document.getElementById('expFilterCategory') as HTMLSelectElement | null;
+  const payEl = document.getElementById('expFilterPaymentChannel') as HTMLSelectElement | null;
+  const searchEl = document.getElementById('expFilterSearch') as HTMLInputElement | null;
+
+  if (fromEl) fromEl.value = '';
+  if (toEl) toEl.value = '';
+  if (typeEl) typeEl.value = 'all';
+  if (srcEl) srcEl.value = 'all';
+  if (catEl) catEl.value = 'all';
+  if (payEl) payEl.value = 'all';
+  if (searchEl) searchEl.value = '';
+
+  applyExpensesFilters();
+}
+
+(window as any).applyExpensesFilters = applyExpensesFilters;
+(window as any).setExpensesDateQuick = setExpensesDateQuick;
+(window as any).resetExpensesFilters = resetExpensesFilters;
+
 
 window.submitQuickExpense = async function(e: Event) {
   e.preventDefault();
