@@ -1738,6 +1738,7 @@ function recalculateAll() {
   setText('sumMerchantDispatches', formatMoney(sumDispatchesTotal));
   const sumEmployeeSales = sumCategory('employee_sales', 'amount1');
   setText('sumEmployeeSales', formatMoney(sumEmployeeSales));
+  updateSalesMismatchAlert(totalSales, sumEmployeeSales);
 
   // KPIs
   const totalExpenses = sumInternalExpenses;
@@ -1863,6 +1864,34 @@ function markUnsaved() {
 }
 
 async function saveSheet(isManual = true) {
+  // التحقق من تطابق إجمالي المبيعات مع مجموع سطر إجمالي المبيعات للموظفين
+  const totalSalesForCheck = (state.sales.cash || 0) +
+                             (state.sales.delivery || 0) +
+                             (state.sales.visa || 0) +
+                             (state.sales.ittihad || 0) +
+                             (state.sales.ittihad_qr || 0) +
+                             (state.sales.cliq || 0);
+  const sumEmpSalesForCheck = sumCategory('employee_sales', 'amount1');
+  const salesDiff = Math.round(Math.abs(totalSalesForCheck - sumEmpSalesForCheck) * 100) / 100;
+  if (isManual && salesDiff > 0.01 && (totalSalesForCheck > 0 || sumEmpSalesForCheck > 0)) {
+    const confirmSave = confirm(
+      `⚠️ إنذار عدم تطابق المبيعات:\n\n` +
+      `إجمالي المبيعات من القنوات: ${formatMoney(totalSalesForCheck)}\n` +
+      `مجموع سطر إجمالي مبيعات الموظفين: ${formatMoney(sumEmpSalesForCheck)}\n` +
+      `الفارق غير المطابق: ${formatMoney(salesDiff)}\n\n` +
+      `هل أنت متأكد من رغبتك في حفظ اليومية مع وجود هذا الفارق؟`
+    );
+    if (!confirmSave) {
+      showToast('تم إلغاء الحفظ لمراجعة الفارق بين إجمالي المبيعات ومبيعات الموظفين');
+      const statusEl = document.getElementById('autoSaveBadge');
+      if (statusEl) {
+        statusEl.textContent = 'تم إلغاء الحفظ لوجود عدم تطابق';
+        statusEl.style.color = '#ef4444';
+      }
+      return false;
+    }
+  }
+
   // عدد القطع المباعة اختياري: إذا تُرك فارغاً يُحفظ كـ 0
   const itemsCountInput = document.getElementById('input_sales_items_count');
   const itemsCountVal = itemsCountInput ? itemsCountInput.value.trim() : '';
