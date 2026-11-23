@@ -1962,6 +1962,31 @@ function markUnsaved() {
 }
 
 async function saveSheet(isManual = true) {
+  // 1. التحقق الصارم من عدم تكرار اسم الموظف أو الرقم الوظيفي في أكثر من سطر
+  const empSalesList = state.items.employee_sales || [];
+  const seenEmpNamesForSave = new Set<string>();
+  const seenEmpIdsForSave = new Set<string>();
+  for (let i = 0; i < empSalesList.length; i++) {
+    const eName = String(empSalesList[i].col1 || '').trim();
+    const eId = String(empSalesList[i].col2 || '').trim();
+    if (eName) {
+      if (seenEmpNamesForSave.has(eName)) {
+        alert(`⚠️ لا يمكن الحفظ لوجود تكرار:\nالموظف "${eName}" مكرر في أكثر من سطر في مبيعات الموظفين!\nيرجى حذف أو تعديل السطر المكرر قبل حفظ اليومية.`);
+        showToast(`تكرار في مبيعات الموظفين: ${eName}`);
+        return false;
+      }
+      seenEmpNamesForSave.add(eName);
+    }
+    if (eId) {
+      if (seenEmpIdsForSave.has(eId)) {
+        alert(`⚠️ لا يمكن الحفظ لوجود تكرار:\nالرقم الوظيفي "${eId}" مكرر في أكثر من سطر في مبيعات الموظفين!\nيرجى حذف أو تعديل السطر المكرر قبل حفظ اليومية.`);
+        showToast(`تكرار في الرقم الوظيفي: ${eId}`);
+        return false;
+      }
+      seenEmpIdsForSave.add(eId);
+    }
+  }
+
   // التحقق من تطابق إجمالي المبيعات مع مجموع سطر إجمالي المبيعات للموظفين
   const totalSalesForCheck = (state.sales.cash || 0) +
                              (state.sales.delivery || 0) +
