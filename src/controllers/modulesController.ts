@@ -847,64 +847,117 @@ async function loadInvestmentsTab() {
   }
 }
 
-// 9. Imports Module (ادارة الواردات)
+// 9. Imports Module (ادارة الواردات - تحليل المبيعات والربح ورأس المال والالتزامات والاستثمارات)
+let importsSalesCache: any[] = [];
+
 async function loadImportsTab() {
-  try {
-    const res = await fetch('/api/modules/imports');
-    const imports = await res.json();
-
-    let totalGoods = 0;
-    let totalCustoms = 0;
-    let totalAll = 0;
-
-    imports.forEach(m => {
-      totalGoods += Number(m.goods_cost || 0);
-      totalCustoms += Number(m.shipping_customs_cost || 0);
-      totalAll += Number(m.total_cost || 0);
-    });
-
-    document.getElementById('impKpiTotalShipments').textContent = imports.length;
-    document.getElementById('impKpiGoodsCost').textContent = formatCurrency(totalGoods);
-    document.getElementById('impKpiCustomsCost').textContent = formatCurrency(totalCustoms);
-    document.getElementById('impKpiGrandTotal').textContent = formatCurrency(totalAll);
-
-    const tbody = document.getElementById('importsTableBody');
-    if (!tbody) return;
-    if (imports.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:1.5rem;">لا توجد شحنات واردة مسجلة. انقر فوق (+ إضافة شحنة جديدة)</td></tr>';
-      return;
-    }
-
-    const statusMap = {
-      in_transit: '<span class="badge-status badge-in_transit">في الشحن</span>',
-      customs: '<span class="badge-status badge-customs">تخليص جمركي</span>',
-      received: '<span class="badge-status badge-completed">تم الاستلام والمستودع</span>',
-      completed: '<span class="badge-status badge-active">مكتملة</span>'
-    };
-
-    tbody.innerHTML = '';
-    imports.forEach(m => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td style="font-weight:700; color:#1e40af;">${m.shipment_number}</td>
-        <td style="font-weight:600;">${m.supplier_name}</td>
-        <td>${m.item_description || '-'}</td>
-        <td style="text-align:center;">${m.quantity || 1}</td>
-        <td style="text-align:center;">${formatCurrency(m.goods_cost)}</td>
-        <td style="text-align:center;">${formatCurrency(m.shipping_customs_cost)}</td>
-        <td style="text-align:center; font-weight:700; color:#047857;">${formatCurrency(m.total_cost)}</td>
-        <td style="text-align:center;">${statusMap[m.status] || m.status}</td>
-        <td style="text-align:center;">
-          <button class="btn-del-row" title="حذف الشحنة" onclick="deleteModuleItem('/api/modules/imports/${m.id}', loadImportsTab)">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-          </button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  } catch (err) {
-    console.error('Error loading imports:', err);
+  const tbody = document.getElementById('importsSalesBreakdownBody');
+  if (tbody && importsSalesCache.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:#64748b;">جاري تحميل بيانات المبيعات من دفتر اليومية...</td></tr>';
   }
+  try {
+    const res = await fetch('/api/modules/sales-summary');
+    const data = await res.json();
+    importsSalesCache = Array.isArray(data.history) ? data.history : [];
+    applyImportsFilters();
+  } catch (err) {
+    console.error('Error loading imports breakdown:', err);
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:#dc2626;">تعذر تحميل البيانات من دفتر اليومية.</td></tr>';
+    }
+  }
+}
+window.loadImportsTab = loadImportsTab;
+
+function applyImportsFilters() {
+  const fromDate = (document.getElementById('importsFilterFrom') as HTMLInputElement)?.value || '';
+  const toDate = (document.getElementById('importsFilterTo') as HTMLInputElement)?.value || '';
+
+  let list = importsSalesCache.filter(r => {
+    const total = parseFloat(r.day_total) || 0;
+    if (total <= 0) return false;
+    const rDate = r.sheet_date || '';
+    if (fromDate && rDate < fromDate) return false;
+    if (toDate && rDate > toDate) return false;
+    return true;
+  });
+
+  // ترتيب التواريخ من الأقدم إلى الأحدث
+  list.sort((a, b) => (a.sheet_date || '').localeCompare(b.sheet_date || ''));
+
+  let sumSales = 0;
+  let sumProfit = 0;
+  let sumCapital = 0;
+  let sumLiabilities = 0;
+  let sumInvestments = 0;
+
+  const tbody = document.getElementById('importsSalesBreakdownBody');
+  const tfoot = document.getElementById('importsSalesBreakdownFoot');
+  if (!tbody) return;
+
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem; color:#64748b; font-weight:600;">لا توجد مبيعات مسجلة في دفتر اليومية تطابق الفترة المحددة</td></tr>';
+    if (tfoot) tfoot.innerHTML = '';
+    updateImportsKpis(0, 0, 0, 0, 0, 0);
+    return;
+  }
+
+  tbody.innerHTML = '';
+  list.forEach(r => {
+    const total = Math.round(Number(r.day_total || 0) * 100) / 100;
+    const profit = Math.round(total * 0.40 * 100) / 100;
+    const capital = Math.round((total - profit) * 100) / 100;
+    const liabilities = Math.round(profit * 0.75 * 100) / 100;
+    const investments = Math.round(profit * 0.25 * 100) / 100;
+
+    sumSales += total;
+    sumProfit += profit;
+    sumCapital += capital;
+    sumLiabilities += liabilities;
+    sumInvestments += investments;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="padding: 9px 12px; text-align: center; font-weight: 700; border-left: 1px solid #e2e8f0;">${r.day_name || '-'}</td>
+      <td style="padding: 9px 12px; text-align: center; font-weight: 600; color: #475569; border-left: 1px solid #e2e8f0;">${r.sheet_date || '-'}</td>
+      <td style="padding: 9px 12px; text-align: center; font-weight: 700; color: #1e3a8a; border-left: 1px solid #e2e8f0;">${formatCurrency(total)}</td>
+      <td style="padding: 9px 12px; text-align: center; font-weight: 700; color: #059669; border-left: 1px solid #e2e8f0;">${formatCurrency(profit)}</td>
+      <td style="padding: 9px 12px; text-align: center; font-weight: 700; color: #2563eb; border-left: 1px solid #e2e8f0;">${formatCurrency(capital)}</td>
+      <td style="padding: 9px 12px; text-align: center; font-weight: 700; color: #d97706; border-left: 1px solid #e2e8f0;">${formatCurrency(liabilities)}</td>
+      <td style="padding: 9px 12px; text-align: center; font-weight: 700; color: #9333ea;">${formatCurrency(investments)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (tfoot) {
+    tfoot.innerHTML = `
+      <tr>
+        <td style="padding: 10px 14px; text-align: center; font-weight: 900; border-left: 1px solid #cbd5e1;">المجموع الكلي</td>
+        <td style="padding: 10px 14px; text-align: center; font-weight: 900; border-left: 1px solid #cbd5e1; color: #475569;">${list.length} يوم</td>
+        <td style="padding: 10px 14px; text-align: center; font-weight: 900; border-left: 1px solid #cbd5e1; color: #1e3a8a;">${formatCurrency(sumSales)}</td>
+        <td style="padding: 10px 14px; text-align: center; font-weight: 900; border-left: 1px solid #cbd5e1; color: #059669;">${formatCurrency(sumProfit)}</td>
+        <td style="padding: 10px 14px; text-align: center; font-weight: 900; border-left: 1px solid #cbd5e1; color: #2563eb;">${formatCurrency(sumCapital)}</td>
+        <td style="padding: 10px 14px; text-align: center; font-weight: 900; border-left: 1px solid #cbd5e1; color: #d97706;">${formatCurrency(sumLiabilities)}</td>
+        <td style="padding: 10px 14px; text-align: center; font-weight: 900; color: #9333ea;">${formatCurrency(sumInvestments)}</td>
+      </tr>
+    `;
+  }
+
+  updateImportsKpis(list.length, sumSales, sumProfit, sumCapital, sumLiabilities, sumInvestments);
+}
+window.applyImportsFilters = applyImportsFilters;
+
+function updateImportsKpis(days: number, sales: number, profit: number, capital: number, liabilities: number, investments: number) {
+  const setEl = (id: string, val: string) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+  setEl('impKpiSalesDays', String(days));
+  setEl('impKpiTotalSales', formatCurrency(sales));
+  setEl('impKpiTotalProfit', formatCurrency(profit));
+  setEl('impKpiTotalCapital', formatCurrency(capital));
+  setEl('impKpiTotalLiabilities', formatCurrency(liabilities));
+  setEl('impKpiTotalInvestments', formatCurrency(investments));
 }
 
 // 10. Profit & Loss Statement (الارباح و الخسائر)
@@ -1829,6 +1882,7 @@ if (document.readyState === 'loading') {
   (window as any).loadPartnersTab = loadPartnersTab;
   (window as any).loadInvestmentsTab = loadInvestmentsTab;
   (window as any).loadImportsTab = loadImportsTab;
+  (window as any).applyImportsFilters = applyImportsFilters;
   (window as any).loadProfitLossTab = loadProfitLossTab;
   (window as any).submitForm = submitForm;
 }
