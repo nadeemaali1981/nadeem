@@ -532,7 +532,7 @@ async function seedHistoricalSales(force = false) {
         await tx.run(`
           INSERT INTO daily_sheets (
             sheet_date, day_name, sales_cash, sales_delivery, sales_visa,
-            sales_ittihad, sales_ittihad_qr, sales_cliq, sales_other, sales_items_count,
+            sales_ittihad, sales_ittihad_qr, sales_cliq, sales_items_count,
             deposit_personal, deposit_business, deposit_personal_date, deposit_business_date,
             notes, perfume_desc, perfume_debit, perfume_credit
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, '', '', '', '', 0, 0)
@@ -1440,7 +1440,7 @@ async function saveDailySheet(data) {
           deposit_personal, deposit_business, deposit_owner_hand,
           deposit_personal_date, deposit_business_date, deposit_owner_hand_date,
           notes, perfume_desc, perfume_debit, perfume_credit
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         data.sheet_date,
         data.day_name || '',
