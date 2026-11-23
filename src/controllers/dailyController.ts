@@ -1580,6 +1580,22 @@ function renderDailyNotesTable() {
 // Helper: Add / Delete Rows
 window.addRow = function(categoryKey) {
   if (!state.items[categoryKey]) state.items[categoryKey] = [];
+  if (categoryKey === 'employee_sales') {
+    // 1. التحقق من وجود سطر فارغ غير مكتمل أولاً
+    const hasEmptyRow = state.items.employee_sales.some(r => !String(r.col1 || '').trim() && !String(r.col2 || '').trim());
+    if (hasEmptyRow) {
+      showToast('يرجى اختيار الموظف في السطر الفارغ الحالي أولاً');
+      return;
+    }
+    // 2. التحقق مما إذا تمت إضافة جميع الموظفين المسجلين في النظام
+    const records = getConfiguredEmployeeRecords();
+    const currentFilledCount = state.items.employee_sales.filter(r => String(r.col1 || '').trim() || String(r.col2 || '').trim()).length;
+    if (records.length > 0 && currentFilledCount >= records.length) {
+      alert('⚠️ تنبيه: تمت إضافة جميع الموظفين المسجلين في النظام بالفعل، ولا يُسمح بتكرار نفس الموظف في أكثر من سطر.');
+      showToast('جميع الموظفين مضافون بالفعل');
+      return;
+    }
+  }
   state.items[categoryKey].push({ col1: '', col2: '', col3: '', col4: '', col5: '', amount1: 0, amount2: 0 });
   renderUI();
   recalculateAll();
