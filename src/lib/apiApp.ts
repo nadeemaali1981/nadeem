@@ -114,6 +114,7 @@ app.post('/api/modules/expenses', async (c) => c.json(await db.createExpenseReco
 app.delete('/api/modules/expenses/:id', async (c) => c.json(await db.deleteExpenseRecord(parseInt(c.req.param('id'), 10))));
 app.get('/api/modules/suppliers', async (c) => c.json(await db.getSuppliersList()));
 app.post('/api/modules/suppliers', async (c) => c.json(await db.createSupplier(await c.req.json()), 201));
+app.put('/api/modules/suppliers/:id', async (c) => c.json(await db.updateSupplier(parseInt(c.req.param('id'), 10), await c.req.json())));
 app.delete('/api/modules/suppliers/:id', async (c) => c.json(await db.deleteSupplier(parseInt(c.req.param('id'), 10))));
 app.get('/api/modules/employees', async (c) => c.json(await db.getEmployeesList()));
 app.post('/api/modules/employees', async (c) => c.json(await db.createEmployee(await c.req.json()), 201));

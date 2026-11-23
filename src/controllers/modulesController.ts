@@ -759,10 +759,32 @@ function applySuppliersFilters() {
 }
 (window as any).applySuppliersFilters = applySuppliersFilters;
 
+window.updateSupplierOpeningBalance = async function(id, val) {
+  if (!id) return;
+  const num = parseFloat(val) || 0;
+  try {
+    const res = await fetch(`/api/modules/suppliers/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ opening_balance: num })
+    });
+    if (res.ok) {
+      showToast('تم حفظ الرصيد المدور للمورد بنجاح');
+      loadSuppliersTab();
+    } else {
+      alert('فشل حفظ الرصيد المدور');
+    }
+  } catch (e) {
+    console.error('Error updating supplier opening balance:', e);
+  }
+};
+
 function renderSuppliersFilteredView(filtered: any[]) {
   const uniqueSuppliers = new Set(filtered.map((s: any) => String(s.name || '').trim()).filter(Boolean));
   let totalPaid = 0;
   let paymentsCount = 0;
+  const seenSuppliersForOpening = new Set();
+  let totalOpening = 0;
 
   filtered.forEach(s => {
     const paid = Number(s.total_paid || 0);
@@ -770,13 +792,20 @@ function renderSuppliersFilteredView(filtered: any[]) {
     if (paid > 0 || (s.payment_date && s.payment_date !== '-')) {
       paymentsCount++;
     }
+    const suppName = String(s.name || '').trim();
+    if (suppName && !seenSuppliersForOpening.has(suppName)) {
+      seenSuppliersForOpening.add(suppName);
+      totalOpening += Number(s.opening_balance || 0);
+    }
   });
 
   const kpiTotalEl = document.getElementById('suppKpiTotal');
+  const kpiOpeningEl = document.getElementById('suppKpiTotalOpening');
   const kpiCountEl = document.getElementById('suppKpiCount');
   const kpiPaidEl = document.getElementById('suppKpiTotalPaid');
 
   if (kpiTotalEl) kpiTotalEl.textContent = String(uniqueSuppliers.size);
+  if (kpiOpeningEl) kpiOpeningEl.textContent = formatCurrency(totalOpening);
   if (kpiCountEl) kpiCountEl.textContent = String(paymentsCount);
   if (kpiPaidEl) kpiPaidEl.textContent = formatCurrency(totalPaid);
 
@@ -784,7 +813,7 @@ function renderSuppliersFilteredView(filtered: any[]) {
   if (!tbody) return;
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem; color:#64748b; font-weight:700;">لا توجد سجلات موردين مطابقة للفلاتر الحالية. (<span style="color:#2563eb; cursor:pointer;" onclick="resetSuppliersFilters()">إلغاء الفلاتر</span>)</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#64748b; font-weight:700;">لا توجد سجلات موردين مطابقة للفلاتر الحالية. (<span style="color:#2563eb; cursor:pointer;" onclick="resetSuppliersFilters()">إلغاء الفلاتر</span>)</td></tr>';
     return;
   }
 
@@ -799,8 +828,19 @@ function renderSuppliersFilteredView(filtered: any[]) {
       ? `<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">${s.payment_channel}</span>`
       : '<span style="color:#94a3b8;">-</span>';
 
+    const openingInputHtml = s.id ? `
+      <input type="number" step="any" class="table-input" style="width: 120px; text-align: center; font-weight: 800; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 3px 6px;"
+             value="${s.opening_balance || 0}"
+             placeholder="0.00"
+             title="انقر لتعديل الرصيد المدور من سنوات سابقة"
+             onchange="updateSupplierOpeningBalance(${s.id}, this.value)" />
+    ` : `
+      <span style="font-weight:700; color:#b45309;">${formatCurrency(s.opening_balance || 0)}</span>
+    `;
+
     tr.innerHTML = `
       <td style="text-align:center; font-weight:800; color:#1e293b; font-size:0.92rem;">${s.name}</td>
+      <td style="text-align:center;">${openingInputHtml}</td>
       <td style="text-align:center; font-weight:600; white-space:nowrap;">${dateDisplay}</td>
       <td style="text-align:center;">${channelDisplay}</td>
       <td style="text-align:center; font-weight:800; color:#2563eb; font-size:0.95rem;">${formatCurrency(s.total_paid)}</td>
@@ -1706,9 +1746,12 @@ function hasNonEmptyExpenseRow(arr) {
 
 function normalizePaymentChannels(arr) {
   if (!Array.isArray(arr) || arr.length === 0) {
-    return ['صندوق'];
+    return ['نقدا', 'صندوق'];
   }
-  return sortPaymentChannelsArabic(arr.map(item => String(item || '')));
+  const set = new Set(arr.map(item => String(item || '').trim()).filter(Boolean));
+  set.add('نقدا');
+  set.add('صندوق');
+  return sortPaymentChannelsArabic(Array.from(set));
 }
 
 function sortEmployeesSettingsArabic(arr) {
@@ -1768,7 +1811,7 @@ function getExpenseSettingsData() {
   return {
     operational: [{ mainCategory: '' }],
     fixed: [{ mainCategory: '' }],
-    paymentChannels: ['صندوق'],
+    paymentChannels: ['نقدا', 'صندوق'],
     employees: [{ name: '', employeeId: '', basicSalary: '' }],
     suppliers: ['']
   };

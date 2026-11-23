@@ -355,6 +355,7 @@ async function initSchema() {
         ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS deposit_business_date TEXT DEFAULT '';
         ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS deposit_owner_hand REAL DEFAULT 0;
         ALTER TABLE daily_sheets ADD COLUMN IF NOT EXISTS deposit_owner_hand_date TEXT DEFAULT '';
+        ALTER TABLE contacts ADD COLUMN IF NOT EXISTS opening_balance NUMERIC DEFAULT 0;
       `);
     } catch (migErr) {
       console.warn('PostgreSQL column migration note:', migErr.message);
@@ -1788,9 +1789,26 @@ async function createSupplier(data) {
   await initSchema();
   const name = String(data?.name || '').trim();
   if (!name) throw new Error('Supplier name is required');
+  const opening_balance = Number(data?.opening_balance || 0);
   const existing = await get("SELECT * FROM contacts WHERE type = 'supplier' AND LOWER(TRIM(name)) = LOWER(?)", [name]);
-  if (existing) return existing;
-  return await createContact({ ...data, name, type: 'supplier' });
+  if (existing) {
+    if (data?.opening_balance !== undefined) {
+      await run('UPDATE contacts SET opening_balance = ? WHERE id = ? AND type = ?', [opening_balance, existing.id, 'supplier']);
+    }
+    return { ...existing, opening_balance };
+  }
+  return await createContact({ ...data, name, type: 'supplier', opening_balance });
+}
+
+async function updateSupplier(id, data) {
+  await initSchema();
+  if (data.opening_balance !== undefined) {
+    await run('UPDATE contacts SET opening_balance = ? WHERE id = ? AND type = ?', [Number(data.opening_balance || 0), id, 'supplier']);
+  }
+  if (data.name) {
+    await run('UPDATE contacts SET name = ? WHERE id = ? AND type = ?', [String(data.name).trim(), id, 'supplier']);
+  }
+  return { success: true };
 }
 
 async function deleteSupplier(id) {
@@ -2336,6 +2354,7 @@ const db = {
   deleteExpenseRecord,
   getSuppliersList,
   createSupplier,
+  updateSupplier,
   deleteSupplier,
   getEmployeesList,
   createEmployee,

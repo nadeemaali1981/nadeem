@@ -826,13 +826,21 @@ function getConfiguredPaymentChannels() {
             list.push(val);
           }
         });
+        if (!seen.has('نقدا')) {
+          list.unshift('نقدا');
+          seen.add('نقدا');
+        }
+        if (!seen.has('صندوق')) {
+          list.push('صندوق');
+          seen.add('صندوق');
+        }
         if (list.length > 0) {
-          return list.sort((a, b) => a.localeCompare(b, 'ar'));
+          return list;
         }
       }
     }
   } catch (e) {}
-  return ['صندوق'];
+  return ['نقدا', 'صندوق'];
 }
 
 function onCategorizedRowPaymentChannelChange(categoryKey, idx, newChannel, selectEl?: HTMLElement) {
@@ -2065,7 +2073,7 @@ function recalculateAll() {
   // يخصم من المصاريف الداخلية وسحوبات الموظفين فقط ما كانت جهة الدفع فيه "صندوق"
   const sumCashInternalExpenses = (state.items.internal_expenses || []).reduce((acc, r) => {
     const paySource = String(r.col4 || '').trim();
-    if (paySource.includes('صندوق')) {
+    if ((paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد'))) {
       return acc + (parseFloat(r.amount1) || 0);
     }
     return acc;
@@ -2073,7 +2081,7 @@ function recalculateAll() {
 
   const sumCashEmployeeAdvances = (state.items.employee_advances || []).reduce((acc, r) => {
     const paySource = String(r.col4 || '').trim();
-    if (paySource.includes('صندوق')) {
+    if ((paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد'))) {
       return acc + (parseFloat(r.amount1) || 0);
     }
     return acc;
@@ -2081,7 +2089,7 @@ function recalculateAll() {
 
   const sumCashSupplierPayments = (state.items.supplier_payments || []).reduce((acc, r) => {
     const paySource = String(r.col4 || '').trim();
-    if (paySource.includes('صندوق')) {
+    if ((paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد'))) {
       return acc + (parseFloat(r.amount1) || 0);
     }
     return acc;
@@ -2089,7 +2097,7 @@ function recalculateAll() {
 
   const sumCashFromPurchases = (state.items.cash_purchases || []).reduce((acc, r) => {
     const paySource = String(r.col4 || '').trim();
-    if (paySource.includes('صندوق') || !paySource) {
+    if ((paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد')) || !paySource) {
       return acc + (parseFloat(r.amount1) || 0);
     }
     return acc;
