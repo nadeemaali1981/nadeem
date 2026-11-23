@@ -23,7 +23,7 @@ function formatCurrency(val) {
 async function loadSalesTab() {
   const tbody = document.getElementById('salesHistoryBody');
   if (tbody && salesDataCache.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:1.5rem; color:#64748b;">جاري تحميل سجل المبيعات...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center; padding:1.5rem; color:#64748b;">جاري تحميل سجل المبيعات...</td></tr>';
   }
   try {
     const res = await fetch('/api/modules/sales-summary');
@@ -34,7 +34,7 @@ async function loadSalesTab() {
   } catch (err) {
     console.error('Error loading sales:', err);
     if (tbody) {
-      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:1.5rem; color:#dc2626;">تعذر تحميل بيانات المبيعات. يرجى المحاولة مجدداً.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="12" style="text-align:center; padding:1.5rem; color:#dc2626;">تعذر تحميل بيانات المبيعات، يرجى المحاولة مجدداً.</td></tr>';
     }
   }
 }
@@ -71,7 +71,8 @@ window.applySalesFilters = function() {
         visa: 'sales_visa',
         ittihad: 'sales_ittihad',
         ittihad_qr: 'sales_ittihad_qr',
-        cliq: 'sales_cliq'
+        cliq: 'sales_cliq',
+        other: 'sales_other'
       };
       const field = fieldMap[channelFilter];
       if (field && !(parseFloat(r[field]) > 0)) return false;
@@ -169,8 +170,9 @@ window.applySalesFilters = function() {
     const cIttihad = parseFloat(r.sales_ittihad) || 0;
     const cIttihadQr = parseFloat(r.sales_ittihad_qr) || 0;
     const cCliq = parseFloat(r.sales_cliq) || 0;
+    const cOther = parseFloat(r.sales_other) || 0;
     const cItems = parseInt(r.sales_items_count, 10) || 0;
-    const cTotal = parseFloat(r.day_total) || (cCash + cDelivery + cVisa + cIttihad + cIttihadQr + cCliq);
+    const cTotal = parseFloat(r.day_total) || (cCash + cDelivery + cVisa + cIttihad + cIttihadQr + cCliq + cOther);
 
     rowsHtml += `
       <tr>
@@ -213,6 +215,7 @@ window.applySalesFilters = function() {
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
+          <td>&nbsp;</td>
         </tr>
       `;
     }
@@ -233,6 +236,7 @@ window.applySalesFilters = function() {
         <td style="text-align: center; font-weight: 800;">${formatCurrency(sumIttihad)}</td>
         <td style="text-align: center; font-weight: 800;">${formatCurrency(sumIttihadQr)}</td>
         <td style="text-align: center; font-weight: 800;">${formatCurrency(sumCliq)}</td>
+        <td style="text-align: center; font-weight: 800;">${formatCurrency(sumOther)}</td>
         <td style="text-align: center; font-weight: 800; color: #1e40af; background: #e0f2fe; font-size: 0.95rem;">
           ${formatCurrency(sumGrandTotal)}
         </td>
