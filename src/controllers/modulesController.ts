@@ -1725,11 +1725,14 @@ window.showSettingsSection = function(secId, btnEl) {
 };
 
 window.updateFieldNamePreview = function(key) {
-  const inp = document.getElementById(`custName_${key}`);
+  const inp = document.getElementById(`custName_${key}`) as HTMLInputElement | null;
   const prev = document.getElementById(`prev_${key}`);
   if (inp && prev) {
     const val = inp.value.trim();
     prev.textContent = val || (DEFAULT_SALES_FIELD_NAMES[key] ? DEFAULT_SALES_FIELD_NAMES[key].name : '');
+    if (typeof window.applyCustomFieldNames === 'function') {
+      window.applyCustomFieldNames();
+    }
   }
 };
 
@@ -1773,14 +1776,27 @@ window.resetSalesFieldNames = function() {
 window.applyCustomFieldNames = function() {
   const custom = window.getCustomSalesFieldNames();
 
-  const cashName = custom.sales_cash || 'صندوق';
-  const deliveryName = custom.sales_delivery || 'توصيل';
-  const visaName = custom.sales_visa || 'فيزا / NETWORK';
-  const ittihadName = custom.sales_ittihad || 'فيزا / الاتحاد';
-  const ittihadQrName = custom.sales_ittihad_qr || 'الاتحاد / QR';
-  const cliqName = custom.sales_cliq || 'كليك';
-  const otherName = custom.sales_other || 'مبيعات أخرى';
-  const itemsCountName = custom.sales_items_count || 'عدد القطع المباعة';
+  const getFieldVal = (key: string, fallback: string) => {
+    if (custom && custom[key] && String(custom[key]).trim()) return String(custom[key]).trim();
+    const prevEl = document.getElementById(`prev_${key}`);
+    if (prevEl && prevEl.textContent && prevEl.textContent.trim()) {
+      const txt = prevEl.textContent.trim();
+      const defaultName = DEFAULT_SALES_FIELD_NAMES[key] ? DEFAULT_SALES_FIELD_NAMES[key].name : '';
+      if (txt && txt !== defaultName) return txt;
+    }
+    const inpEl = document.getElementById(`custName_${key}`) as HTMLInputElement | null;
+    if (inpEl && inpEl.value && inpEl.value.trim()) return inpEl.value.trim();
+    return fallback;
+  };
+
+  const cashName = getFieldVal('sales_cash', 'صندوق');
+  const deliveryName = getFieldVal('sales_delivery', 'توصيل');
+  const visaName = getFieldVal('sales_visa', 'فيزا / NETWORK');
+  const ittihadName = getFieldVal('sales_ittihad', 'فيزا / الاتحاد');
+  const ittihadQrName = getFieldVal('sales_ittihad_qr', 'الاتحاد / QR');
+  const cliqName = getFieldVal('sales_cliq', 'كليك');
+  const otherName = getFieldVal('sales_other', 'مبيعات أخرى');
+  const itemsCountName = getFieldVal('sales_items_count', 'عدد القطع المباعة');
 
   // 1. Daily Journal labels
   const lblCash = document.getElementById('label_sales_cash');
@@ -1815,6 +1831,10 @@ window.applyCustomFieldNames = function() {
   if (thIttQr) thIttQr.textContent = ittihadQrName;
   const thCliq = document.getElementById('th_sales_cliq');
   if (thCliq) thCliq.textContent = cliqName;
+  const thOther = document.getElementById('th_sales_other');
+  if (thOther) thOther.textContent = otherName;
+  const thItems = document.getElementById('th_sales_items_count');
+  if (thItems) thItems.textContent = itemsCountName;
 
   // 3. Sales filters dropdown
   const optCash = document.getElementById('opt_sales_cash');
@@ -1829,6 +1849,8 @@ window.applyCustomFieldNames = function() {
   if (optIttQr) optIttQr.textContent = ittihadQrName;
   const optCliq = document.getElementById('opt_sales_cliq');
   if (optCliq) optCliq.textContent = cliqName;
+  const optOther = document.getElementById('opt_sales_other');
+  if (optOther) optOther.textContent = otherName;
 
   // 4. Sales KPI cards titles
   const kpiCash = document.getElementById('kpiTitleCash');
@@ -1843,6 +1865,8 @@ window.applyCustomFieldNames = function() {
   if (kpiIttQr) kpiIttQr.textContent = ittihadQrName;
   const kpiCliq = document.getElementById('kpiTitleCliq');
   if (kpiCliq) kpiCliq.textContent = cliqName;
+  const kpiOther = document.getElementById('kpiTitleOther');
+  if (kpiOther) kpiOther.textContent = otherName;
 };
 
 window.loadSettingsTab = function() {
