@@ -245,6 +245,9 @@ export function mountImageCompressor() {
         titleInput.value = '';
         fileInput.value = '';
         await loadGalleryItems(ctx.entity_type, ctx.entity_id);
+        if (typeof (window as any).checkDepositSlipBadges === 'function') {
+          (window as any).checkDepositSlipBadges();
+        }
       } catch (err) {
         statusBox.style.background = '#fef2f2';
         statusBox.style.color = '#991b1b';
