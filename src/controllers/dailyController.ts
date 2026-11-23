@@ -839,18 +839,85 @@ function onCategorizedRowPaymentChannelChange(categoryKey, idx, newChannel, sele
   if (!state.items[categoryKey] || !state.items[categoryKey][idx]) return;
   state.items[categoryKey][idx].col4 = newChannel;
   if (selectEl) {
+    const tr = selectEl.closest('tr');
     if (newChannel) {
       selectEl.style.border = '';
       selectEl.style.backgroundColor = '';
+      if (tr) {
+        const amountInput = tr.querySelector('input.num') as HTMLInputElement | null;
+        if (amountInput) {
+          amountInput.placeholder = '0:00';
+          amountInput.title = '';
+          amountInput.style.backgroundColor = '';
+          amountInput.style.cursor = '';
+          setTimeout(() => amountInput.focus(), 50);
+        }
+      }
     } else {
       selectEl.style.border = '2px solid #ef4444';
       selectEl.style.backgroundColor = '#fff1f2';
+      if (tr) {
+        const amountInput = tr.querySelector('input.num') as HTMLInputElement | null;
+        if (amountInput) {
+          amountInput.value = '';
+          amountInput.placeholder = 'اختر جهة الدفع أولاً';
+          amountInput.title = '⚠️ يجب اختيار جهة الدفع قبل كتابة القيمة';
+          amountInput.style.backgroundColor = '#f8fafc';
+        }
+      }
     }
   }
   recalculateAll();
   markUnsaved();
 }
 window.onCategorizedRowPaymentChannelChange = onCategorizedRowPaymentChannelChange;
+
+// التحقق من اختيار جهة الدفع قبل السماح بكتابة القيمة في الجدول
+function checkPaymentChannelBeforeAmount(categoryKey: string, idx: number, inputEl: HTMLInputElement, e?: any) {
+  if (!['internal_expenses', 'employee_advances', 'supplier_payments'].includes(categoryKey)) return true;
+  const row = state.items[categoryKey] && state.items[categoryKey][idx];
+  if (!row) return true;
+
+  const paymentChannel = String(row.col4 || '').trim();
+  if (!paymentChannel) {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    inputEl.value = '';
+    inputEl.blur();
+
+    const tr = inputEl.closest('tr');
+    if (tr) {
+      const select = tr.querySelector('select[data-payment-channel="true"]') as HTMLSelectElement | null;
+      if (select) {
+        select.style.border = '2px solid #ef4444';
+        select.style.backgroundColor = '#fff1f2';
+        select.focus();
+      }
+    }
+
+    alert('⚠️ قم باختيار جهة الدفع أولاً لتتمكن من كتابة القيمة!');
+    showToast('⚠️ قم باختيار جهة الدفع');
+    return false;
+  }
+  return true;
+}
+(window as any).checkPaymentChannelBeforeAmount = checkPaymentChannelBeforeAmount;
+
+function handleRowAmountInput(categoryKey: string, idx: number, amountKey: string, inputEl: HTMLInputElement) {
+  if (['internal_expenses', 'employee_advances', 'supplier_payments'].includes(categoryKey)) {
+    const row = state.items[categoryKey] && state.items[categoryKey][idx];
+    const paymentChannel = row ? String(row.col4 || '').trim() : '';
+    if (!paymentChannel) {
+      inputEl.value = '';
+      checkPaymentChannelBeforeAmount(categoryKey, idx, inputEl);
+      return;
+    }
+  }
+  (window as any).updateRowAmount(categoryKey, idx, amountKey, inputEl.value);
+}
+(window as any).handleRowAmountInput = handleRowAmountInput;
 
 function onInternalExpensePaymentChannelChange(idx, newChannel) {
   onCategorizedRowPaymentChannelChange('internal_expenses', idx, newChannel);
@@ -982,7 +1049,7 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
         </select>
       </td>
       <td style="width: 16%; min-width: 145px;">
-        <select class="table-input" style="font-weight: 600; text-align: center; ${(!currentPaymentSource && (row.amount1 > 0 || (row.col1 && String(row.col1).trim()))) ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}"
+        <select class="table-input" data-payment-channel="true" style="font-weight: 600; text-align: center; ${(!currentPaymentSource && (row.amount1 > 0 || (row.col1 && String(row.col1).trim()))) ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}"
                 onchange="onCategorizedRowPaymentChannelChange('${categoryKey}', ${idx}, this.value, this)">
           ${paymentOptionsHtml}
         </select>
@@ -991,8 +1058,13 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
         ${descriptionCellHtml}
       </td>
       <td style="width: 12%; min-width: 120px;">
-        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
-               oninput="updateRowAmount('${categoryKey}', ${idx}, 'amount1', this.value)"
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center; ${!currentPaymentSource ? 'background: #f8fafc; cursor: pointer;' : ''}" 
+               value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
+               placeholder="${!currentPaymentSource ? 'اختر جهة الدفع أولاً' : '0:00'}"
+               title="${!currentPaymentSource ? '⚠️ يجب اختيار جهة الدفع قبل كتابة القيمة' : ''}"
+               onfocus="checkPaymentChannelBeforeAmount('${categoryKey}', ${idx}, this)"
+               onkeydown="checkPaymentChannelBeforeAmount('${categoryKey}', ${idx}, this, event)"
+               oninput="handleRowAmountInput('${categoryKey}', ${idx}, 'amount1', this)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
       <td style="width: 40px; text-align: center;">
@@ -1089,14 +1161,19 @@ function renderSupplierPaymentsTable() {
         </select>
       </td>
       <td style="width: 22%; min-width: 155px;">
-        <select class="table-input" style="font-weight: 600; text-align: center; ${(!currentPaymentSource && (row.amount1 > 0 || (row.col1 && String(row.col1).trim()))) ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}"
+        <select class="table-input" data-payment-channel="true" style="font-weight: 600; text-align: center; ${(!currentPaymentSource && (row.amount1 > 0 || (row.col1 && String(row.col1).trim()))) ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}"
                 onchange="onCategorizedRowPaymentChannelChange('supplier_payments', ${idx}, this.value, this)">
           ${paymentOptionsHtml}
         </select>
       </td>
       <td style="width: 15%; min-width: 125px;">
-        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" placeholder="0:00"
-               oninput="updateRowAmount('supplier_payments', ${idx}, 'amount1', this.value)"
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center; ${!currentPaymentSource ? 'background: #f8fafc; cursor: pointer;' : ''}" 
+               value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
+               placeholder="${!currentPaymentSource ? 'اختر جهة الدفع أولاً' : '0:00'}"
+               title="${!currentPaymentSource ? '⚠️ يجب اختيار جهة الدفع قبل كتابة القيمة' : ''}"
+               onfocus="checkPaymentChannelBeforeAmount('supplier_payments', ${idx}, this)"
+               onkeydown="checkPaymentChannelBeforeAmount('supplier_payments', ${idx}, this, event)"
+               oninput="handleRowAmountInput('supplier_payments', ${idx}, 'amount1', this)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
       <td style="width: 40px; text-align: center;">
@@ -1630,6 +1707,14 @@ window.updateRowCol = function(categoryKey, idx, colKey, val) {
 
 window.updateRowAmount = function(categoryKey, idx, amountKey, val) {
   if (state.items[categoryKey] && state.items[categoryKey][idx]) {
+    if (['internal_expenses', 'employee_advances', 'supplier_payments'].includes(categoryKey)) {
+      const channel = String(state.items[categoryKey][idx].col4 || '').trim();
+      if (!channel && parseMoney(val) > 0) {
+        state.items[categoryKey][idx][amountKey] = 0;
+        recalculateAll();
+        return;
+      }
+    }
     state.items[categoryKey][idx][amountKey] = parseMoney(val);
     recalculateAll();
     // If merchant dispatches, update the total cell directly without stealing input focus
