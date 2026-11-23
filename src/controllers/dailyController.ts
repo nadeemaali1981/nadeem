@@ -2020,7 +2020,7 @@ function recalculateAll() {
 
   const sumCashEmployeeAdvances = (state.items.employee_advances || []).reduce((acc, r) => {
     const paySource = String(r.col4 || '').trim();
-    if ((paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد'))) {
+    if (!paySource || paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد')) {
       return acc + (parseFloat(r.amount1) || 0);
     }
     return acc;
