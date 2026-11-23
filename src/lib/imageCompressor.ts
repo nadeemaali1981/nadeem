@@ -310,6 +310,16 @@ export function mountImageCompressor() {
     if (statusBox) statusBox.style.display = 'none';
     const titleInput = document.getElementById('erpMediaItemTitle');
     if (titleInput && title) titleInput.value = title;
+
+    const modalTitleEl = document.getElementById('erpMediaModalTitle');
+    const isDeposit = (entity_type === 'deposit_slip');
+    if (modalTitleEl) {
+      modalTitleEl.textContent = isDeposit ? '📸 صور فيش الإيداع البنكي (أرشفة وضغط فوري)' : '📷 أرشيف صور الموديلات والقطع المرفقة (ضغط ذكي بدون فقدان الجودة)';
+    }
+    if (titleInput) {
+      titleInput.placeholder = isDeposit ? 'وصف فيشة الإيداع / رقم الحساب أو المرجع...' : 'رقم الموديل / وصف القطعة أو الفاتورة...';
+    }
+
     modal.classList.add('open');
     await loadGalleryItems(entity_type, entity_id);
   }
@@ -320,6 +330,9 @@ export function mountImageCompressor() {
     const modal = document.getElementById('erpMediaModal');
     const ctx = (modal && modal._currentContext) || { entity_type: '', entity_id: '' };
     await loadGalleryItems(ctx.entity_type, ctx.entity_id);
+    if (typeof (window as any).checkDepositSlipBadges === 'function') {
+      (window as any).checkDepositSlipBadges();
+    }
   }
 
   window.ERPImageEngine = {
