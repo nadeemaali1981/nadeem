@@ -306,9 +306,9 @@ async function loadExpensesTab() {
       }
     }
 
-    // ترتيب بحسب التاريخ ثم ترتيب جداول دفتر اليومية (1- مصاريف داخلية ثم 2- سحوبات موظفين)
+    // ترتيب بحسب التاريخ من الأقدم إلى الأحدث (الأقدم بالأعلى والأحدث بالأسفل) ثم ترتيب جداول دفتر اليومية (1- مصاريف داخلية ثم 2- سحوبات موظفين)
     allItems.sort((a: any, b: any) => {
-      const dCmp = String(b.sheet_date || '').localeCompare(String(a.sheet_date || ''));
+      const dCmp = String(a.sheet_date || '').localeCompare(String(b.sheet_date || ''));
       if (dCmp !== 0) return dCmp;
       const aOrder = (a.category === 'employee_advance' || a.category === 'employee_advances' || a.source_table === 'سحوبات موظفين') ? 2 : 1;
       const bOrder = (b.category === 'employee_advance' || b.category === 'employee_advances' || b.source_table === 'سحوبات موظفين') ? 2 : 1;

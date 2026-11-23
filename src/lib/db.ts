@@ -1615,7 +1615,7 @@ async function getExpensesSummary() {
     WHERE i.category IN ('internal_expense', 'internal_expenses', 'employee_advance', 'employee_advances', 'operational_expense', 'fixed_expense', 'fixed_expenses')
       AND COALESCE(i.amount1, 0) > 0
     ORDER BY
-      s.sheet_date DESC,
+      s.sheet_date ASC,
       CASE
         WHEN i.category IN ('internal_expense', 'internal_expenses', 'operational_expense', 'fixed_expense', 'fixed_expenses') THEN 1
         WHEN i.category IN ('employee_advance', 'employee_advances') THEN 2
