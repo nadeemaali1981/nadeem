@@ -240,6 +240,7 @@ const historicalData = [
     "sales_ittihad": 118,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
+    "sales_other": 38,
     "sales_items_count": 16
   },
   {
@@ -273,6 +274,7 @@ const historicalData = [
     "sales_ittihad": 84,
     "sales_ittihad_qr": 0,
     "sales_cliq": 25,
+    "sales_other": 3,
     "sales_items_count": 22
   },
   {
@@ -306,6 +308,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 12,
+    "sales_other": 34,
     "sales_items_count": 45
   },
   {
@@ -449,6 +452,7 @@ const historicalData = [
     "sales_ittihad": 84,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
+    "sales_other": 48,
     "sales_items_count": 33
   },
   {
@@ -603,6 +607,7 @@ const historicalData = [
     "sales_ittihad": 429,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
+    "sales_other": 67,
     "sales_items_count": 44
   },
   {
@@ -691,6 +696,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
+    "sales_other": 3,
     "sales_items_count": 29
   },
   {
@@ -823,6 +829,7 @@ const historicalData = [
     "sales_ittihad": 589,
     "sales_ittihad_qr": 0,
     "sales_cliq": 169,
+    "sales_other": 63,
     "sales_items_count": 121
   },
   {
@@ -900,6 +907,7 @@ const historicalData = [
     "sales_ittihad": 278,
     "sales_ittihad_qr": 0,
     "sales_cliq": 12,
+    "sales_other": 6,
     "sales_items_count": 60
   },
   {
@@ -1109,6 +1117,7 @@ const historicalData = [
     "sales_ittihad": 165,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
+    "sales_other": 3,
     "sales_items_count": 67
   },
   {
@@ -1428,6 +1437,7 @@ const historicalData = [
     "sales_ittihad": 291,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
+    "sales_other": 14,
     "sales_items_count": 61
   },
   {
@@ -1516,6 +1526,7 @@ const historicalData = [
     "sales_ittihad": 206,
     "sales_ittihad_qr": 0,
     "sales_cliq": 13,
+    "sales_other": 153,
     "sales_items_count": 53
   },
   {
@@ -1538,6 +1549,7 @@ const historicalData = [
     "sales_ittihad": 96,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
+    "sales_other": 6,
     "sales_items_count": 32
   },
   {
@@ -1582,6 +1594,7 @@ const historicalData = [
     "sales_ittihad": 643,
     "sales_ittihad_qr": 0,
     "sales_cliq": 37,
+    "sales_other": 3,
     "sales_items_count": 108
   },
   {
@@ -2198,6 +2211,7 @@ const historicalData = [
     "sales_ittihad": 85,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
+    "sales_other": 29,
     "sales_items_count": 31
   },
   {
@@ -2352,6 +2366,7 @@ const historicalData = [
     "sales_ittihad": 84,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
+    "sales_other": 3,
     "sales_items_count": 27
   },
   {
@@ -3001,6 +3016,7 @@ const historicalData = [
     "sales_ittihad": 137,
     "sales_ittihad_qr": 0,
     "sales_cliq": 15,
+    "sales_other": 17,
     "sales_items_count": 28
   },
   {
@@ -3573,6 +3589,7 @@ const historicalData = [
     "sales_ittihad": 0,
     "sales_ittihad_qr": 0,
     "sales_cliq": 0,
+    "sales_other": 42,
     "sales_items_count": 0
   },
   {

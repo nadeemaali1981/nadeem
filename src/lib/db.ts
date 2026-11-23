@@ -532,10 +532,10 @@ async function seedHistoricalSales(force = false) {
         await tx.run(`
           INSERT INTO daily_sheets (
             sheet_date, day_name, sales_cash, sales_delivery, sales_visa,
-            sales_ittihad, sales_ittihad_qr, sales_cliq, sales_items_count,
+            sales_ittihad, sales_ittihad_qr, sales_cliq, sales_other, sales_items_count,
             deposit_personal, deposit_business, deposit_personal_date, deposit_business_date,
             notes, perfume_desc, perfume_debit, perfume_credit
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, '', '', '', '', 0, 0)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, '', '', '', '', 0, 0)
           ON CONFLICT (sheet_date) DO UPDATE SET
             sales_cash = EXCLUDED.sales_cash,
             sales_delivery = EXCLUDED.sales_delivery,
@@ -543,6 +543,7 @@ async function seedHistoricalSales(force = false) {
             sales_ittihad = EXCLUDED.sales_ittihad,
             sales_ittihad_qr = EXCLUDED.sales_ittihad_qr,
             sales_cliq = EXCLUDED.sales_cliq,
+            sales_other = EXCLUDED.sales_other,
             sales_items_count = EXCLUDED.sales_items_count
         `, [
           r.sheet_date,
@@ -553,6 +554,7 @@ async function seedHistoricalSales(force = false) {
           r.sales_ittihad,
           r.sales_ittihad_qr,
           r.sales_cliq,
+          Number(r.sales_other || 0),
           Number(r.sales_items_count || 0)
         ]);
       }
@@ -1528,7 +1530,7 @@ async function getDailySheetsHistory(limit = 500) {
   return sheets.map(s => {
     const totalSales = Number(s.sales_cash || 0) + Number(s.sales_delivery || 0) +
       Number(s.sales_visa || 0) + Number(s.sales_ittihad || 0) +
-      Number(s.sales_ittihad_qr || 0) + Number(s.sales_cliq || 0);
+      Number(s.sales_ittihad_qr || 0) + Number(s.sales_cliq || 0) + Number(s.sales_other || 0);
     return {
       id: s.id,
       sheet_date: s.sheet_date,
@@ -1565,6 +1567,7 @@ async function getSalesSummary() {
       COALESCE(SUM(sales_ittihad), 0) as ittihad,
       COALESCE(SUM(sales_ittihad_qr), 0) as ittihad_qr,
       COALESCE(SUM(sales_cliq), 0) as cliq,
+      COALESCE(SUM(sales_other), 0) as other,
       COALESCE(SUM(sales_items_count), 0) as items_count,
       COALESCE(SUM(perfume_credit), 0) as perfume_credit
     FROM daily_sheets
@@ -1578,7 +1581,7 @@ async function getSalesSummary() {
 
   const perfumeTotal = Math.max(Number(totals?.perfume_credit || 0), perfumeItems ? Number(perfumeItems.total_perfume || 0) : 0);
   const grandTotal = Number(totals?.cash || 0) + Number(totals?.delivery || 0) + Number(totals?.visa || 0) +
-    Number(totals?.ittihad || 0) + Number(totals?.ittihad_qr || 0) + Number(totals?.cliq || 0) + perfumeTotal;
+    Number(totals?.ittihad || 0) + Number(totals?.ittihad_qr || 0) + Number(totals?.cliq || 0) + Number(totals?.other || 0) + perfumeTotal;
 
   const history = await all(`
     SELECT
@@ -1591,7 +1594,8 @@ async function getSalesSummary() {
       COALESCE(s.sales_ittihad, 0) as sales_ittihad,
       COALESCE(s.sales_ittihad_qr, 0) as sales_ittihad_qr,
       COALESCE(s.sales_cliq, 0) as sales_cliq,
-      (COALESCE(s.sales_cash, 0) + COALESCE(s.sales_delivery, 0) + COALESCE(s.sales_visa, 0) + COALESCE(s.sales_ittihad, 0) + COALESCE(s.sales_ittihad_qr, 0) + COALESCE(s.sales_cliq, 0)) as day_total,
+      COALESCE(s.sales_other, 0) as sales_other,
+      (COALESCE(s.sales_cash, 0) + COALESCE(s.sales_delivery, 0) + COALESCE(s.sales_visa, 0) + COALESCE(s.sales_ittihad, 0) + COALESCE(s.sales_ittihad_qr, 0) + COALESCE(s.sales_cliq, 0) + COALESCE(s.sales_other, 0)) as day_total,
       s.sales_items_count,
       COALESCE(NULLIF(s.notes, ''), (
         SELECT STRING_AGG(col1, ' | ')
@@ -1610,6 +1614,7 @@ async function getSalesSummary() {
       ittihad: Number(totals?.ittihad || 0),
       ittihad_qr: Number(totals?.ittihad_qr || 0),
       cliq: Number(totals?.cliq || 0),
+      other: Number(totals?.other || 0),
       perfume: perfumeTotal,
       items_count: Number(totals?.items_count || 0),
       grand_total: grandTotal
@@ -2275,7 +2280,8 @@ async function getProfitLossStatement() {
   const salesIttihad = Number(sales.totals.ittihad || 0);
   const salesIttihadQr = Number(sales.totals.ittihad_qr || 0);
   const salesCliq = Number(sales.totals.cliq || 0);
-  const salesChannels = salesCash + salesDelivery + salesVisa + salesIttihad + salesIttihadQr + salesCliq;
+  const salesOther = Number(sales.totals.other || 0);
+  const salesChannels = salesCash + salesDelivery + salesVisa + salesIttihad + salesIttihadQr + salesCliq + salesOther;
   const perfumeSales = Number(sales.totals.perfume_credit || 0);
   const extraRevenues = 0;
 
