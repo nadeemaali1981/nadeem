@@ -835,9 +835,18 @@ function getConfiguredPaymentChannels() {
   return ['صندوق'];
 }
 
-function onCategorizedRowPaymentChannelChange(categoryKey, idx, newChannel) {
+function onCategorizedRowPaymentChannelChange(categoryKey, idx, newChannel, selectEl?: HTMLElement) {
   if (!state.items[categoryKey] || !state.items[categoryKey][idx]) return;
   state.items[categoryKey][idx].col4 = newChannel;
+  if (selectEl) {
+    if (newChannel) {
+      selectEl.style.border = '';
+      selectEl.style.backgroundColor = '';
+    } else {
+      selectEl.style.border = '2px solid #ef4444';
+      selectEl.style.backgroundColor = '#fff1f2';
+    }
+  }
   recalculateAll();
   markUnsaved();
 }
@@ -925,7 +934,7 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
     }
 
     const configuredChannels = getConfiguredPaymentChannels();
-    let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع --</option>`;
+    let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع (إجباري *) --</option>`;
     if (currentPaymentSource && !configuredChannels.includes(currentPaymentSource)) {
       paymentOptionsHtml += `<option value="${escapeHtml(currentPaymentSource)}" selected>${escapeHtml(currentPaymentSource)}</option>`;
     }
@@ -973,8 +982,8 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
         </select>
       </td>
       <td style="width: 16%; min-width: 145px;">
-        <select class="table-input" style="font-weight: 600; text-align: center;"
-                onchange="onCategorizedRowPaymentChannelChange('${categoryKey}', ${idx}, this.value)">
+        <select class="table-input" style="font-weight: 600; text-align: center; ${(!currentPaymentSource && (row.amount1 > 0 || (row.col1 && String(row.col1).trim()))) ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}"
+                onchange="onCategorizedRowPaymentChannelChange('${categoryKey}', ${idx}, this.value, this)">
           ${paymentOptionsHtml}
         </select>
       </td>
@@ -1062,7 +1071,7 @@ function renderSupplierPaymentsTable() {
       supplierOptionsHtml += `<option value="${escapeHtml(supp)}" ${isSelected}>${escapeHtml(supp)}</option>`;
     });
 
-    let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع --</option>`;
+    let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع (إجباري *) --</option>`;
     if (currentPaymentSource && !configuredChannels.includes(currentPaymentSource)) {
       paymentOptionsHtml += `<option value="${escapeHtml(currentPaymentSource)}" selected>${escapeHtml(currentPaymentSource)}</option>`;
     }
@@ -1080,8 +1089,8 @@ function renderSupplierPaymentsTable() {
         </select>
       </td>
       <td style="width: 22%; min-width: 155px;">
-        <select class="table-input" style="font-weight: 600; text-align: center;"
-                onchange="onCategorizedRowPaymentChannelChange('supplier_payments', ${idx}, this.value)">
+        <select class="table-input" style="font-weight: 600; text-align: center; ${(!currentPaymentSource && (row.amount1 > 0 || (row.col1 && String(row.col1).trim()))) ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}"
+                onchange="onCategorizedRowPaymentChannelChange('supplier_payments', ${idx}, this.value, this)">
           ${paymentOptionsHtml}
         </select>
       </td>
@@ -1962,6 +1971,38 @@ function markUnsaved() {
 }
 
 async function saveSheet(isManual = true) {
+  // 1. التحقق الصارم من أن جهة الدفع إجبارية في كل الجداول
+  const paymentChannelTables: Array<{ key: string; name: string }> = [
+    { key: 'internal_expenses', name: 'مصاريف داخلية' },
+    { key: 'employee_advances', name: 'سحوبات موظفين' },
+    { key: 'supplier_payments', name: 'دفعات موردين' }
+  ];
+
+  for (const tbl of paymentChannelTables) {
+    const rows = state.items[tbl.key] || [];
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      const hasContent = (parseMoney(r.amount1) > 0) ||
+                         (r.col1 && String(r.col1).trim() !== '') ||
+                         (r.col3 && String(r.col3).trim() !== '');
+      if (hasContent) {
+        const channel = String(r.col4 || '').trim();
+        if (!channel) {
+          alert(`⚠️ لا يمكن حفظ اليومية:\n\nيرجى تحديد "جهة الدفع" في جدول [${tbl.name}] للسطر رقم (${i + 1})!\nجهة الدفع إجبارية في جميع الجداول.`);
+          showToast(`⚠️ جهة الدفع إجبارية في جدول [${tbl.name}]`);
+          const statusEl = document.getElementById('autoSaveBadge');
+          if (statusEl) {
+            statusEl.textContent = `مطلوب تحديد جهة الدفع في ${tbl.name}`;
+            statusEl.style.color = '#ef4444';
+          }
+          if (tbl.key === 'internal_expenses') renderInternalExpensesTable();
+          else if (tbl.key === 'employee_advances') renderEmployeeAdvancesTable();
+          else if (tbl.key === 'supplier_payments') renderSupplierPaymentsTable();
+          return false;
+        }
+      }
+    }
+  }
   // 1. التحقق الصارم من عدم تكرار اسم الموظف أو الرقم الوظيفي في أكثر من سطر
   const empSalesList = state.items.employee_sales || [];
   const seenEmpNamesForSave = new Set<string>();
