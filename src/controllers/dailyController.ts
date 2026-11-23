@@ -1202,14 +1202,36 @@ function getConfiguredEmployeeRecords() {
 function onEmployeeSalesNameChange(idx, newName) {
   if (!state.items.employee_sales || !state.items.employee_sales[idx]) return;
   const row = state.items.employee_sales[idx];
-  row.col1 = newName;
-  if (newName) {
-    const records = getConfiguredEmployeeRecords();
-    const match = records.find(r => r.name === newName && r.employee_id);
-    if (match) {
-      row.col2 = match.employee_id;
+  const trimmedName = String(newName || '').trim();
+
+  if (trimmedName) {
+    // 1. التحقق من عدم تكرار اسم الموظف في سطر آخر
+    const isNameDuplicate = state.items.employee_sales.some((r, i) => i !== idx && String(r.col1 || '').trim() === trimmedName);
+    if (isNameDuplicate) {
+      alert(`⚠️ لا يُسمح بالتكرار:\nالموظف "${trimmedName}" مسجل مسبقاً في سطر آخر من مبيعات الموظفين!`);
+      showToast(`الموظف "${trimmedName}" مضاف مسبقاً`);
+      renderEmployeeSalesTable();
+      return;
     }
+
+    const records = getConfiguredEmployeeRecords();
+    const match = records.find(r => r.name === trimmedName && r.employee_id);
+    if (match) {
+      const matchedId = String(match.employee_id || '').trim();
+      const isIdDuplicate = matchedId && state.items.employee_sales.some((r, i) => i !== idx && String(r.col2 || '').trim() === matchedId);
+      if (isIdDuplicate) {
+        alert(`⚠️ لا يُسمح بالتكرار:\nالرقم الوظيفي (${matchedId}) للموظف "${trimmedName}" مسجل مسبقاً في سطر آخر!`);
+        showToast(`الرقم الوظيفي (${matchedId}) مسجل مسبقاً`);
+        renderEmployeeSalesTable();
+        return;
+      }
+      row.col2 = matchedId;
+    }
+  } else {
+    row.col2 = '';
   }
+
+  row.col1 = trimmedName;
   markUnsaved();
   renderEmployeeSalesTable();
 }
@@ -1218,14 +1240,36 @@ window.onEmployeeSalesNameChange = onEmployeeSalesNameChange;
 function onEmployeeSalesIdChange(idx, newId) {
   if (!state.items.employee_sales || !state.items.employee_sales[idx]) return;
   const row = state.items.employee_sales[idx];
-  row.col2 = newId;
-  if (newId) {
-    const records = getConfiguredEmployeeRecords();
-    const match = records.find(r => r.employee_id === newId && r.name);
-    if (match) {
-      row.col1 = match.name;
+  const trimmedId = String(newId || '').trim();
+
+  if (trimmedId) {
+    // 1. التحقق من عدم تكرار الرقم الوظيفي في سطر آخر
+    const isIdDuplicate = state.items.employee_sales.some((r, i) => i !== idx && String(r.col2 || '').trim() === trimmedId);
+    if (isIdDuplicate) {
+      alert(`⚠️ لا يُسمح بالتكرار:\nالرقم الوظيفي "${trimmedId}" مسجل مسبقاً في سطر آخر من مبيعات الموظفين!`);
+      showToast(`الرقم الوظيفي "${trimmedId}" مسجل مسبقاً`);
+      renderEmployeeSalesTable();
+      return;
     }
+
+    const records = getConfiguredEmployeeRecords();
+    const match = records.find(r => r.employee_id === trimmedId && r.name);
+    if (match) {
+      const matchedName = String(match.name || '').trim();
+      const isNameDuplicate = matchedName && state.items.employee_sales.some((r, i) => i !== idx && String(r.col1 || '').trim() === matchedName);
+      if (isNameDuplicate) {
+        alert(`⚠️ لا يُسمح بالتكرار:\nالموظف "${matchedName}" صاحب الرقم الوظيفي (${trimmedId}) مسجل مسبقاً في سطر آخر!`);
+        showToast(`الموظف "${matchedName}" مسجل مسبقاً`);
+        renderEmployeeSalesTable();
+        return;
+      }
+      row.col1 = matchedName;
+    }
+    row.col2 = trimmedId;
+  } else {
+    row.col1 = '';
   }
+
   markUnsaved();
   renderEmployeeSalesTable();
 }
@@ -1274,13 +1318,39 @@ function renderEmployeeSalesTable() {
     const currentName = String(row.col1 || '').trim();
     const currentId = String(row.col2 || '').trim();
 
+    // فحص ما إذا كان السطر مكرراً مع أي سطر آخر في الجدول
+    const isNameDuplicate = currentName && state.items.employee_sales.some((r, i) => i !== idx && String(r.col1 || '').trim() === currentName);
+    const isIdDuplicate = currentId && state.items.employee_sales.some((r, i) => i !== idx && String(r.col2 || '').trim() === currentId);
+    const isRowDuplicate = isNameDuplicate || isIdDuplicate;
+
+    // مجموعات الأسماء والأرقام الوظيفية المستخدمة في أسطر أخرى لتعطيلها بالقائمة المنسدلة
+    const otherUsedNames = new Set(
+      state.items.employee_sales
+        .filter((_, i) => i !== idx)
+        .map(r => String(r.col1 || '').trim())
+        .filter(Boolean)
+    );
+    const otherUsedIds = new Set(
+      state.items.employee_sales
+        .filter((_, i) => i !== idx)
+        .map(r => String(r.col2 || '').trim())
+        .filter(Boolean)
+    );
+
     let nameOptionsHtml = `<option value="">-- اختر اسم الموظف --</option>`;
     if (currentName && !namesList.includes(currentName)) {
       nameOptionsHtml += `<option value="${escapeHtml(currentName)}" selected>${escapeHtml(currentName)}</option>`;
     }
     namesList.forEach(n => {
-      const isSelected = currentName === n ? 'selected' : '';
-      nameOptionsHtml += `<option value="${escapeHtml(n)}" ${isSelected}>${escapeHtml(n)}</option>`;
+      const isSelected = currentName === n;
+      const isUsedElsewhere = otherUsedNames.has(n);
+      if (isSelected) {
+        nameOptionsHtml += `<option value="${escapeHtml(n)}" selected>${escapeHtml(n)}</option>`;
+      } else if (isUsedElsewhere) {
+        nameOptionsHtml += `<option value="${escapeHtml(n)}" disabled style="color: #94a3b8; background: #f8fafc;">${escapeHtml(n)} (محدد بسطر آخر ⛔)</option>`;
+      } else {
+        nameOptionsHtml += `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`;
+      }
     });
 
     let idOptionsHtml = `<option value="">-- اختر الرقم الوظيفي --</option>`;
@@ -1288,20 +1358,32 @@ function renderEmployeeSalesTable() {
       idOptionsHtml += `<option value="${escapeHtml(currentId)}" selected>${escapeHtml(currentId)}</option>`;
     }
     idsList.forEach(empId => {
-      const isSelected = currentId === empId ? 'selected' : '';
-      idOptionsHtml += `<option value="${escapeHtml(empId)}" ${isSelected}>${escapeHtml(empId)}</option>`;
+      const isSelected = currentId === empId;
+      const isUsedElsewhere = otherUsedIds.has(empId);
+      if (isSelected) {
+        idOptionsHtml += `<option value="${escapeHtml(empId)}" selected>${escapeHtml(empId)}</option>`;
+      } else if (isUsedElsewhere) {
+        idOptionsHtml += `<option value="${escapeHtml(empId)}" disabled style="color: #94a3b8; background: #f8fafc;">${escapeHtml(empId)} (محدد بسطر آخر ⛔)</option>`;
+      } else {
+        idOptionsHtml += `<option value="${escapeHtml(empId)}">${escapeHtml(empId)}</option>`;
+      }
     });
 
     const tr = document.createElement('tr');
+    if (isRowDuplicate) {
+      tr.style.background = '#fef2f2';
+      tr.style.border = '2px solid #ef4444';
+      tr.title = '⚠️ تنبيه: هذا الموظف مكرر في أكثر من سطر!';
+    }
     tr.innerHTML = `
       <td>
-        <select class="table-input" style="font-weight: 600; text-align: center;"
+        <select class="table-input" style="font-weight: 600; text-align: center; ${isNameDuplicate ? 'border-color: #ef4444; background: #fff1f2;' : ''}"
                 onchange="onEmployeeSalesNameChange(${idx}, this.value)">
           ${nameOptionsHtml}
         </select>
       </td>
       <td>
-        <select class="table-input" style="font-weight: 600; text-align: center;"
+        <select class="table-input" style="font-weight: 600; text-align: center; ${isIdDuplicate ? 'border-color: #ef4444; background: #fff1f2;' : ''}"
                 onchange="onEmployeeSalesIdChange(${idx}, this.value)">
           ${idOptionsHtml}
         </select>
