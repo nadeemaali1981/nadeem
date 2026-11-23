@@ -338,7 +338,27 @@ async function loadExpensesTab() {
 // تعبئة القوائم المنسدلة للفلاتر بناءً على البيانات المتوفرة
 function populateExpenseFilterDropdowns(items: any[]) {
   const catSelect = document.getElementById('expFilterCategory') as HTMLSelectElement | null;
-  
+  if (catSelect) {
+    const currentCat = catSelect.value || 'all';
+    const categories = new Set<string>();
+    items.forEach(it => {
+      const mainCat = String(it.main_category || '').trim();
+      const subCat = String(it.sub_category || '').trim();
+      if (mainCat && mainCat !== '-' && mainCat !== 'المصاريف التشغيلية' && mainCat !== 'المصاريف الثابتة') {
+        categories.add(mainCat);
+      }
+      if (subCat && subCat !== '-') {
+        categories.add(subCat);
+      }
+    });
+
+    let catHtml = '<option value="all">كل التصنيفات</option>';
+    Array.from(categories).sort().forEach(cat => {
+      const isSel = cat === currentCat ? 'selected' : '';
+      catHtml += `<option value="${escapeHtml(cat)}" ${isSel}>${escapeHtml(cat)}</option>`;
+    });
+    catSelect.innerHTML = catHtml;
+  }
 }
 
 // تطبيق فلاتر المصاريف وتحديث الجداول والـ KPIs

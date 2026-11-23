@@ -844,10 +844,59 @@ function getConfiguredPaymentChannels() {
   return ['نقدا', 'صندوق'];
 }
 
-function checkPaymentChannelBeforeAmount() { return true; }
+function onCategorizedRowPaymentChannelChange(categoryKey, idx, newChannel, selectEl?: HTMLElement) {
+  if (!state.items[categoryKey] || !state.items[categoryKey][idx]) return;
+  state.items[categoryKey][idx].col4 = newChannel;
+  if (selectEl) {
+    const tr = selectEl.closest('tr');
+    if (newChannel) {
+      selectEl.style.border = '';
+      selectEl.style.backgroundColor = '';
+      if (tr) {
+        const amountInput = tr.querySelector('input.num') as HTMLInputElement | null;
+        if (amountInput) {
+          amountInput.placeholder = '0:00';
+          amountInput.title = '';
+          amountInput.style.backgroundColor = '';
+          amountInput.style.cursor = '';
+          setTimeout(() => amountInput.focus(), 50);
+        }
+      }
+    } else {
+      selectEl.style.border = '2px solid #ef4444';
+      selectEl.style.backgroundColor = '#fff1f2';
+      if (tr) {
+        const amountInput = tr.querySelector('input.num') as HTMLInputElement | null;
+        if (amountInput) {
+          amountInput.value = '';
+          amountInput.placeholder = 'اختر جهة الدفع أولاً';
+          amountInput.title = '⚠️ يجب اختيار جهة الدفع قبل كتابة القيمة';
+          amountInput.style.backgroundColor = '#f8fafc';
+        }
+      }
+    }
+  }
+  recalculateAll();
+  markUnsaved();
+}
+window.onCategorizedRowPaymentChannelChange = onCategorizedRowPaymentChannelChange;
+
+// التحقق من اختيار جهة الدفع قبل السماح بكتابة القيمة في الجدول
+function checkPaymentChannelBeforeAmount(categoryKey: string, idx: number, inputEl: HTMLInputElement, e?: any) {
+  return true;
+}
 (window as any).checkPaymentChannelBeforeAmount = checkPaymentChannelBeforeAmount;
 
 function handleRowAmountInput(categoryKey: string, idx: number, amountKey: string, inputEl: HTMLInputElement) {
+  if (['internal_expenses', 'employee_advances', 'supplier_payments', 'cash_purchases'].includes(categoryKey)) {
+    const row = state.items[categoryKey] && state.items[categoryKey][idx];
+    const paymentChannel = row ? String(row.col4 || '').trim() : '';
+    if (!paymentChannel) {
+      inputEl.value = '';
+      checkPaymentChannelBeforeAmount(categoryKey, idx, inputEl);
+      return;
+    }
+  }
   (window as any).updateRowAmount(categoryKey, idx, amountKey, inputEl.value);
 }
 (window as any).handleRowAmountInput = handleRowAmountInput;
@@ -933,7 +982,288 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
       });
     }
 
-    
+    const configuredChannels = getConfiguredPaymentChannels();
+    let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع (إجباري *) --</option>`;
+    if (currentPaymentSource && !configuredChannels.includes(currentPaymentSource)) {
+      paymentOptionsHtml += `<option value="${escapeHtml(currentPaymentSource)}" selected>${escapeHtml(currentPaymentSource)}</option>`;
+    }
+    configuredChannels.forEach(ch => {
+      const isSelected = currentPaymentSource === ch ? 'selected' : '';
+      paymentOptionsHtml += `<option value="${escapeHtml(ch)}" ${isSelected}>${escapeHtml(ch)}</option>`;
+    });
+
+    let descriptionCellHtml = '';
+    if (isEmployeeAdvances) {
+      const employeeNames = getConfiguredEmployeeNames();
+      let empOptionsHtml = `<option value="">-- اختر اسم الموظف --</option>`;
+      if (currentDesc && !employeeNames.includes(currentDesc)) {
+        empOptionsHtml += `<option value="${escapeHtml(currentDesc)}" selected>${escapeHtml(currentDesc)}</option>`;
+      }
+      employeeNames.forEach(empName => {
+        const isSelected = currentDesc === empName ? 'selected' : '';
+        empOptionsHtml += `<option value="${escapeHtml(empName)}" ${isSelected}>${escapeHtml(empName)}</option>`;
+      });
+      descriptionCellHtml = `
+        <select class="table-input" style="font-weight: 600; text-align: center;"
+                onchange="updateRowCol('${categoryKey}', ${idx}, 'col1', this.value)">
+          ${empOptionsHtml}
+        </select>
+      `;
+    } else {
+      descriptionCellHtml = `
+        <input type="text" class="table-input" style="font-weight: 600; text-align: center;" value="${escapeHtml(currentDesc)}" placeholder="بيان المصروف"
+               oninput="updateRowCol('${categoryKey}', ${idx}, 'col1', this.value)">
+      `;
+    }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="width: 20%; min-width: 175px;">
+        <select class="table-input" style="font-weight: 600; text-align: center;"
+                onchange="onCategorizedRowMainTypeChange('${categoryKey}', ${idx}, this.value)">
+          ${mainTypeOptionsHtml}
+        </select>
+      </td>
+      <td style="width: 22%; min-width: 175px;">
+        <select class="table-input" style="font-weight: 600; text-align: center;"
+                onchange="onCategorizedRowSubCategoryChange('${categoryKey}', ${idx}, this.value)">
+          ${mainCatOptionsHtml}
+        </select>
+      </td>
+      <td style="width: 44%; min-width: 220px;">
+        ${descriptionCellHtml}
+      </td>
+      <td style="width: 14%; min-width: 120px;">
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" 
+               value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
+               placeholder="0:00"
+               oninput="handleRowAmountInput('${categoryKey}', ${idx}, 'amount1', this)"
+               onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
+      </td>
+      <td style="width: 40px; text-align: center;">
+        <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteRow('${categoryKey}', ${idx})">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (state.isLocked) {
+    setSheetLockedState(true);
+  }
+}
+
+function renderInternalExpensesTable() {
+  renderCategorizedExpenseTable('internal_expenses', 'internalExpensesBody');
+}
+window.renderInternalExpensesTable = renderInternalExpensesTable;
+
+function renderEmployeeAdvancesTable() {
+  renderCategorizedExpenseTable('employee_advances', 'employeeAdvancesBody');
+}
+window.renderEmployeeAdvancesTable = renderEmployeeAdvancesTable;
+
+function getConfiguredSuppliers() {
+  try {
+    const seen = new Set();
+    const list = [];
+    const fromWindow = Array.isArray((window as any).erpSuppliersPageNames)
+      ? (window as any).erpSuppliersPageNames
+      : null;
+    let source = fromWindow;
+    if (!source || source.length === 0) {
+      const rawCache = localStorage.getItem('erp_suppliers_page_names_v1');
+      if (rawCache) {
+        const parsedCache = JSON.parse(rawCache);
+        if (Array.isArray(parsedCache) && parsedCache.length > 0) source = parsedCache;
+      }
+    }
+    if (Array.isArray(source) && source.length > 0) {
+      source.forEach(s => {
+        const val = String(s || '').trim();
+        if (val && !seen.has(val)) {
+          seen.add(val);
+          list.push(val);
+        }
+      });
+      return list.sort((a, b) => a.localeCompare(b, 'ar'));
+    }
+
+    // Trigger background fetch if not yet loaded
+    if (typeof fetch === 'function' && !(window as any).__fetchingSuppliers) {
+      (window as any).__fetchingSuppliers = true;
+      fetch('/api/modules/suppliers')
+        .then(r => r.json())
+        .then(data => {
+          (window as any).__fetchingSuppliers = false;
+          if (Array.isArray(data) && data.length > 0) {
+            const names = Array.from(new Set(data.map(s => String(s?.name || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ar'));
+            (window as any).erpSuppliersPageNames = names;
+            localStorage.setItem('erp_suppliers_page_names_v1', JSON.stringify(names));
+            if (typeof renderSupplierPaymentsTable === 'function') {
+              renderSupplierPaymentsTable();
+            }
+          }
+        })
+        .catch(() => {
+          (window as any).__fetchingSuppliers = false;
+        });
+    }
+
+    // Fallback to legacy settings if any
+    const raw = localStorage.getItem('erp_expense_settings_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed?.suppliers)) {
+        parsed.suppliers.forEach(s => {
+          const val = String(s || '').trim();
+          if (val && !seen.has(val)) {
+            seen.add(val);
+            list.push(val);
+          }
+        });
+        return list.sort((a, b) => a.localeCompare(b, 'ar'));
+      }
+    }
+  } catch (e) {}
+  return [];
+}
+
+function renderSupplierPaymentsTable() {
+  const tbody = document.getElementById('supplierPaymentsBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!state.items.supplier_payments || state.items.supplier_payments.length === 0) {
+    tbody.innerHTML = `
+      <tr class="empty-row-placeholder">
+        <td colspan="3">لا توجد بيانات مسجلة (<span onclick="addRow('supplier_payments')">+ أضف سطر</span>)</td>
+      </tr>
+    `;
+    return;
+  }
+
+  const configuredSuppliers = getConfiguredSuppliers();
+  const configuredChannels = getConfiguredPaymentChannels();
+
+  state.items.supplier_payments.forEach((row, idx) => {
+    const currentSupplier = (row.col1 || '').trim();
+    const currentPaymentSource = (row.col4 || '').trim();
+
+    let supplierOptionsHtml = `<option value="">-- اختر اسم المورد --</option>`;
+    if (currentSupplier && !configuredSuppliers.includes(currentSupplier)) {
+      supplierOptionsHtml += `<option value="${escapeHtml(currentSupplier)}" selected>${escapeHtml(currentSupplier)}</option>`;
+    }
+    configuredSuppliers.forEach(supp => {
+      const isSelected = currentSupplier === supp ? 'selected' : '';
+      supplierOptionsHtml += `<option value="${escapeHtml(supp)}" ${isSelected}>${escapeHtml(supp)}</option>`;
+    });
+
+    let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع (إجباري *) --</option>`;
+    if (currentPaymentSource && !configuredChannels.includes(currentPaymentSource)) {
+      paymentOptionsHtml += `<option value="${escapeHtml(currentPaymentSource)}" selected>${escapeHtml(currentPaymentSource)}</option>`;
+    }
+    configuredChannels.forEach(ch => {
+      const isSelected = currentPaymentSource === ch ? 'selected' : '';
+      paymentOptionsHtml += `<option value="${escapeHtml(ch)}" ${isSelected}>${escapeHtml(ch)}</option>`;
+    });
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <select class="table-input" style="font-weight: 600; text-align: center;"
+                onchange="updateRowCol('supplier_payments', ${idx}, 'col1', this.value)">
+          ${supplierOptionsHtml}
+        </select>
+      </td>
+      <td style="width: 140px;">
+        <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" 
+               value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
+               placeholder="0:00"
+               oninput="handleRowAmountInput('supplier_payments', ${idx}, 'amount1', this)"
+               onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
+      </td>
+      <td style="width: 40px; text-align: center;">
+        <button type="button" class="btn-del-row" title="حذف السطر" onclick="deleteRow('supplier_payments', ${idx})">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (state.isLocked) {
+    setSheetLockedState(true);
+  }
+}
+window.renderSupplierPaymentsTable = renderSupplierPaymentsTable;
+
+window.getDailyJournalLiveExpenses = function() {
+  const result = [];
+  const pushCategory = (catKey, singularCat, sourceLabel) => {
+    const list = (state.items && state.items[catKey]) || [];
+    list.forEach((r, idx) => {
+      const amt = parseMoney(r.amount1);
+      if (amt > 0 || (r.col1 && String(r.col1).trim()) || (r.col3 && String(r.col3).trim())) {
+        const mainCat = r.col2 || 'المصاريف التشغيلية';
+        result.push({
+          id: r.id || 0,
+          sheet_date: state.date,
+          day_name: state.dayName,
+          category: singularCat,
+          source_table: sourceLabel,
+          main_category: mainCat,
+          sub_category: r.col3 || '',
+          payment_channel: r.col4 || '',
+          description: r.col1 || '',
+          amount: amt,
+          expense_type: mainCat === 'المصاريف الثابتة' ? 'fixed' : 'operational',
+          _order: idx
+        });
+      }
+    });
+  };
+  pushCategory('internal_expenses', 'internal_expense', 'مصاريف داخلية');
+  pushCategory('employee_advances', 'employee_advance', 'سحوبات موظفين');
+  return {
+    sheet_date: state.date,
+    day_name: state.dayName,
+    items: result
+  };
+};
+
+// Render Cash Purchases Table with Payment Channel (مشتريات نقدية)
+function renderCashPurchasesTable() {
+  const tbody = document.getElementById('cashPurchasesBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!state.items.cash_purchases || state.items.cash_purchases.length === 0) {
+    tbody.innerHTML = `
+      <tr class="empty-row-placeholder">
+        <td colspan="3">لا توجد بيانات مسجلة (<span onclick="addRow('cash_purchases')">+ أضف سطر</span>)</td>
+      </tr>
+    `;
+    return;
+  }
+
+  const configuredChannels = getConfiguredPaymentChannels();
+
+  state.items.cash_purchases.forEach((row, idx) => {
+    const currentDesc = (row.col1 || '').trim();
+    const currentPaymentSource = (row.col4 || '').trim();
+
+    let paymentOptionsHtml = `<option value="">-- اختر جهة الدفع (إجباري *) --</option>`;
+    if (currentPaymentSource && !configuredChannels.includes(currentPaymentSource)) {
+      paymentOptionsHtml += `<option value="${escapeHtml(currentPaymentSource)}" selected>${escapeHtml(currentPaymentSource)}</option>`;
+    }
+    configuredChannels.forEach(ch => {
+      const isSelected = currentPaymentSource === ch ? 'selected' : '';
+      paymentOptionsHtml += `<option value="${escapeHtml(ch)}" ${isSelected}>${escapeHtml(ch)}</option>`;
+    });
+
+    const isChannelMissing = !currentPaymentSource && (row.amount1 > 0 || currentDesc);
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -1688,7 +2018,7 @@ function recalculateAll() {
   setText('kpiTotalPerfumeSales', formatMoney(totalPerfumes));
 
   // 1. معادلة الصندوق الحالي لليوم:
-  // يخصم من المصاريف الداخلية وسحوبات الموظفين فقط ما كانت جهة الدفع فيه "صندوق"
+  // يخصم من المصاريف الداخلية وسحوبات الموظفين ما كانت جهة الدفع فيه "صندوق" أو غير محددة
   const sumCashInternalExpenses = (state.items.internal_expenses || []).reduce((acc, r) => {
     const paySource = String(r.col4 || '').trim();
     if (!paySource || paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد')) {
@@ -1707,7 +2037,7 @@ function recalculateAll() {
 
   const sumCashSupplierPayments = (state.items.supplier_payments || []).reduce((acc, r) => {
     const paySource = String(r.col4 || '').trim();
-    if ((paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد'))) {
+    if (!paySource || paySource.includes('صندوق') || paySource.includes('نقدا') || paySource.includes('نقد')) {
       return acc + (parseFloat(r.amount1) || 0);
     }
     return acc;
