@@ -442,8 +442,7 @@ function applyExpensesFilters() {
         : `<span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:6px; font-size:0.76rem; font-weight:700;">مصاريف داخلية</span>`;
       const mainCat = it.main_category || (it.expense_type === 'fixed' ? 'المصاريف الثابتة' : 'المصاريف التشغيلية');
       const subCat = it.sub_category || '-';
-      const payChannelVal = it.payment_channel || '-';
-      const desc = it.description || '-';
+            const desc = it.description || '-';
       const delBtn = it.id
         ? `<button type="button" class="btn btn-danger btn-sm" style="padding:2px 7px; font-size:0.74rem;" onclick="deleteExpenseItem(${it.id})" title="حذف المصروف">✕</button>`
         : '';
@@ -752,10 +751,7 @@ function renderSuppliersFilteredView(filtered: any[]) {
     const dateDisplay = s.payment_date && s.payment_date !== '-'
       ? `${s.payment_date}${s.day_name ? ` <span style="color:#64748b; font-size:0.78rem;">(${s.day_name})</span>` : ''}`
       : '<span style="color:#94a3b8;">-</span>';
-    const channelDisplay = s.payment_channel && s.payment_channel !== '-'
-      ? `<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">${s.payment_channel}</span>`
-      : '<span style="color:#94a3b8;">-</span>';
-
+    
     const openingInputHtml = s.id ? `
       <input type="number" step="any" class="table-input" style="width: 120px; text-align: center; font-weight: 800; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 3px 6px;"
              value="${s.opening_balance || 0}"
