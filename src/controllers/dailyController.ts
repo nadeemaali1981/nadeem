@@ -881,22 +881,13 @@ function onCategorizedRowPaymentChannelChange(categoryKey, idx, newChannel, sele
 }
 window.onCategorizedRowPaymentChannelChange = onCategorizedRowPaymentChannelChange;
 
-// التحقق من اختيار جهة الدفع قبل السماح بكتابة القيمة في الجدول
+// التحقق من جهة الدفع والسماح بكتابة القيمة في الجدول
 function checkPaymentChannelBeforeAmount(categoryKey: string, idx: number, inputEl: HTMLInputElement, e?: any) {
   return true;
 }
 (window as any).checkPaymentChannelBeforeAmount = checkPaymentChannelBeforeAmount;
 
 function handleRowAmountInput(categoryKey: string, idx: number, amountKey: string, inputEl: HTMLInputElement) {
-  if (['internal_expenses', 'employee_advances', 'supplier_payments', 'cash_purchases'].includes(categoryKey)) {
-    const row = state.items[categoryKey] && state.items[categoryKey][idx];
-    const paymentChannel = row ? String(row.col4 || '').trim() : '';
-    if (!paymentChannel) {
-      inputEl.value = '';
-      checkPaymentChannelBeforeAmount(categoryKey, idx, inputEl);
-      return;
-    }
-  }
   (window as any).updateRowAmount(categoryKey, idx, amountKey, inputEl.value);
 }
 (window as any).handleRowAmountInput = handleRowAmountInput;
@@ -1037,6 +1028,7 @@ function renderCategorizedExpenseTable(categoryKey, tbodyId) {
         <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" 
                value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
                placeholder="0:00"
+               onfocus="this.select()"
                oninput="handleRowAmountInput('${categoryKey}', ${idx}, 'amount1', this)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
@@ -1181,6 +1173,7 @@ function renderSupplierPaymentsTable() {
         <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" 
                value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
                placeholder="0:00"
+               onfocus="this.select()"
                oninput="handleRowAmountInput('supplier_payments', ${idx}, 'amount1', this)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
@@ -1275,6 +1268,7 @@ function renderCashPurchasesTable() {
         <input type="text" inputmode="decimal" class="table-input num" style="text-align: center;" 
                value="${row.amount1 > 0 ? formatMoney(row.amount1) : ''}" 
                placeholder="0:00"
+               onfocus="this.select()"
                oninput="handleRowAmountInput('cash_purchases', ${idx}, 'amount1', this)"
                onblur="this.value = parseMoney(this.value) > 0 ? formatMoney(parseMoney(this.value)) : ''">
       </td>
@@ -1775,14 +1769,6 @@ window.updateRowCol = function(categoryKey, idx, colKey, val) {
 
 window.updateRowAmount = function(categoryKey, idx, amountKey, val) {
   if (state.items[categoryKey] && state.items[categoryKey][idx]) {
-    if (['internal_expenses', 'employee_advances', 'supplier_payments', 'cash_purchases'].includes(categoryKey)) {
-      const channel = String(state.items[categoryKey][idx].col4 || '').trim();
-      if (!channel && parseMoney(val) > 0) {
-        state.items[categoryKey][idx][amountKey] = 0;
-        recalculateAll();
-        return;
-      }
-    }
     state.items[categoryKey][idx][amountKey] = parseMoney(val);
     recalculateAll();
     // If merchant dispatches, update the total cell directly without stealing input focus
