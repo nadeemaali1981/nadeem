@@ -524,39 +524,34 @@ body {
   gap: 0.35rem;
 }
 
-/* Sales Card Specific - Full Width Single-Line Flow (داخل السطر نفسه) */
+/* Sales Card Specific - Full Width 2-Row Grid Flow (سطران متناسقان ومتساويان تماماً) */
 .sales-box {
   background: #ffffff;
   border-radius: var(--radius-sm);
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.5rem;
-  scrollbar-width: thin;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  align-items: stretch;
 }
 
 .sales-row-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.35rem;
-  padding: 0.2rem 0.45rem;
+  gap: 0.45rem;
+  height: 42px;
+  min-height: 42px;
+  padding: 0 0.65rem;
   border: 1px solid var(--slate-200);
   border-radius: var(--radius-sm);
   background: #f8fafc;
-  flex: 1 1 0;
-  min-width: 112px;
-}
-
-.sales-row-item:last-child {
-  border-bottom: 1px solid var(--slate-200);
+  box-sizing: border-box;
 }
 
 .sales-row-item label {
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 700;
   color: var(--slate-700);
   display: flex;
   align-items: center;
@@ -565,44 +560,83 @@ body {
 }
 
 .sales-input {
-  width: 65px;
-  min-width: 50px;
-  height: 24px;
-  text-align: left;
+  width: 90px;
+  min-width: 75px;
+  max-width: 105px;
+  height: 28px;
+  text-align: center;
   direction: ltr;
   padding: 0.15rem 0.35rem;
   border: 1px solid var(--slate-300);
   border-radius: var(--radius-sm);
   font-weight: 700;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   color: var(--slate-900);
+  background: #ffffff;
   font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .sales-input:focus {
   border-color: var(--primary);
   outline: none;
-  background-color: var(--primary-light);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
 
 .sales-total-row {
+  grid-column: span 2;
   background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  border: 1.5px solid #bfdbfe;
   border-radius: var(--radius-sm);
-  padding: 0.25rem 0.75rem;
+  height: 42px;
+  min-height: 42px;
+  padding: 0 0.75rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+.sales-total-row span:first-child {
   font-weight: 800;
   font-size: 0.85rem;
-  flex: 1 1 calc(25% - 0.45rem);
-  min-width: 170px;
+  color: #1e40af;
+  white-space: nowrap;
 }
 
 .sales-total-val {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 95px;
+  height: 28px;
+  padding: 0 0.5rem;
   font-size: 0.95rem;
-  color: var(--primary);
+  font-weight: 900;
+  color: #1d4ed8;
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-sm);
   direction: ltr;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1100px) {
+  .sales-box {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .sales-total-row {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .sales-box {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* Multi-Table Section - Stacked Full Width */
