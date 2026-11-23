@@ -902,11 +902,12 @@ async function getContacts(type = null) {
 
 async function createContact(data) {
   await initSchema();
+  const opening_balance = Number(data.opening_balance || 0);
   const res = await run(
-    'INSERT INTO contacts (type, name, phone, email, tax_number, address) VALUES (?, ?, ?, ?, ?, ?)',
-    [data.type, data.name, data.phone || '', data.email || '', data.tax_number || '', data.address || '']
+    'INSERT INTO contacts (type, name, phone, email, tax_number, address, opening_balance) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [data.type, data.name, data.phone || '', data.email || '', data.tax_number || '', data.address || '', opening_balance]
   );
-  return { id: res.lastInsertRowid, ...data };
+  return { id: res.lastInsertRowid, ...data, opening_balance };
 }
 
 // ----------------------------------------------------
@@ -1740,6 +1741,7 @@ async function getSuppliersList() {
   for (const c of contacts) {
     const trimmedName = String(c.name || '').trim();
     handledSupplierNames.add(trimmedName);
+    const suppOpeningBalance = Number(c.opening_balance || 0);
     const matchingPayments = allPayments.filter(p => String(p.supplier_name || '').trim() === trimmedName);
 
     if (matchingPayments.length > 0) {
@@ -1748,6 +1750,7 @@ async function getSuppliersList() {
           id: c.id,
           payment_id: p.payment_id,
           name: c.name,
+          opening_balance: suppOpeningBalance,
           payment_date: p.sheet_date || '-',
           day_name: p.day_name || '',
           payment_channel: p.payment_channel || '-',
@@ -1759,6 +1762,7 @@ async function getSuppliersList() {
         id: c.id,
         payment_id: null,
         name: c.name,
+        opening_balance: suppOpeningBalance,
         payment_date: '-',
         day_name: '',
         payment_channel: '-',
@@ -1771,9 +1775,10 @@ async function getSuppliersList() {
     const sName = String(p.supplier_name || '').trim();
     if (sName && !handledSupplierNames.has(sName)) {
       suppliersWithTotals.push({
-        id: p.payment_id,
+        id: null,
         payment_id: p.payment_id,
         name: sName,
+        opening_balance: 0,
         payment_date: p.sheet_date || '-',
         day_name: p.day_name || '',
         payment_channel: p.payment_channel || '-',
